@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- CP203 Stats · Lecture 1 Law of Large Numbers & Central Limit Theorem -->
+<title>LLN &amp; CLT Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400;1,600&display=swap">
+<style>
+
+html,body{margin:0}
+[hidden]{display:none!important}
+img{max-width:100%}
+/* ===== shared tokens & layout for CEMII lecture pages ===== */
+:root{
+  --bg:#EEF1F5; --surface:#FFFFFF; --sunk:#F6F8FB; --ink:#18202D; --muted:#5A6577; --line:#D3DAE4;
+  --grid:rgba(52,86,140,.10); --axis:#8792A5;
+  --x:#1C2638; --h:#D0392C; --mark:#2E6BD9; --prod:#7A4ED3; --y:#12865A; --amber:#B8770F; --on-mark:#FFFFFF;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1219; --surface:#151B24; --sunk:#111721; --ink:#E5E9F0; --muted:#98A2B3; --line:#29323F;
+    --grid:rgba(150,180,230,.08); --axis:#5F6979;
+    --x:#DDE4EF; --h:#FF6C5E; --mark:#6FA1FF; --prod:#B596FF; --y:#44CF98; --amber:#E8A93E; --on-mark:#0E1219;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1219; --surface:#151B24; --sunk:#111721; --ink:#E5E9F0; --muted:#98A2B3; --line:#29323F;
+  --grid:rgba(150,180,230,.08); --axis:#5F6979;
+  --x:#DDE4EF; --h:#FF6C5E; --mark:#6FA1FF; --prod:#B596FF; --y:#44CF98; --amber:#E8A93E; --on-mark:#0E1219;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.65 "IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:clamp(16px,3vw,36px);padding-block:28px 72px}
+.math{font-family:"STIX Two Text","Cambria Math","Times New Roman",serif;font-style:italic;letter-spacing:.01em}
+.up{font-style:normal}
+code{font:12.5px/1.4 "IBM Plex Mono",ui-monospace,monospace;background:color-mix(in srgb,var(--ink) 7%,transparent);padding:1px 5px;border-radius:4px;white-space:nowrap}
+:focus-visible{outline:2px solid var(--mark);outline-offset:2px}
+
+header.top{padding-bottom:20px;border-bottom:1px solid var(--line)}
+.eyebrow{font:500 12px/1.4 "IBM Plex Mono",ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+h1{font:600 clamp(28px,4.2vw,42px)/1.06 "STIX Two Text","Times New Roman",serif;margin:0;letter-spacing:-.01em;text-wrap:balance}
+h1 .math{font-weight:400;color:var(--muted);font-size:.58em;margin-left:.3em;white-space:nowrap}
+.lede{margin:10px 0 0;color:var(--muted);max-width:66ch}
+
+.layout{display:grid;grid-template-columns:248px minmax(0,1fr);gap:32px;margin-top:24px;align-items:start}
+@media (max-width:920px){.layout{grid-template-columns:minmax(0,1fr);gap:20px}}
+.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);display:flex;flex-direction:column;gap:2px;max-height:calc(100vh - 40px);overflow-y:auto}
+@media (max-width:920px){.toc{position:static;max-height:none;flex-direction:row;flex-wrap:wrap;gap:6px;padding-bottom:4px}}
+.toc .lab{font:500 11.5px/1.4 "IBM Plex Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+@media (max-width:920px){.toc .lab{width:100%;margin-bottom:2px}}
+.toc a{display:flex;gap:9px;align-items:baseline;padding:7px 10px;border-radius:8px;color:var(--muted);text-decoration:none;font-size:14px;line-height:1.35;border:1px solid transparent}
+.toc a b{font:600 11.5px/1.4 "IBM Plex Mono",monospace;color:var(--muted);flex:none}
+.toc a:hover{background:color-mix(in srgb,var(--mark) 7%,transparent);color:var(--ink)}
+.toc a.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.toc a.on b{color:inherit;opacity:.72}
+
+main{display:flex;flex-direction:column;gap:14px;min-width:0}
+section.sec{scroll-margin-top:24px;padding-block:14px 26px;border-top:1px dashed var(--line)}
+section.sec:first-of-type{border-top:0;padding-top:0}
+section.sec > h2{font:600 24px/1.25 "STIX Two Text","Times New Roman",serif;margin:0 0 4px;display:flex;flex-wrap:wrap;align-items:baseline;gap:10px}
+section.sec > h2 .n{font:600 12px/1 "IBM Plex Mono",monospace;color:var(--mark);letter-spacing:.06em}
+section.sec > h2 .th{font-family:"IBM Plex Sans Thai",sans-serif;font-size:15px;font-weight:400;color:var(--muted)}
+.intro{margin:6px 0 16px;color:var(--muted);max-width:74ch}
+.intro b{color:var(--ink);font-weight:600}
+
+/* formula card */
+.fcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:14px}
+.fcard .ftitle{font:500 11.5px/1.4 "IBM Plex Mono",monospace;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+.fbig{font-size:clamp(19px,2.6vw,25px);line-height:2.1;overflow-x:auto;padding-bottom:2px}
+.fbig.sm{font-size:clamp(17px,2.2vw,21px)}
+.legend-sym{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px 18px;margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
+.legend-sym div{display:flex;gap:9px;align-items:baseline;font-size:13.5px;color:var(--muted)}
+.legend-sym .s{font-family:"STIX Two Text",serif;font-style:italic;font-size:17px;color:var(--ink);flex:none;min-width:2.4em}
+.note{margin:10px 0 0;font-size:13.5px;color:var(--muted)}
+.note b{color:var(--ink)}
+.warn{border-left:3px solid var(--amber);padding-left:12px;margin:12px 0 0;font-size:13.5px;color:var(--muted)}
+.warn b{color:var(--ink)}
+
+/* derivation stepper */
+.deriv{margin:0;padding:0;list-style:none;counter-reset:d}
+.deriv li{counter-increment:d;display:grid;grid-template-columns:26px minmax(0,1fr);gap:4px 12px;padding:9px 0;border-top:1px solid var(--line);transition:opacity .2s}
+.deriv li:first-child{border-top:0}
+.deriv li::before{content:counter(d);font:600 11px/18px "IBM Plex Mono",monospace;color:var(--muted);background:var(--sunk);border-radius:50%;width:18px;height:18px;text-align:center;margin-top:5px}
+.deriv li.dim{opacity:.22}
+.deriv .ln{font-size:18px;overflow-x:auto}
+.deriv .why{grid-column:2;font-size:13px;color:var(--muted)}
+.dnav{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap}
+.dnav .cnt{font:500 12.5px/1 "IBM Plex Mono",monospace;color:var(--muted)}
+
+/* figures + controls */
+.plot{margin:0 0 12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px 6px}
+.plot figcaption{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 14px;align-items:baseline;margin-bottom:2px}
+.pt{font-weight:600;font-size:14px}
+.pt .math{font-weight:400;font-size:15.5px}
+.legend{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:12.5px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:3px;border-radius:2px;background:var(--c)}
+.legend i.dash{background:repeating-linear-gradient(90deg,var(--c) 0 4px,transparent 4px 7px)}
+.legend .math{font-size:14px;color:var(--ink)}
+canvas{display:block;width:100%;height:200px;touch-action:pan-y}
+canvas.drag{cursor:ew-resize}
+.ctrls{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:12px}
+.ctrl{display:flex;align-items:center;gap:9px;font-size:13.5px;flex:1 1 210px;min-width:0}
+.ctrl > span:first-child{color:var(--muted);white-space:nowrap}
+.ctrl input[type=range]{flex:1;min-width:80px;accent-color:var(--mark)}
+.ctrl output{font:600 13px/1 "IBM Plex Mono",monospace;color:var(--mark);min-width:3.4em;text-align:right;font-variant-numeric:tabular-nums}
+.ctrl select,.ctrl input[type=text]{font:13.5px "IBM Plex Mono",monospace;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 8px;max-width:100%}
+.ctrl select{font-family:"IBM Plex Sans Thai",sans-serif;cursor:pointer;flex:1}
+.btn{appearance:none;font:500 13.5px/1 "IBM Plex Sans Thai",system-ui,sans-serif;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 12px;min-height:34px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--mark)}
+.btn.primary{background:var(--mark);border-color:var(--mark);color:var(--on-mark)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.sm{min-height:30px;padding:6px 10px;font-size:13px}
+.chk{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;color:var(--muted);cursor:pointer}
+.chk input{accent-color:var(--mark)}
+
+/* readout */
+.out{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 20px;padding:12px 4px;border-block:1px dashed var(--line);margin-bottom:12px;min-height:74px}
+.out .l{display:flex;flex-direction:column;gap:3px;min-width:0;font-size:17px;flex:1 1 320px}
+.out .l .sub{font-size:13px;color:var(--muted)}
+.out .r{font:600 24px/1 "IBM Plex Mono",monospace;color:var(--y);white-space:nowrap}
+.out .r.small{font-size:18px}
+
+/* math bits */
+.bigop{display:inline-flex;align-items:center;vertical-align:middle;margin:0 .1em 0 .12em}
+.bigop .op{font-style:normal;font-size:1.4em;line-height:1}
+.bigop .lims{display:inline-flex;flex-direction:column;justify-content:space-between;font-size:.55em;line-height:1.2;margin-left:.12em;min-height:2.2em}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;font-size:.86em;line-height:1.25;margin:0 .14em}
+.frac>span:last-child{border-top:1px solid currentColor;padding-top:1px}
+.cases{display:inline-flex;align-items:center;vertical-align:middle}
+.cases .brace{font-size:2.6em;line-height:1;font-style:normal;margin-right:.08em}
+.cases .rows{display:grid;grid-template-columns:auto auto;gap:3px 16px;align-items:center;font-size:.92em}
+.cases .cond{color:var(--muted);white-space:nowrap}
+.box{display:inline-block;border:1.5px solid var(--y);border-radius:8px;padding:2px 10px;background:color-mix(in srgb,var(--y) 8%,transparent)}
+.hl{background:color-mix(in srgb,var(--mark) 16%,transparent);border-radius:4px;padding:0 3px}
+.hl2{background:color-mix(in srgb,var(--prod) 16%,transparent);border-radius:4px;padding:0 3px}
+
+/* tables */
+.tscroll{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface);margin-bottom:12px}
+table{border-collapse:collapse;font:13.5px/1.35 "IBM Plex Sans Thai",sans-serif;width:max-content;min-width:100%}
+th,td{padding:9px 12px;text-align:left;vertical-align:top;border-top:1px solid var(--line)}
+thead th{border-top:0;color:var(--muted);font-weight:500;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase}
+td.m,th.m{font-family:"STIX Two Text",serif;font-style:italic;font-size:15.5px}
+td.num{font-family:"IBM Plex Mono",monospace;font-style:normal;text-align:right;font-variant-numeric:tabular-nums}
+tbody tr.on{background:color-mix(in srgb,var(--mark) 10%,transparent)}
+.mini{font-size:12.5px;color:var(--muted)}
+footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:space-between}
+footer a{color:var(--mark)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+
+.wrapc{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.verdict{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;padding:6px 12px;border-radius:999px}
+.verdict.ok{color:var(--y);background:color-mix(in srgb,var(--y) 13%,transparent)}
+.verdict.bad{color:var(--h);background:color-mix(in srgb,var(--h) 13%,transparent)}
+.calc{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center}
+.calc input[type=number]{width:110px;font:14px "IBM Plex Mono",monospace;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+
+/* ===== Prob & Stat additions ===== */
+.two{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-bottom:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.card h3{margin:0 0 6px;font-size:15px;font-weight:600}
+.card h3 .tag{font:500 11px/1 "IBM Plex Mono",monospace;letter-spacing:.06em;color:var(--mark);margin-right:6px;text-transform:uppercase}
+.card p,.card ul{margin:0;font-size:14px;color:var(--muted)}
+.card ul{padding-left:18px}
+.card li{margin:3px 0}
+.card b{color:var(--ink);font-weight:600}
+.card .math{color:var(--ink)}
+.kv{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:0 0 12px}
+.kv div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;min-width:0}
+.kv span{display:block;font-size:12px;color:var(--muted)}
+.kv b{display:block;font:600 17px/1.3 "IBM Plex Mono",monospace;color:var(--ink);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.kv b.g{color:var(--y)} .kv b.r{color:var(--h)} .kv b.m{color:var(--mark)} .kv b.p{color:var(--prod)}
+.seg{display:inline-flex;flex-wrap:wrap;gap:4px;background:var(--sunk);border:1px solid var(--line);border-radius:10px;padding:3px}
+.seg button{appearance:none;border:0;background:transparent;color:var(--muted);font:500 13px/1 "IBM Plex Sans Thai",sans-serif;padding:7px 11px;border-radius:7px;cursor:pointer;min-height:30px}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.jt input{width:58px;font:13.5px "IBM Plex Mono",monospace;color:var(--ink);background:var(--sunk);border:1px solid var(--line);border-radius:6px;padding:5px 6px;text-align:right}
+.jt td,.jt th{text-align:center}
+.jt .mg{color:var(--prod);font-family:"IBM Plex Mono",monospace;font-weight:600}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:6px 0 12px}
+.flow .nd{background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13.5px;line-height:1.35}
+.flow .nd b{display:block;font-size:14.5px}
+.flow .nd span{color:var(--muted);font-size:12.5px}
+.flow .ar{color:var(--muted);font-size:12.5px;display:flex;flex-direction:column;align-items:center;line-height:1.2;text-align:center}
+.flow .ar::after{content:"⟶";font-size:20px;color:var(--mark);line-height:1}
+.src{font-size:12.5px;color:var(--muted);margin:4px 0 0}
+.ex{border:1px solid var(--line);border-left:3px solid var(--mark);border-radius:10px;background:var(--surface);padding:12px 14px;margin-bottom:12px}
+.ex .q{font-size:14.5px;margin:0 0 6px}
+.ex .q b{color:var(--mark)}
+.ex .a{font-size:14px;color:var(--muted);margin:0}
+.ex .a b{color:var(--ink)}
+.right{color:var(--y);font-weight:600}.wrong{color:var(--h);font-weight:600}
+.kv b.tx{font:italic 400 16px/1.5 "STIX Two Text",serif}
+.legend .math sub{font-size:.75em}
+.jt thead th{text-transform:none;letter-spacing:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">CP203 Stats · Lecture 1 · Law of Large Numbers &amp; Central Limit Theorem</p>
+    <h1>LLN &amp; CLT <span class="math">X̄<sub>n</sub> ≈ N(μ, σ²/n)</span></h1>
+    <p class="lede">จากตัวอย่าง (sample) ไปสู่ประชากร (population): ค่าเฉลี่ยของตัวอย่างเข้าใกล้ค่าจริงเมื่อ n โต (LLN) และการแจกแจงของค่าเฉลี่ยนั้นกลายเป็นระฆังคว่ำเสมอ (CLT) — สองทฤษฎีนี้ทำให้เราคำนวณความน่าจะเป็นได้เร็ว และสร้าง confidence interval ได้ ทุกกราฟสุ่มจริงในเบราว์เซอร์</p>
+  </header>
+
+  <div class="layout">
+    <nav class="toc" aria-label="หัวข้อ">
+      <span class="lab">หัวข้อ</span>
+      <a href="#pop"><b>01</b><span>Sample → Population</span></a>
+      <a href="#lln"><b>02</b><span>Law of Large Numbers</span></a>
+      <a href="#clt"><b>03</b><span>Central Limit Theorem</span></a>
+      <a href="#app"><b>04</b><span>ใช้ CLT ประมาณความน่าจะเป็น</span></a>
+      <a href="#ci"><b>05</b><span>Confidence interval (polling)</span></a>
+      <a href="#mean"><b>06</b><span>95% CI แปลว่าอะไรกันแน่</span></a>
+    </nav>
+
+    <main>
+      <!-- ============ 01 ============ -->
+      <section class="sec" id="pop">
+        <h2><span class="n">01</span> จาก Sample สู่ Population <span class="th">— เราวัดได้แค่บางส่วน</span></h2>
+        <div class="two">
+          <div class="card"><h3><span class="tag">Population</span>ทุกหน่วยที่อยากรู้</h3><p>คนไทยทุกคน · นิสิตจุฬาฯ ทุกคน — มักรู้ไม่ครบ ค่าจริงเช่น <span class="math">μ, σ, p</span> จึงเป็น<b>ค่าคงที่ที่ไม่รู้</b></p></div>
+          <div class="card"><h3><span class="tag">Sample</span>ส่วนที่วัดได้จริง</h3><p>คะแนนของนักเรียนในห้องนี้ — มีประโยชน์<b>เฉพาะเมื่อสุ่มมาอย่างสุ่มจริง</b> แล้วถามต่อว่า: ตัวอย่างเป็นตัวแทนได้ดีแค่ไหน? เชื่อได้แค่ไหน? margin of error เท่าไร?</p></div>
+        </div>
+        <div class="fcard">
+          <p class="ftitle">สัญลักษณ์ที่ใช้ทั้งบท</p>
+          <div class="fbig sm math">X₁, X₂, …, X<sub>n</sub> i.i.d. , E[X<sub>i</sub>] = μ , SD(X<sub>i</sub>) = σ <span style="display:inline-block;width:1.2em"></span> S<sub>n</sub> = X₁ + ⋯ + X<sub>n</sub> <span style="display:inline-block;width:1.2em"></span> X̄<sub>n</sub> = <span class="frac"><span>S<sub>n</sub></span><span>n</span></span></div>
+          <div class="legend-sym">
+            <div><span class="s">i.i.d.</span><span>independent &amp; identically distributed — อิสระต่อกันและมาจากการแจกแจงเดียวกัน</span></div>
+            <div><span class="s">X̄<sub>n</sub></span><span>ค่าเฉลี่ยตัวอย่าง — เป็น<b>ตัวแปรสุ่ม</b> (สุ่มใหม่ก็ได้ค่าใหม่)</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 02 ============ -->
+      <section class="sec" id="lln">
+        <h2><span class="n">02</span> Law of Large Numbers <span class="th">— เฉลี่ยมาก ๆ แล้วนิ่งที่ μ</span></h2>
+        <p class="intro">ยิ่งมีตัวอย่างอิสระมาก ค่าเฉลี่ยตัวอย่างยิ่งเข้าใกล้ค่าเฉลี่ยของประชากร — พูดให้แม่นคือ โอกาสที่ X̄<sub>n</sub> จะ “ผิดปกติ” (ห่างจาก μ เกิน ε) ลดลงเป็นศูนย์</p>
+        <div class="fcard">
+          <p class="ftitle">Weak LLN · convergence in probability</p>
+          <div class="fbig math">สำหรับทุก ε &gt; 0 : <span style="display:inline-block;width:.6em"></span> <span class="box">lim<sub>n→∞</sub> P( |X̄<sub>n</sub> − μ| &lt; ε ) = 1</span></div>
+          <p class="note"><b>ผลที่ตามมา:</b> (1) ค่าเฉลี่ยตัวอย่างใกล้ค่าจริงเมื่อ n ใหญ่ (2) <b>histogram เข้าใกล้ pdf จริง</b> · <b>Strong LLN</b> แรงกว่า: X̄<sub>n</sub> → μ “almost surely” คือตัวค่าเฉลี่ยเองนิ่งที่ μ ด้วยความน่าจะเป็น 1 (ในวิชานี้ใช้แบบ weak)</p>
+        </div>
+        <div class="ctrls">
+          <label class="ctrl"><span>ประชากร</span><select id="ln-d">
+            <option value="coin">เหรียญ Bernoulli(0.5)</option>
+            <option value="die" selected>ลูกเต๋า 1–6</option>
+            <option value="expo">Exponential(1)</option>
+            <option value="pareto">Pareto(α = 1.5) หางยาว</option>
+            <option value="cauchy">Cauchy (ไม่มี μ!)</option>
+          </select></label>
+          <label class="ctrl"><span><span class="math">ε</span></span><input type="range" id="ln-e" min="0.02" max="1" step="0.01" value="0.25"><output id="ln-ev"></output></label>
+          <label class="ctrl"><span>ดูที่ <span class="math">n</span></span><input type="range" id="ln-n" min="0" max="4" step="0.01" value="2"><output id="ln-nv"></output></label>
+          <button class="btn sm" type="button" id="ln-new">สุ่มใหม่</button>
+        </div>
+        <figure class="plot"><figcaption><span class="pt">ค่าเฉลี่ยสะสม <span class="math">X̄<sub>n</sub></span> ของ 12 การทดลอง (แกนนอน = log₁₀ n: 0 → 1, 4 → 10,000)</span><span class="legend"><span><i style="--c:var(--mark)"></i>X̄<sub>n</sub> แต่ละเส้น</span><span><i style="--c:var(--y)"></i>μ ± ε</span></span></figcaption><canvas id="ln-plot" data-h="250"></canvas></figure>
+        <figure class="plot"><figcaption><span class="pt">Histogram ของ <span class="math">n</span> ตัวอย่างแรก (เส้นที่ 1) เทียบ pdf/pmf จริง</span><span class="legend"><span><i style="--c:var(--prod)"></i>histogram</span><span><i style="--c:var(--h)"></i>การแจกแจงจริง</span></span></figcaption><canvas id="ln-hist" data-h="190"></canvas></figure>
+        <div class="out"><div class="l"><div id="ln-eq"></div><div class="sub" id="ln-sub"></div></div><div class="r" id="ln-val"></div></div>
+      </section>
+
+      <!-- ============ 03 ============ -->
+      <section class="sec" id="clt">
+        <h2><span class="n">03</span> Central Limit Theorem <span class="th">— ค่าเฉลี่ยกลายเป็น Normal เสมอ</span></h2>
+        <p class="intro">ไม่ว่าประชากรจะหน้าตาแบบไหน (เบ้ มีสองยอด หรือ discrete) ขอแค่ i.i.d. และ variance จำกัด — ผลบวก / ค่าเฉลี่ยของตัวอย่างจำนวนมากจะแจกแจงประมาณ Normal</p>
+        <div class="fcard">
+          <p class="ftitle">สิ่งที่รู้แน่นอน (ทุก n) → สิ่งที่ CLT เพิ่มให้ (n ใหญ่)</p>
+          <ol class="deriv">
+            <li><div class="ln math">E[S<sub>n</sub>] = E[X₁] + ⋯ + E[X<sub>n</sub>] = nμ</div><div class="why">E บวกกันได้เสมอ</div></li>
+            <li><div class="ln math">Var(S<sub>n</sub>) = Var(X₁) + ⋯ + Var(X<sub>n</sub>) = nσ² , SD(S<sub>n</sub>) = √n σ</div><div class="why">อิสระกัน → Cov = 0 → variance บวกกันได้</div></li>
+            <li><div class="ln math">E[X̄<sub>n</sub>] = E[S<sub>n</sub>]/n = μ , Var(X̄<sub>n</sub>) = Var(S<sub>n</sub>)/n² = σ²/n , σ<sub>X̄</sub> = σ/√n</div><div class="why">Var(aX) = a²Var(X) กับ a = 1/n — ค่าเฉลี่ยตรงเดิมแต่แคบลง</div></li>
+            <li><div class="ln math"><span class="box">X̄<sub>n</sub> ≈ N(μ, σ²/n)</span> <span style="display:inline-block;width:1em"></span> S<sub>n</sub> ≈ N(nμ, nσ²)</div><div class="why">CLT: รูปร่างกลายเป็น Normal เมื่อ n ใหญ่</div></li>
+            <li><div class="ln math">Z<sub>n</sub> = <span class="frac"><span>X̄<sub>n</sub> − μ</span><span>σ/√n</span></span> = <span class="frac"><span>S<sub>n</sub> − nμ</span><span>σ√n</span></span> → N(0, 1) (in distribution)</div><div class="why">standardize แล้วเปิดตาราง Φ ได้ทันที · CDF ของ Z<sub>n</sub> เข้าใกล้ CDF ของ N(0,1)</div></li>
+          </ol>
+        </div>
+        <div class="ctrls">
+          <label class="ctrl"><span>ประชากร</span><select id="cl-d">
+            <option value="unif">Uniform(0, 1)</option>
+            <option value="expo" selected>Exponential(1) — เบ้ขวา</option>
+            <option value="bern">Bernoulli(0.2) — discrete</option>
+            <option value="die">ลูกเต๋า</option>
+            <option value="bimod">สองยอด (mixture)</option>
+          </select></label>
+          <label class="ctrl"><span>ขนาดตัวอย่าง <span class="math">n</span></span><input type="range" id="cl-n" min="1" max="100" step="1" value="2"><output id="cl-nv"></output></label>
+          <div class="seg" id="cl-v" role="group" aria-label="แสดงอะไร"><button type="button" data-k="m" aria-pressed="true">X̄<sub>n</sub></button><button type="button" data-k="s">S<sub>n</sub></button><button type="button" data-k="z">Z<sub>n</sub></button></div>
+          <button class="btn sm" type="button" id="cl-play">▶ เล่น n = 1 → 50</button>
+        </div>
+        <figure class="plot"><figcaption><span class="pt">การแจกแจงของประชากร (1 ตัวอย่าง)</span></figcaption><canvas id="cl-pop" data-h="130"></canvas></figure>
+        <figure class="plot"><figcaption><span class="pt" id="cl-t">Histogram ของ X̄<sub>n</sub> จาก 5,000 การทดลอง</span><span class="legend"><span><i style="--c:var(--prod)"></i>จำลองจริง</span><span><i style="--c:var(--h)"></i>Normal ตาม CLT</span></span></figcaption><canvas id="cl-plot" data-h="230"></canvas></figure>
+        <div class="kv" id="cl-kv"></div>
+        <div class="two">
+          <div class="card"><h3>CLT notes</h3><ul><li>X̄<sub>n</sub> มี mean เท่าเดิม แต่ variance เล็กกว่า X<sub>i</sub> (หารด้วย n)</li><li>“n ใหญ่” ที่ใช้บ่อยคือ <b>n ≥ 30</b> — ข้อมูลที่เบ้มากต้องใช้มากกว่านั้น (ลอง Exponential กับ Bernoulli(0.2))</li><li>ใช้กับ discrete ได้ด้วย แม้ Normal จะต่อเนื่อง — เพราะนิยามการลู่เข้าบน<b>การแจกแจง (CDF)</b></li><li>มี CLT รุ่นอื่นที่ผ่อนเงื่อนไข independent / identically distributed</li></ul></div>
+          <div class="card"><h3>ทำไมสำคัญ</h3><ul><li>คำนวณความน่าจะเป็นของผลรวมได้ด้วย Φ แทนการบวก binomial หลายสิบพจน์</li><li>เป็นฐานของ confidence interval, hypothesis test และ A/B testing ทั้งหมดในบทถัดไป</li><li>ข้อยกเว้น: variance ไม่จำกัด (Cauchy, Pareto α ≤ 2) — CLT แบบนี้ใช้ไม่ได้</li></ul></div>
+        </div>
+      </section>
+
+      <!-- ============ 04 ============ -->
+      <section class="sec" id="app">
+        <h2><span class="n">04</span> ใช้ CLT ประมาณความน่าจะเป็น <span class="th">— standardize แล้วเปิดตาราง</span></h2>
+        <div class="ex"><p class="q"><b>Problem (สไลด์).</b> โยนเหรียญเที่ยง 100 ครั้ง ประมาณความน่าจะเป็นที่ได้หัว <b>มากกว่า 55</b> ครั้ง</p>
+          <ol class="deriv">
+            <li><div class="ln math">S<sub>100</sub> = X₁ + ⋯ + X₁₀₀ , X<sub>i</sub> ~ Bernoulli(0.5)</div><div class="why">จำนวนหัว = ผลบวกของการโยนแต่ละครั้ง</div></li>
+            <li><div class="ln math">วิธีตรง: P(S &gt; 55) = Σ<sub>k=56</sub><sup>100</sup> C(100, k) 0.5<sup>k</sup> 0.5<sup>100−k</sup> ≈ 0.1356</div><div class="why">ถูกแต่คำนวณหนัก (45 พจน์)</div></li>
+            <li><div class="ln math">E[S] = 100 × 0.5 = 50 , Var(S) = 100 × 0.25 = 25 → SD = 5</div><div class="why">nμ และ nσ² โดย σ² = p(1 − p) = 0.25</div></li>
+            <li><div class="ln math">S ≈ N(50, 5²) ⇒ P(S &gt; 55) = P( <span class="frac"><span>S − 50</span><span>5</span></span> &gt; <span class="frac"><span>55 − 50</span><span>5</span></span> ) = P(Z &gt; 1)</div><div class="why">standardize</div></li>
+            <li><div class="ln math"><span class="box">P(Z &gt; 1) = 1 − Φ(1) ≈ 0.16</span></div><div class="why">ใกล้ค่าตรง 0.1356 · ถ้าใช้ continuity correction (55.5) จะได้ P(Z &gt; 1.1) ≈ 0.1357 แทบเป๊ะ</div></li>
+          </ol>
+        </div>
+        <div class="ctrls">
+          <div class="seg" id="ap-pre" role="group" aria-label="โจทย์"><button type="button" data-n="100" data-p="0.5" data-k="55" aria-pressed="true">เหรียญ &gt; 55</button><button type="button" data-n="100" data-p="0.5" data-k="60">Maxwell &gt; 60 หน้า</button><button type="button" data-n="30" data-p="0.2" data-k="9">เบ้ n = 30, p = 0.2</button></div>
+        </div>
+        <div class="ctrls">
+          <label class="ctrl"><span><span class="math">n</span></span><input type="range" id="ap-n" min="5" max="400" step="1" value="100"><output id="ap-nv"></output></label>
+          <label class="ctrl"><span><span class="math">p</span></span><input type="range" id="ap-p" min="0.02" max="0.98" step="0.01" value="0.5"><output id="ap-pv"></output></label>
+          <label class="ctrl"><span>มากกว่า <span class="math">k</span></span><input type="range" id="ap-k" min="0" max="400" step="1" value="55"><output id="ap-kval"></output></label>
+        </div>
+        <figure class="plot"><figcaption><span class="pt">Binomial(<span class="math">n, p</span>) กับ Normal(<span class="math">np, np(1−p)</span>) · ส่วนที่ระบาย = <span class="math">P(S &gt; k)</span></span><span class="legend"><span><i style="--c:var(--mark)"></i>Binomial (ค่าจริง)</span><span><i style="--c:var(--h)"></i>Normal (CLT)</span></span></figcaption><canvas id="ap-plot" data-h="220"></canvas></figure>
+        <div class="kv" id="ap-kv"></div>
+        <div class="ex"><p class="q"><b>Example 1 (สไลด์).</b> Maxwell อ่าน 100 หน้า แต่ละหน้าอ่านเร็วด้วยความน่าจะเป็น 0.5 อย่างอิสระ ประมาณ P(อ่านเร็วมากกว่า 60 หน้า)</p><p class="a">mean 50, variance 25, SD 5 → <span class="math">P(S &gt; 60) ≈ P(Z &gt; (60 − 50)/5) = P(Z &gt; 2) ≈ <b>0.023</b></span> (ค่าตรง 0.0176) — กดปุ่ม “Maxwell” ด้านบนเพื่อดูภาพ</p></div>
+      </section>
+
+      <!-- ============ 05 ============ -->
+      <section class="sec" id="ci">
+        <h2><span class="n">05</span> Confidence interval จากโพล <span class="th">— p̂ ± 1/√n</span></h2>
+        <p class="intro">ประชากรชอบ A ด้วยสัดส่วน <span class="math">p₀</span> ที่ไม่รู้ เราถาม n คนได้สัดส่วน <span class="math">p̂ = X̄</span> — อยากได้ช่วงที่ “จับ” <span class="math">p₀</span> ได้ 95% ของเวลา</p>
+        <div class="fcard">
+          <ol class="deriv">
+            <li><div class="ln math">X<sub>i</sub> ~ Bernoulli(p₀) → σ² = p₀(1 − p₀)</div><div class="why">แต่ละคนตอบ A (1) หรือ B (0)</div></li>
+            <li><div class="ln math">CLT: p̂ = X̄ ~ N(p₀, σ<sub>X̄</sub>²) , σ<sub>X̄</sub> = σ/√n</div><div class="why">ค่าเฉลี่ยของ n คน</div></li>
+            <li><div class="ln math">P(|p̂ − p₀| ≤ 2σ<sub>X̄</sub>) ≈ 0.95</div><div class="why">ประมาณ 95% ของ Normal อยู่ใน ±2 SD (แม่นคือ ±1.96)</div></li>
+            <li><div class="ln math">p̂ อยู่ใน p₀ ± 2σ<sub>X̄</sub> ⇔ p₀ อยู่ใน p̂ ± 2σ<sub>X̄</sub></div><div class="why">“ระยะห่าง” สมมาตร — กลับด้านได้</div></li>
+            <li><div class="ln math">กรณีแย่สุด: p₀(1 − p₀) ≤ 1/4 → σ ≤ 1/2 → 2σ<sub>X̄</sub> ≤ 2 · <span class="frac"><span>1</span><span>2</span></span> · <span class="frac"><span>1</span><span>√n</span></span> = <span class="frac"><span>1</span><span>√n</span></span></div><div class="why">ไม่รู้ p₀ ก็เลยใช้ค่าที่ทำให้ σ ใหญ่สุด (p₀ = 1/2) → ช่วงกว้างพอแน่นอน</div></li>
+            <li><div class="ln math"><span class="box">95% CI : p̂ ± <span class="frac"><span>1</span><span>√n</span></span></span></div><div class="why">โพล 1,000 คน → ±3.2% · อยากได้ ±1% ต้องถาม 10,000 คน (ความแม่นยำเพิ่มตาม √n)</div></li>
+          </ol>
+        </div>
+        <div class="ctrls">
+          <label class="ctrl"><span>ถาม <span class="math">n</span> คน</span><input type="range" id="ci-n" min="10" max="2500" step="10" value="400"><output id="ci-nv"></output></label>
+          <label class="ctrl"><span>ตอบ A</span><input type="range" id="ci-x" min="0" max="2500" step="1" value="240"><output id="ci-xv"></output></label>
+          <label class="ctrl"><span>ระดับความเชื่อมั่น</span><select id="ci-c"><option value="2" selected>95% (z = 2, ตามสไลด์)</option><option value="1.96">95% (z = 1.96)</option><option value="1.645">90% (z = 1.645)</option><option value="2.576">99% (z = 2.576)</option></select></label>
+        </div>
+        <figure class="plot"><figcaption><span class="pt">ช่วงที่ได้บนเส้นจำนวน 0–1</span><span class="legend"><span><i style="--c:var(--mark)"></i>worst case p̂ ± z/(2√n)</span><span><i style="--c:var(--prod)"></i>plug-in p̂ ± z√(p̂(1−p̂)/n)</span></span></figcaption><canvas id="ci-plot" data-h="150"></canvas></figure>
+        <div class="kv" id="ci-kv"></div>
+        <div class="ex"><p class="q"><b>Example 2 (สไลด์).</b> Ham-Hams ถามแฮมสเตอร์ 400 ตัว: เมล็ดทานตะวันหรือลูกโอ๊ก? 240 ตัวเลือกเมล็ดทานตะวัน — หา 95% CI</p><p class="a"><span class="math">p̂ = 240/400 = 0.6</span>, <span class="math">1/√400 = 0.05</span> → <b>95% CI ≈ [0.55, 0.65]</b> · แบบ plug-in: <span class="math">2√(0.6·0.4/400) = 0.049</span> → [0.551, 0.649] เกือบเท่ากันเพราะ p̂ ใกล้ 0.5 · ช่วงไม่คร่อม 0.5 → ค่อนข้างมั่นใจว่าส่วนใหญ่ชอบเมล็ดทานตะวัน</p></div>
+      </section>
+
+      <!-- ============ 06 ============ -->
+      <section class="sec" id="mean">
+        <h2><span class="n">06</span> 95% CI แปลว่าอะไรกันแน่ <span class="th">— สุ่มที่ช่วง ไม่ใช่ที่ μ</span></h2>
+        <div class="two">
+          <div class="card"><h3><span class="tag right">ถูก</span>ความหมาย</h3><p><b>วิธีการ</b>สร้างช่วงของเราจะจับค่าจริงได้ 95% ของเวลา — เก็บตัวอย่าง 100 ชุด สร้าง 100 ช่วง ประมาณ 95 ช่วงจะคร่อม μ</p></div>
+          <div class="card"><h3><span class="tag wrong">ผิด</span>“ค่าจริงมีโอกาส 95% ที่จะอยู่ในช่วงนี้”</h3><p>μ เป็นค่าคงที่ (frequentist) — ช่วงที่คำนวณแล้วคร่อมหรือไม่คร่อมแค่นั้น สิ่งที่สุ่มคือ<b>ช่วง</b> (ถ้าอยากพูดแบบนั้นต้องใช้ credible interval แบบ Bayesian — ดูหน้า Estimation)</p></div>
+        </div>
+        <div class="ctrls">
+          <label class="ctrl"><span>ค่าจริง <span class="math">p₀</span></span><input type="range" id="cm-p" min="0.05" max="0.95" step="0.01" value="0.6"><output id="cm-pv"></output></label>
+          <label class="ctrl"><span><span class="math">n</span> ต่อโพล</span><input type="range" id="cm-n" min="10" max="1000" step="10" value="100"><output id="cm-nv"></output></label>
+          <label class="ctrl"><span>สูตร</span><select id="cm-f"><option value="w">worst case ±1/√n</option><option value="p" selected>plug-in ±1.96√(p̂(1−p̂)/n)</option></select></label>
+          <button class="btn sm primary" type="button" id="cm-new">สุ่ม 100 โพลใหม่</button>
+        </div>
+        <figure class="plot"><figcaption><span class="pt">100 ช่วงความเชื่อมั่นจาก 100 โพลอิสระ</span><span class="legend"><span><i style="--c:var(--mark)"></i>คร่อม p₀</span><span><i style="--c:var(--h)"></i>พลาด</span><span><i class="dash" style="--c:var(--y)"></i>p₀ จริง</span></span></figcaption><canvas id="cm-plot" data-h="360"></canvas></figure>
+        <div class="out"><div class="l"><div id="cm-eq"></div><div class="sub" id="cm-sub"></div></div><div class="r" id="cm-val"></div></div>
+      </section>
+
+      <footer>
+        <span>อ้างอิง: CP203 Stats Lecture 1 LLN–CLT (2110203, 2026) · MIT 18.05 Reading 6b</span>
+        <span>ทุกกราฟสุ่มและคำนวณสดในเบราว์เซอร์</span>
+      </footer>
+    </main>
+  </div>
+</div>
+
+<script>
+/* ===== shared kit: plots, steppers, controls (CEMII lecture pages) ===== */
+const K = (function(){
+'use strict';
+const MINUS = '−', TAU = Math.PI * 2;
+const C = {};
+const TOKENS = ['ink','muted','line','grid','axis','x','h','mark','prod','y','amber','surface','sunk'];
+function readColors(){ const cs = getComputedStyle(document.documentElement); TOKENS.forEach(k => { C[k] = cs.getPropertyValue('--'+k).trim() || '#888'; }); }
+readColors();
+
+/* ---------- numbers ---------- */
+function fmt(v, d){
+  if (d == null) d = 3;
+  if (!isFinite(v)) return (v < 0 ? MINUS : '') + '∞';
+  if (Math.abs(v) < 1e-10) v = 0;
+  const a = Math.abs(v), s = Number.isInteger(a) ? String(a) : String(+a.toFixed(d));
+  return (v < 0 && +s !== 0 ? MINUS : '') + s;
+}
+const fx = (v, d) => (v < 0 && Math.abs(v) >= Math.pow(10, -(d || 2)) / 2 ? MINUS : '') + Math.abs(v).toFixed(d == null ? 2 : d);
+function piLabel(v){
+  const k = v / Math.PI;
+  if (Math.abs(k) < 1e-9) return '0';
+  const q = Math.round(k * 4);
+  if (Math.abs(q - k * 4) > 1e-6) return fmt(v, 2);
+  const sg = q < 0 ? MINUS : '';
+  let num = Math.abs(q), den = 4;
+  const g = (a, b) => b ? g(b, a % b) : a;
+  const d = g(num, den); num /= d; den /= d;
+  return sg + (num === 1 ? 'π' : num + 'π') + (den === 1 ? '' : '/' + den);
+}
+function nice(range, target){
+  const raw = range / Math.max(1, target), p = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / p;
+  return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * p;
+}
+function rng(lo, hi, pad){
+  pad = pad == null ? .18 : pad;
+  const s = (hi - lo) || 1;
+  return [lo - (lo < 0 ? pad : pad * .5) * s, hi + pad * s];
+}
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+function simpson(f, a, b, n){
+  n = n % 2 ? n + 1 : n;
+  const hh = (b - a) / n; let s = f(a) + f(b);
+  for (let i = 1; i < n; i++) s += (i % 2 ? 4 : 2) * f(a + i * hh);
+  return s * hh / 3;
+}
+/* complex as [re, im] */
+const cadd = (a, b) => [a[0] + b[0], a[1] + b[1]];
+const cmul = (a, b) => [a[0]*b[0] - a[1]*b[1], a[0]*b[1] + a[1]*b[0]];
+const cabs = a => Math.hypot(a[0], a[1]);
+const carg = a => Math.atan2(a[1], a[0]);
+const cexp = th => [Math.cos(th), Math.sin(th)];
+function cstr(a, d){
+  d = d == null ? 3 : d;
+  const re = Math.abs(a[0]) < 5e-4 ? 0 : a[0], im = Math.abs(a[1]) < 5e-4 ? 0 : a[1];
+  if (im === 0) return fmt(re, d);
+  if (re === 0) return (im < 0 ? MINUS : '') + (Math.abs(im) === 1 ? '' : fmt(Math.abs(im), d)) + 'j';
+  return fmt(re, d) + (im < 0 ? ' ' + MINUS + ' ' : ' + ') + (Math.abs(im) === 1 ? '' : fmt(Math.abs(im), d)) + 'j';
+}
+/* DFT of complex array (arrays of [re,im]) — direct, N is small here */
+function dft(x){
+  const N = x.length, X = [];
+  for (let k = 0; k < N; k++){
+    let re = 0, im = 0;
+    for (let n = 0; n < N; n++){
+      const th = -TAU * k * n / N, c = Math.cos(th), s = Math.sin(th);
+      re += x[n][0] * c - x[n][1] * s; im += x[n][0] * s + x[n][1] * c;
+    }
+    X.push([re, im]);
+  }
+  return X;
+}
+
+/* ---------- plot ---------- */
+class Plot {
+  constructor(cv){ this.cv = cv; this.ctx = cv.getContext('2d'); this.h0 = +cv.dataset.h || 200; this.pad = {l:46, r:16, t:20, b:26}; }
+  size(){
+    const w = this.cv.clientWidth; if (!w) return false;
+    const H = Math.round(this.h0 * (w < 520 ? .84 : 1));
+    const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+    const W = Math.round(w * dpr), HH = Math.round(H * dpr);
+    if (this.cv.width !== W || this.cv.height !== HH){ this.cv.width = W; this.cv.height = HH; }
+    this.cv.style.height = H + 'px';
+    this.w = w; this.H = H;
+    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0); this.ctx.clearRect(0, 0, w, H);
+    return true;
+  }
+  view(x0, x1, y0, y1){ this.x0 = x0; this.x1 = x1; this.y0 = y0; this.y1 = y1; return this; }
+  get L(){ return this.pad.l; } get R(){ return this.w - this.pad.r; }
+  get T(){ return this.pad.t; } get B(){ return this.H - this.pad.b; }
+  pw(){ return this.R - this.L; }
+  X(v){ return this.L + (v - this.x0) / (this.x1 - this.x0) * this.pw(); }
+  Y(v){ return this.T + (this.y1 - v) / (this.y1 - this.y0) * (this.B - this.T); }
+  inv(px){ return this.x0 + (px - this.L) / this.pw() * (this.x1 - this.x0); }
+  frame(o){
+    o = o || {}; const c = this.ctx; c.save();
+    const pi = !!o.piTick;
+    const tick = o.tick || (pi ? Math.PI / 2 : nice(this.x1 - this.x0, Math.max(4, this.pw() / 64)));
+    const grid = o.grid || tick / 2;
+    const ys = o.yTick || nice(this.y1 - this.y0, o.yT || 4);
+    c.lineWidth = 1; c.strokeStyle = C.grid; c.beginPath();
+    for (let i = Math.ceil(this.x0 / grid - 1e-9); i * grid <= this.x1 + 1e-9; i++){ const px = Math.round(this.X(i * grid)) + .5; c.moveTo(px, this.T); c.lineTo(px, this.B); }
+    for (let i = Math.ceil(this.y0 / ys - 1e-9); i * ys <= this.y1 + 1e-9; i++){ const py = Math.round(this.Y(i * ys)) + .5; c.moveTo(this.L, py); c.lineTo(this.R, py); }
+    c.stroke();
+    c.strokeStyle = C.axis; c.beginPath();
+    const p0 = Math.round(this.Y(0)) + .5; c.moveTo(this.L, p0); c.lineTo(this.R, p0);
+    if (this.x0 < 0 && this.x1 > 0){ const q = Math.round(this.X(0)) + .5; c.moveTo(q, this.T); c.lineTo(q, this.B); }
+    c.stroke();
+    c.fillStyle = C.muted; c.font = '11px "IBM Plex Mono", ui-monospace, monospace';
+    c.textAlign = 'center'; c.textBaseline = 'top';
+    for (let i = Math.ceil(this.x0 / tick - 1e-9); i * tick <= this.x1 + 1e-9; i++){
+      const v = i * tick; if (o.skip0 && Math.abs(v) < 1e-9) continue;
+      c.fillText(pi ? piLabel(v) : fmt(v, 2), this.X(v), this.B + 8);
+    }
+    if (!o.noY){
+      c.textAlign = 'right'; c.textBaseline = 'middle';
+      for (let i = Math.ceil(this.y0 / ys - 1e-9); i * ys <= this.y1 + 1e-9; i++) c.fillText(fmt(i * ys, 2), this.L - 8, this.Y(i * ys));
+    }
+    if (o.xl){ c.font = 'italic 14px "STIX Two Text", serif'; c.fillStyle = C.ink; c.textAlign = 'left'; c.textBaseline = 'middle'; c.fillText(o.xl, this.R + 3, this.Y(0)); }
+    c.restore(); return this;
+  }
+  clip(){ const c = this.ctx; c.save(); c.beginPath(); c.rect(this.L, this.T - 8, this.pw(), this.B - this.T + 16); c.clip(); }
+  unclip(){ this.ctx.restore(); }
+  curve(pts, col, w, o){
+    o = o || {}; if (!pts.length) return this; const c = this.ctx; this.clip();
+    c.globalAlpha = o.alpha == null ? 1 : o.alpha; c.strokeStyle = col; c.lineWidth = w || 2; c.lineJoin = 'round'; c.lineCap = 'round';
+    if (o.dash) c.setLineDash(o.dash);
+    const yc = v => clamp(this.Y(v), -5000, 5000);
+    c.beginPath(); let down = false;
+    pts.forEach(p => { if (p == null || !isFinite(p[1])){ down = false; return; } const X = this.X(p[0]), Y = yc(p[1]); if (down) c.lineTo(X, Y); else { c.moveTo(X, Y); down = true; } });
+    c.stroke(); this.unclip(); return this;
+  }
+  area(pts, col, al){
+    if (!pts.length) return this; const c = this.ctx; this.clip();
+    const yc = v => clamp(this.Y(v), -5000, 5000);
+    c.globalAlpha = al == null ? .25 : al; c.fillStyle = col; c.beginPath(); c.moveTo(this.X(pts[0][0]), this.Y(0));
+    pts.forEach(p => c.lineTo(this.X(p[0]), yc(p[1]))); c.lineTo(this.X(pts[pts.length-1][0]), this.Y(0)); c.closePath(); c.fill();
+    this.unclip(); return this;
+  }
+  stem(k, v, col, o){
+    o = o || {}; const c = this.ctx; const px = this.X(k) + (o.dx || 0), p0 = this.Y(0), p1 = clamp(this.Y(v), this.T - 6, this.B + 6);
+    if (px < this.L - 6 || px > this.R + 6) return this;
+    c.save(); c.globalAlpha = o.alpha == null ? 1 : o.alpha; c.strokeStyle = col; c.fillStyle = col; c.lineWidth = o.w || 2;
+    if (Math.abs(v) > 1e-12){ c.beginPath(); c.moveTo(px, p0); c.lineTo(px, p1); c.stroke(); }
+    c.beginPath(); c.arc(px, p1, o.r == null ? 3.4 : o.r, 0, TAU); c.fill();
+    if (o.ring){ c.strokeStyle = o.ring; c.lineWidth = 2; c.beginPath(); c.arc(px, p1, (o.r == null ? 3.4 : o.r) + 3.5, 0, TAU); c.stroke(); }
+    if (o.label != null){ c.font = '600 10.5px "IBM Plex Mono", monospace'; c.textAlign = 'center'; c.textBaseline = v >= 0 ? 'bottom' : 'top'; c.fillText(o.label, px, v >= 0 ? p1 - 6 : p1 + 6); }
+    c.restore(); return this;
+  }
+  arrow(x, v, col, o){ /* impulse arrow */
+    o = o || {}; const c = this.ctx, px = this.X(x), p0 = this.Y(0), p1 = this.Y(v);
+    if (px < this.L - 4 || px > this.R + 4) return this;
+    c.save(); c.strokeStyle = col; c.fillStyle = col; c.lineWidth = o.w || 2;
+    c.beginPath(); c.moveTo(px, p0); c.lineTo(px, p1); c.stroke();
+    const d = v >= 0 ? 1 : -1;
+    c.beginPath(); c.moveTo(px, p1); c.lineTo(px - 4.5, p1 + 8 * d); c.lineTo(px + 4.5, p1 + 8 * d); c.closePath(); c.fill();
+    if (o.label){ c.font = '600 10.5px "IBM Plex Mono", monospace'; c.textAlign = 'center'; c.textBaseline = v >= 0 ? 'bottom' : 'top'; c.fillText(o.label, px, v >= 0 ? p1 - 10 : p1 + 10); }
+    c.restore(); return this;
+  }
+  dot(x, y, col, r){ const c = this.ctx; c.save(); c.fillStyle = col; c.beginPath(); c.arc(this.X(x), clamp(this.Y(y), this.T - 4, this.B + 4), r || 3, 0, TAU); c.fill(); c.restore(); return this; }
+  point(x, y, col, ring){ const c = this.ctx; c.save(); c.fillStyle = col; c.beginPath(); c.arc(this.X(x), clamp(this.Y(y), this.T, this.B), 5, 0, TAU); c.fill(); if (ring){ c.strokeStyle = ring; c.lineWidth = 2; c.beginPath(); c.arc(this.X(x), clamp(this.Y(y), this.T, this.B), 9, 0, TAU); c.stroke(); } c.restore(); return this; }
+  vline(x, col, label, o){
+    o = o || {}; const c = this.ctx, px = Math.round(this.X(x)) + .5; if (px < this.L - 1 || px > this.R + 1) return this;
+    c.save(); c.strokeStyle = col; c.lineWidth = o.w || 1.2; if (o.dash !== false) c.setLineDash(o.dash || [4, 4]);
+    c.beginPath(); c.moveTo(px, this.T - 2); c.lineTo(px, this.B); c.stroke(); c.setLineDash([]);
+    if (label){ c.fillStyle = col; c.font = '500 11.5px "IBM Plex Mono", monospace'; c.textBaseline = 'bottom'; const right = px > this.R - 62; c.textAlign = right ? 'right' : 'left'; c.fillText(label, px + (right ? -5 : 5), this.T - 3); }
+    c.restore(); return this;
+  }
+  band(a, b, col, al){ const c = this.ctx; c.save(); c.globalAlpha = al == null ? .1 : al; c.fillStyle = col; const x0 = Math.max(this.L, this.X(a)), x1 = Math.min(this.R, this.X(b)); if (x1 > x0) c.fillRect(x0, this.T, x1 - x0, this.B - this.T); c.restore(); return this; }
+  text(s, x, y, col, o){
+    o = o || {}; const c = this.ctx; c.save(); c.fillStyle = col;
+    c.font = o.font || '500 12px "IBM Plex Sans Thai", sans-serif';
+    c.textAlign = o.align || 'center'; c.textBaseline = o.base || 'middle';
+    c.fillText(s, x, y); c.restore(); return this;
+  }
+  label(s, x, y, col, o){ return this.text(s, this.X(x), this.Y(y), col, o); }
+}
+
+/* ---------- figure registry ---------- */
+const FIGS = [];
+function fig(id, draw){
+  const cv = document.getElementById(id); if (!cv) return null;
+  const p = new Plot(cv); FIGS.push({p, draw, cv}); return p;
+}
+let raf = 0;
+function redraw(){ if (raf) return; raf = requestAnimationFrame(() => { raf = 0; FIGS.forEach(f => { if (f.cv.offsetParent === null && f.cv.clientWidth === 0) return; if (f.p.size()) f.draw(f.p); }); }); }
+const $ = s => document.querySelector(s);
+const $$ = s => Array.prototype.slice.call(document.querySelectorAll(s));
+function val(sel){ const e = $(sel); return e ? +e.value : 0; }
+function sval(sel){ const e = $(sel); return e ? e.value : ''; }
+function chk(sel){ const e = $(sel); return !!(e && e.checked); }
+function bind(sel, fn){
+  $$(sel).forEach(e => e.addEventListener('input', ev => { if (fn) fn(ev); redraw(); }));
+}
+function out(sel, text){ const e = $(sel); if (e) e.textContent = text; }
+function html(sel, s){ const e = $(sel); if (e) e.innerHTML = s; }
+
+/* ---------- derivation steppers ---------- */
+function derivInit(){
+  $$('.deriv').forEach(list => {
+    const items = Array.prototype.slice.call(list.children);
+    const nav = document.createElement('div'); nav.className = 'dnav';
+    nav.innerHTML = '<button class="btn sm" type="button" data-a="prev">‹ ก่อนหน้า</button>'
+      + '<button class="btn sm primary" type="button" data-a="next">ขั้นถัดไป ›</button>'
+      + '<span class="cnt"></span><button class="btn sm" type="button" data-a="all">แสดงทั้งหมด</button>';
+    list.parentNode.insertBefore(nav, list.nextSibling);
+    let i = 1;
+    function render(){
+      items.forEach((li, k) => li.classList.toggle('dim', k >= i));
+      nav.querySelector('.cnt').textContent = `ขั้นที่ ${Math.min(i, items.length)} / ${items.length}`;
+      nav.querySelector('[data-a=prev]').disabled = i <= 1;
+      nav.querySelector('[data-a=next]').disabled = i >= items.length;
+    }
+    nav.addEventListener('click', e => {
+      const a = e.target.closest('[data-a]'); if (!a) return;
+      if (a.dataset.a === 'next') i = Math.min(items.length, i + 1);
+      else if (a.dataset.a === 'prev') i = Math.max(1, i - 1);
+      else i = items.length;
+      render();
+    });
+    render();
+  });
+}
+
+/* ---------- table of contents scrollspy ---------- */
+function tocInit(){
+  const links = $$('.toc a'); if (!links.length) return;
+  const secs = links.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      if (!en.isIntersecting) return;
+      links.forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + en.target.id));
+    });
+  }, {rootMargin: '-10% 0px -70% 0px', threshold: 0});
+  secs.forEach(s => io.observe(s));
+}
+
+/* ---------- animation loop helper ---------- */
+function ticker(step){
+  let on = false, last = 0, id = 0;
+  function frame(now){
+    if (!on) return;
+    const dt = Math.min(.05, (now - last) / 1000); last = now;
+    step(dt); redraw(); id = requestAnimationFrame(frame);
+  }
+  return {
+    start(){ if (on) return; on = true; last = performance.now(); id = requestAnimationFrame(frame); },
+    stop(){ on = false; if (id) cancelAnimationFrame(id); id = 0; },
+    toggle(){ on ? this.stop() : this.start(); return on; },
+    get running(){ return on; }
+  };
+}
+
+/* ---------- boot ---------- */
+function boot(){
+  derivInit(); tocInit(); redraw();
+  const onTheme = () => { readColors(); redraw(); };
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', onTheme);
+  new MutationObserver(onTheme).observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
+  if (window.ResizeObserver) new ResizeObserver(() => redraw()).observe(document.body);
+  else window.addEventListener('resize', redraw);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(redraw);
+}
+
+return {C, MINUS, TAU, fmt, fx, piLabel, nice, rng, clamp, simpson, cadd, cmul, cabs, carg, cexp, cstr, dft,
+        Plot, fig, redraw, $, $$, val, sval, chk, bind, out, html, ticker, boot, readColors};
+})();
+
+/* ===== stats kit: random numbers, distributions, histograms (CEMII Prob & Stat pages) ===== */
+const S = (function(){
+'use strict';
+const {fmt, clamp, TAU} = K;
+
+/* seeded RNG so a page looks the same on every load until you press "สุ่มใหม่" */
+function mulberry32(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+let R = mulberry32(20261123);
+function reseed(s){ R = mulberry32(s == null ? (Math.random() * 2 ** 31) | 0 : s); }
+const rand = () => R();
+function randn(){ let u = 0; while (u === 0) u = R(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(TAU * R()); }
+
+/* special functions */
+function lgamma(z){
+  const g = 7, c = [0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313, -176.61503916999185, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+  if (z < 0.5) return Math.log(Math.PI / Math.abs(Math.sin(Math.PI * z))) - lgamma(1 - z);
+  z -= 1; let x = c[0]; for (let i = 1; i < g + 2; i++) x += c[i] / (z + i);
+  const t = z + g + 0.5; return 0.5 * Math.log(TAU) + (z + 0.5) * Math.log(t) - t + Math.log(x);
+}
+const lchoose = (n, k) => lgamma(n + 1) - lgamma(k + 1) - lgamma(n - k + 1);
+const choose = (n, k) => (k < 0 || k > n) ? 0 : Math.round(Math.exp(lchoose(n, k)));
+function erf(x){ /* Abramowitz & Stegun 7.1.26 refined by a series near 0 */
+  const s = x < 0 ? -1 : 1; x = Math.abs(x);
+  if (x < 0.5){ let sum = x, term = x, n = 0; while (Math.abs(term) > 1e-16 && n < 60){ n++; term *= -x * x / n; sum += term / (2 * n + 1); } return s * 2 / Math.sqrt(Math.PI) * sum; }
+  const t = 1 / (1 + 0.5 * x);
+  const y = 1 - t * Math.exp(-x * x - 1.26551223 + t * (1.00002368 + t * (0.37409196 + t * (0.09678418 + t * (-0.18628806 + t * (0.27886807 + t * (-1.13520398 + t * (1.48851587 + t * (-0.82215223 + t * 0.17087277)))))))));
+  return s * y;
+}
+const Phi = z => 0.5 * (1 + erf(z / Math.SQRT2));
+const phi = z => Math.exp(-z * z / 2) / Math.sqrt(TAU);
+function Phinv(p){ /* Acklam */
+  const a = [-3.969683028665376e+01, 2.209460984245205e+02, -2.759285104469687e+02, 1.383577518672690e+02, -3.066479806614716e+01, 2.506628277459239e+00];
+  const b = [-5.447609879822406e+01, 1.615858368580409e+02, -1.556989798598866e+02, 6.680131188771972e+01, -1.328068155288572e+01];
+  const c = [-7.784894002430293e-03, -3.223964580411365e-01, -2.400758277161838e+00, -2.549732539343734e+00, 4.374664141464968e+00, 2.938163982698783e+00];
+  const d = [7.784695709041462e-03, 3.224671290700398e-01, 2.445134137142996e+00, 3.754408661907416e+00];
+  p = clamp(p, 1e-12, 1 - 1e-12); const pl = 0.02425;
+  if (p < pl){ const q = Math.sqrt(-2 * Math.log(p)); return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1); }
+  if (p > 1 - pl){ const q = Math.sqrt(-2 * Math.log(1 - p)); return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1); }
+  const q = p - 0.5, r = q * q;
+  return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q / (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
+}
+function binomPmf(k, n, p){ if (k < 0 || k > n) return 0; if (p <= 0) return k === 0 ? 1 : 0; if (p >= 1) return k === n ? 1 : 0; return Math.exp(lchoose(n, k) + k * Math.log(p) + (n - k) * Math.log(1 - p)); }
+function binomCdf(k, n, p){ let s = 0; for (let i = 0; i <= Math.min(k, n); i++) s += binomPmf(i, n, p); return Math.min(1, s); }
+function sampleBinom(n, p){ let s = 0; for (let i = 0; i < n; i++) if (R() < p) s++; return s; }
+function samplePois(l){ const L = Math.exp(-l); let k = 0, q = 1; do { k++; q *= R(); } while (q > L); return k - 1; }
+
+/* ---------- distribution catalogue ----------
+   each: disc, f (pmf/pdf), F (cdf), mean, var, sample(), lo/hi = plotting range, Q (quantile) */
+function quantDisc(F, lo, hi, u){ for (let k = lo; k <= hi; k++) if (F(k) >= u - 1e-12) return k; return hi; }
+const DIST = {
+  bern: { name: 'Bernoulli', th: 'โยน 1 ครั้ง', disc: true, params: [['p', 0.01, 0.99, 0.01, 0.3]],
+    make: ([p]) => ({ f: k => k === 0 ? 1 - p : k === 1 ? p : 0, F: x => x < 0 ? 0 : x < 1 ? 1 - p : 1, mean: p, var: p * (1 - p), lo: 0, hi: 1,
+      sample: () => R() < p ? 1 : 0, tex: `p(1) = p, p(0) = 1 − p` }) },
+  binom: { name: 'Binomial', th: 'นับสำเร็จใน n ครั้ง', disc: true, params: [['n', 1, 40, 1, 10], ['p', 0.01, 0.99, 0.01, 0.7]],
+    make: ([n, p]) => ({ f: k => binomPmf(k, n, p), F: x => x < 0 ? 0 : binomCdf(Math.floor(x), n, p), mean: n * p, var: n * p * (1 - p), lo: 0, hi: n,
+      sample: () => sampleBinom(n, p), tex: `p(k) = C(n,k) p<sup>k</sup>(1 − p)<sup>n−k</sup>` }) },
+  geom: { name: 'Geometric', th: 'จำนวนครั้งที่ล้มเหลวก่อนสำเร็จ', disc: true, params: [['p', 0.05, 0.95, 0.01, 0.3]],
+    make: ([p]) => ({ f: k => k < 0 ? 0 : Math.pow(1 - p, k) * p, F: x => x < 0 ? 0 : 1 - Math.pow(1 - p, Math.floor(x) + 1), mean: (1 - p) / p, var: (1 - p) / (p * p), lo: 0,
+      hi: Math.max(4, Math.ceil(Math.log(0.004) / Math.log(1 - p))), sample: () => { let k = 0; while (R() >= p) k++; return k; }, tex: `p(k) = (1 − p)<sup>k</sup> p` }) },
+  pois: { name: 'Poisson', th: 'จำนวนเหตุการณ์ต่อช่วงเวลา', disc: true, params: [['λ', 0.2, 15, 0.1, 3]],
+    make: ([l]) => { const f = k => k < 0 ? 0 : Math.exp(k * Math.log(l) - l - lgamma(k + 1));
+      return { f, F: x => { let s = 0; for (let k = 0; k <= Math.floor(x); k++) s += f(k); return Math.min(1, s); }, mean: l, var: l, lo: 0, hi: Math.ceil(l + 4 * Math.sqrt(l) + 3),
+        sample: () => samplePois(l), tex: `p(k) = λ<sup>k</sup>e<sup>−λ</sup> / k!` }; } },
+  dunif: { name: 'Uniform (discrete)', th: 'ลูกเต๋า n หน้า', disc: true, params: [['n', 2, 12, 1, 6]],
+    make: ([n]) => ({ f: k => (k >= 1 && k <= n && Number.isInteger(k)) ? 1 / n : 0, F: x => clamp(Math.floor(x), 0, n) / n, mean: (n + 1) / 2, var: (n * n - 1) / 12, lo: 1, hi: n,
+      sample: () => 1 + Math.floor(R() * n), tex: `p(k) = 1/n, k = 1…n` }) },
+  norm: { name: 'Normal', th: 'ระฆังคว่ำ', disc: false, params: [['μ', -3, 3, 0.1, 0], ['σ', 0.3, 3, 0.05, 1]],
+    make: ([m, s]) => ({ f: x => phi((x - m) / s) / s, F: x => Phi((x - m) / s), mean: m, var: s * s, lo: m - 4 * s, hi: m + 4 * s,
+      sample: () => m + s * randn(), Q: u => m + s * Phinv(u), tex: `f(x) = <span class="frac"><span>1</span><span>√(2πσ²)</span></span> e<sup>−(x−μ)²/2σ²</sup>` }) },
+  expo: { name: 'Exponential', th: 'เวลารอ', disc: false, params: [['λ', 0.2, 3, 0.05, 1]],
+    make: ([l]) => ({ f: x => x < 0 ? 0 : l * Math.exp(-l * x), F: x => x < 0 ? 0 : 1 - Math.exp(-l * x), mean: 1 / l, var: 1 / (l * l), lo: 0, hi: 5.5 / l,
+      sample: () => -Math.log(1 - R()) / l, Q: u => -Math.log(1 - u) / l, tex: `f(x) = λe<sup>−λx</sup>, x ≥ 0` }) },
+  unif: { name: 'Uniform', th: 'เท่ากันทุกจุดใน [a, b]', disc: false, params: [['a', -3, 2, 0.1, 0], ['b', -2, 5, 0.1, 1]],
+    make: ([a, b]) => { if (b <= a + 0.05) b = a + 0.05; const w = b - a;
+      return { f: x => (x >= a && x <= b) ? 1 / w : 0, F: x => clamp((x - a) / w, 0, 1), mean: (a + b) / 2, var: w * w / 12, lo: a - 0.35 * w, hi: b + 0.35 * w,
+        sample: () => a + w * R(), Q: u => a + w * u, tex: `f(x) = 1/(b − a), a ≤ x ≤ b` }; } },
+  pareto: { name: 'Pareto', th: 'power law · หางยาว', disc: false, params: [['x_m', 0.5, 3, 0.1, 1], ['α', 0.6, 5, 0.05, 2.5]],
+    make: ([xm, a]) => ({ f: x => x < xm ? 0 : a * Math.pow(xm, a) / Math.pow(x, a + 1), F: x => x < xm ? 0 : 1 - Math.pow(xm / x, a),
+      mean: a > 1 ? a * xm / (a - 1) : Infinity, var: a > 2 ? xm * xm * a / ((a - 1) * (a - 1) * (a - 2)) : Infinity, lo: 0, hi: xm * Math.pow(0.02, -1 / a),
+      sample: () => xm / Math.pow(1 - R(), 1 / a), Q: u => xm / Math.pow(1 - u, 1 / a), tex: `f(x) = αx<sub>m</sub><sup>α</sup> / x<sup>α+1</sup>, x ≥ x<sub>m</sub>` }) }
+};
+function build(key, vals){ const d = DIST[key]; const o = d.make(vals); o.key = key; o.name = d.name; o.disc = d.disc; o.sd = Math.sqrt(o.var);
+  if (!o.Q) o.Q = u => quantDisc(o.F, o.lo, o.hi + 200, u); return o; }
+
+/* ---------- drawing helpers on K.Plot ---------- */
+function hist(p, data, lo, hi, nb, col, o){
+  o = o || {}; const w = (hi - lo) / nb, cnt = new Array(nb).fill(0); let n = 0;
+  data.forEach(v => { const i = Math.floor((v - lo) / w); if (i >= 0 && i < nb){ cnt[i]++; } n++; });
+  const c = p.ctx; p.clip(); c.fillStyle = col; c.globalAlpha = o.alpha == null ? .45 : o.alpha;
+  const dens = o.density !== false;
+  let mx = 0;
+  cnt.forEach((k, i) => { const h = dens ? k / (n * w) : k; mx = Math.max(mx, h); const x0 = p.X(lo + i * w), x1 = p.X(lo + (i + 1) * w), y = p.Y(h);
+    c.fillRect(x0 + .5, y, Math.max(0.5, x1 - x0 - 1), p.Y(0) - y); });
+  c.globalAlpha = 1; p.unclip(); return mx;
+}
+function histMax(data, lo, hi, nb){ const w = (hi - lo) / nb, cnt = new Array(nb).fill(0); data.forEach(v => { const i = Math.floor((v - lo) / w); if (i >= 0 && i < nb) cnt[i]++; }); return Math.max.apply(null, cnt) / (data.length * w); }
+function counts(data, lo, hi){ const m = {}; for (let k = lo; k <= hi; k++) m[k] = 0; data.forEach(v => { if (m[v] != null) m[v]++; }); return m; }
+function fn(p, f, x0, x1, n){ const pts = []; n = n || 500; for (let i = 0; i <= n; i++){ const x = x0 + (x1 - x0) * i / n; pts.push([x, f(x)]); } return pts; }
+function rect(p, x0, x1, y0, y1, col, al){ const c = p.ctx; p.clip(); c.globalAlpha = al == null ? .3 : al; c.fillStyle = col; const X0 = p.X(x0), X1 = p.X(x1), Y0 = p.Y(y0), Y1 = p.Y(y1); c.fillRect(Math.min(X0, X1), Math.min(Y0, Y1), Math.abs(X1 - X0), Math.abs(Y1 - Y0)); c.globalAlpha = 1; p.unclip(); }
+const mean = a => a.reduce((s, v) => s + v, 0) / a.length;
+function variance(a, ddof){ const m = mean(a); return a.reduce((s, v) => s + (v - m) * (v - m), 0) / (a.length - (ddof || 0)); }
+const pct = (v, d) => fmt(100 * v, d == null ? 1 : d) + '%';
+/* tiny helper: build slider rows for a distribution's parameters */
+function paramCtrls(host, key, prefix){
+  const d = DIST[key];
+  host.innerHTML = d.params.map((q, i) => `<label class="ctrl"><span class="math">${q[0].replace('_m', '<sub>m</sub>')}</span><input type="range" id="${prefix}-p${i}" min="${q[1]}" max="${q[2]}" step="${q[3]}" value="${q[4]}"><output id="${prefix}-p${i}v">${q[4]}</output></label>`).join('');
+}
+function paramVals(key, prefix){ return DIST[key].params.map((q, i) => { const e = document.getElementById(`${prefix}-p${i}`); const v = e ? +e.value : q[4]; const o = document.getElementById(`${prefix}-p${i}v`); if (o) o.textContent = fmt(v, 2); return v; }); }
+
+return {rand, randn, reseed, lgamma, lchoose, choose, erf, Phi, phi, Phinv, binomPmf, binomCdf, sampleBinom, samplePois,
+        DIST, build, hist, histMax, counts, fn, rect, mean, variance, pct, paramCtrls, paramVals};
+})();
+
+(function(){
+'use strict';
+const {fmt, fx, MINUS} = K;
+const C = K.C;
+const kv = (sel, items) => K.html(sel, items.map(([k, v, c]) => `<div><span>${k}</span><b class="${c || ''}">${v}</b></div>`).join(''));
+
+/* ===== 02 LLN ===== */
+const LP = {
+  coin: {mu: .5, y: [0, 1], s: () => S.rand() < .5 ? 1 : 0, disc: [0, 1], f: k => .5, name: 'Bernoulli(0.5)'},
+  die: {mu: 3.5, y: [1, 6], s: () => 1 + Math.floor(S.rand() * 6), disc: [1, 6], f: () => 1 / 6, name: 'ลูกเต๋า'},
+  expo: {mu: 1, y: [0, 2.6], s: () => -Math.log(1 - S.rand()), f: x => x < 0 ? 0 : Math.exp(-x), hx: [0, 6], name: 'Exp(1)'},
+  pareto: {mu: 3, y: [1, 7], s: () => 1 / Math.pow(1 - S.rand(), 1 / 1.5), f: x => x < 1 ? 0 : 1.5 / Math.pow(x, 2.5), hx: [0, 10], name: 'Pareto(1, 1.5)'},
+  cauchy: {mu: NaN, y: [-5, 5], s: () => Math.tan(Math.PI * (S.rand() - .5)), f: x => 1 / (Math.PI * (1 + x * x)), hx: [-8, 8], name: 'Cauchy'}
+};
+const NMAX = 10000, PATHS = 200, CK = [];
+for (let j = 0; j <= 400; j++){ const n = Math.round(Math.pow(10, 4 * j / 400)); if (!CK.length || CK[CK.length - 1] !== n) CK.push(n); }
+let lnSeed = 11, lnCache = null;
+function lnData(){
+  const key = K.sval('#ln-d') + ':' + lnSeed;
+  if (lnCache && lnCache.key === key) return lnCache;
+  const d = LP[K.sval('#ln-d')]; S.reseed(lnSeed);
+  const avg = [], first = [];
+  for (let p = 0; p < PATHS; p++){
+    const a = new Float64Array(CK.length); let s = 0, j = 0;
+    for (let n = 1; n <= NMAX; n++){ const x = d.s(); if (p === 0) first.push(x); s += x; if (n === CK[j]){ a[j] = s / n; j++; } }
+    avg.push(a);
+  }
+  lnCache = {key, d, avg, first}; return lnCache;
+}
+function lnIdx(){ const t = K.val('#ln-n'); const n = Math.max(1, Math.round(Math.pow(10, t))); let j = 0; while (j < CK.length - 1 && CK[j + 1] <= n) j++; return {n: CK[j], j}; }
+K.fig('ln-plot', p => {
+  const {d, avg} = lnData(), eps = K.val('#ln-e'), {n, j} = lnIdx();
+  const mu = isNaN(d.mu) ? 0 : d.mu;
+  p.view(0, 4, d.y[0] - .05 * (d.y[1] - d.y[0]), d.y[1] + .08 * (d.y[1] - d.y[0])).frame({tick: 1, grid: .5, yT: 5, xl: ''});
+  const c = p.ctx; p.clip(); c.fillStyle = C.y; c.globalAlpha = .14; c.fillRect(p.L, p.Y(mu + eps), p.pw(), p.Y(mu - eps) - p.Y(mu + eps)); c.globalAlpha = 1; p.unclip();
+  for (let k = 0; k < 12; k++) p.curve(CK.map((nn, i) => [Math.log10(nn), avg[k][i]]), k === 0 ? C.prod : C.mark, k === 0 ? 2 : 1.2, {alpha: k === 0 ? 1 : .55});
+  p.curve([[0, mu], [4, mu]], C.y, 1.6, {dash: [6, 4]});
+  p.vline(Math.log10(n), C.h, 'n = ' + n.toLocaleString());
+  let inside = 0; avg.forEach(a => { if (Math.abs(a[j] - mu) < eps) inside++; });
+  K.out('#ln-ev', fx(eps)); K.out('#ln-nv', n.toLocaleString());
+  if (isNaN(d.mu)){
+    K.html('#ln-eq', `Cauchy: ${inside}/${PATHS} เส้นอยู่ใน 0 ± ${fx(eps)} ที่ n = ${n.toLocaleString()} — <b>ไม่ลู่เข้า</b>`);
+    K.html('#ln-sub', 'Cauchy ไม่มีค่าเฉลี่ย (∫|x| f(x) dx = ∞) — มีค่าโดดใหญ่ ๆ มาเรื่อย ๆ จน X̄<sub>n</sub> กระโดดตลอด LLN ต้องการ E|X| &lt; ∞');
+  } else {
+    K.html('#ln-eq', `P(|X̄<sub>n</sub> − ${fmt(mu, 2)}| &lt; ${fx(eps)}) ≈ ${inside}/${PATHS} ที่ n = ${n.toLocaleString()}`);
+    K.html('#ln-sub', d === LP.pareto ? 'Pareto α = 1.5 มี μ = 3 แต่ variance = ∞ — LLN ยังจริงแต่ลู่เข้าช้ามาก (ดูเส้นที่กระโดดเป็นพัก ๆ)' : 'เลื่อน n ไปทางขวา สัดส่วนเส้นที่อยู่ในแถบ μ ± ε จะเข้าใกล้ 1 เสมอไม่ว่า ε จะเล็กแค่ไหน — นี่คือ convergence in probability');
+  }
+  K.html('#ln-val', S.pct(inside / PATHS, 1));
+});
+K.fig('ln-hist', p => {
+  const {d, first} = lnData(), {n} = lnIdx(); const data = first.slice(0, n);
+  if (d.disc){
+    const cn = S.counts(data, d.disc[0], d.disc[1]);
+    p.view(d.disc[0] - .8, d.disc[1] + .8, 0, Math.max(.25, ...Object.values(cn).map(v => v / n)) * 1.15).frame({tick: 1, yT: 4});
+    for (let k = d.disc[0]; k <= d.disc[1]; k++){ S.rect(p, k - .3, k + .3, 0, cn[k] / n, C.prod, .5); p.stem(k, d.f(k), C.h, {r: 4}); }
+  } else {
+    const [a, b] = d.hx, nb = Math.min(60, Math.max(8, Math.round(Math.sqrt(n) * 1.5)));
+    const mx = Math.max(S.histMax(data, a, b, nb), d.f(d === LP.pareto ? 1 : d === LP.cauchy ? 0 : 0));
+    p.view(a, b, 0, Math.min(mx, 2) * 1.15).frame({yT: 4});
+    S.hist(p, data, a, b, nb, C.prod, {alpha: .5});
+    p.curve(S.fn(p, d.f, a, b, 600), C.h, 2.2);
+  }
+});
+K.bind('#ln-e, #ln-n'); K.$('#ln-d').addEventListener('change', K.redraw);
+K.$('#ln-new').addEventListener('click', () => { lnSeed = (Math.random() * 1e9) | 0; K.redraw(); });
+
+/* ===== 03 CLT ===== */
+const CP = {
+  unif: {mu: .5, v: 1 / 12, s: () => S.rand(), f: x => (x >= 0 && x <= 1) ? 1 : 0, px: [-.3, 1.3]},
+  expo: {mu: 1, v: 1, s: () => -Math.log(1 - S.rand()), f: x => x < 0 ? 0 : Math.exp(-x), px: [-.3, 6], min: 0},
+  bern: {mu: .2, v: .16, s: () => S.rand() < .2 ? 1 : 0, disc: true, pm: {0: .8, 1: .2}, px: [-.6, 1.6], min: 0},
+  die: {mu: 3.5, v: 35 / 12, s: () => 1 + Math.floor(S.rand() * 6), disc: true, pm: {1: 1/6, 2: 1/6, 3: 1/6, 4: 1/6, 5: 1/6, 6: 1/6}, px: [0, 7]},
+  bimod: {mu: 0, v: 4.25, s: () => (S.rand() < .5 ? -2 : 2) + .5 * S.randn(), f: x => .5 * (S.phi((x + 2) / .5) + S.phi((x - 2) / .5)) / .5, px: [-4.5, 4.5]}
+};
+const M = 5000; let clCache = null, clMode = 'm';
+function clData(){
+  const key = K.sval('#cl-d') + ':' + K.val('#cl-n');
+  if (clCache && clCache.key === key) return clCache;
+  const d = CP[K.sval('#cl-d')], n = K.val('#cl-n'); S.reseed(4242 + n);
+  const sums = new Float64Array(M);
+  for (let m = 0; m < M; m++){ let s = 0; for (let i = 0; i < n; i++) s += d.s(); sums[m] = s; }
+  clCache = {key, d, n, sums}; return clCache;
+}
+K.fig('cl-pop', p => {
+  const d = CP[K.sval('#cl-d')];
+  if (d.disc){
+    const ks = Object.keys(d.pm).map(Number);
+    p.view(d.px[0], d.px[1], 0, Math.max(...Object.values(d.pm)) * 1.25).frame({tick: 1, yT: 2});
+    ks.forEach(k => p.stem(k, d.pm[k], C.x, {r: 4}));
+  } else {
+    const pts = S.fn(p, d.f, d.px[0], d.px[1], 500); let mx = 0; pts.forEach(q => { mx = Math.max(mx, q[1]); });
+    p.view(d.px[0], d.px[1], 0, mx * 1.25).frame({yT: 2}); p.area(pts, C.x, .15); p.curve(pts, C.x, 2);
+  }
+  p.vline(d.mu, C.h, 'μ = ' + fmt(d.mu, 2));
+});
+K.fig('cl-plot', p => {
+  const {d, n, sums} = clData();
+  const sdS = Math.sqrt(n * d.v);
+  /* transform: m → X̄, s → S, z → Z */
+  const T = clMode === 'm' ? (s => s / n) : clMode === 's' ? (s => s) : (s => (s - n * d.mu) / sdS);
+  const mean = clMode === 'm' ? d.mu : clMode === 's' ? n * d.mu : 0;
+  const sd = clMode === 'm' ? Math.sqrt(d.v / n) : clMode === 's' ? sdS : 1;
+  const scale = clMode === 'm' ? 1 / n : clMode === 's' ? 1 : 1 / sdS; /* width of one integer step of S */
+  let lo = mean - 4.5 * sd, hi = mean + 4.5 * sd;
+  if (d.min != null){ const tmin = T(n * d.min); lo = Math.max(lo, tmin - .6 * sd); }
+  const vals = Array.from(sums, T);
+  let mx = S.phi(0) / sd;
+  if (d.disc){
+    const cnt = {}; sums.forEach(s => { cnt[s] = (cnt[s] || 0) + 1; });
+    Object.keys(cnt).forEach(s => { mx = Math.max(mx, cnt[s] / M / scale); });
+    p.view(lo, hi, 0, mx * 1.15).frame({yT: 4});
+    Object.keys(cnt).forEach(s => { const x = T(+s), h = cnt[s] / M / scale; S.rect(p, x - scale * .45, x + scale * .45, 0, h, C.prod, .5); });
+  } else {
+    const nb = 70; mx = Math.max(mx, S.histMax(vals, lo, hi, nb));
+    p.view(lo, hi, 0, mx * 1.15).frame({yT: 4});
+    S.hist(p, vals, lo, hi, nb, C.prod, {alpha: .5});
+  }
+  p.curve(S.fn(p, x => S.phi((x - mean) / sd) / sd, lo, hi, 600), C.h, 2.4);
+  K.out('#cl-nv', n);
+  const lab = {m: 'X̄<sub>n</sub>', s: 'S<sub>n</sub>', z: 'Z<sub>n</sub>'}[clMode];
+  K.html('#cl-t', `Histogram ของ ${lab} จาก ${M.toLocaleString()} การทดลอง (n = ${n})`);
+  const em = S.mean(vals), ev = S.variance(vals);
+  const th = clMode === 'm' ? ['μ', 'σ²/n'] : clMode === 's' ? ['nμ', 'nσ²'] : ['0', '1'];
+  kv('#cl-kv', [['μ, σ² ของประชากร', fmt(d.mu, 3) + ', ' + fmt(d.v, 3)], [`E[${lab}] ทฤษฎี (${th[0]})`, fmt(mean, 3), 'r'], [`E[${lab}] จากการจำลอง`, fmt(em, 3), 'p'],
+    [`Var(${lab}) ทฤษฎี (${th[1]})`, fmt(sd * sd, 4), 'r'], [`Var(${lab}) จากการจำลอง`, fmt(ev, 4), 'p'], ['SD = σ/√n (ของ X̄)', fmt(Math.sqrt(d.v / n), 4), 'm']]);
+});
+K.bind('#cl-n'); K.$('#cl-d').addEventListener('change', K.redraw);
+K.$('#cl-v').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; K.$$('#cl-v button').forEach(x => x.setAttribute('aria-pressed', x === b)); clMode = b.dataset.k; K.redraw(); });
+let clT = 0;
+const clTick = K.ticker(dt => { clT += dt * 6; const n = Math.min(50, 1 + Math.floor(clT)); K.$('#cl-n').value = n; if (n >= 50){ clTick.stop(); K.$('#cl-play').textContent = '▶ เล่น n = 1 → 50'; } });
+K.$('#cl-play').addEventListener('click', () => { if (clTick.running){ clTick.stop(); K.$('#cl-play').textContent = '▶ เล่น n = 1 → 50'; return; } clT = 0; clTick.start(); K.$('#cl-play').textContent = '❚❚ หยุด'; });
+
+/* ===== 04 applications ===== */
+K.fig('ap-plot', p => {
+  const n = K.val('#ap-n'), pp = K.val('#ap-p');
+  const kEl = K.$('#ap-k'); if (+kEl.max !== n){ kEl.max = n; if (+kEl.value > n) kEl.value = n; }
+  const k = K.val('#ap-k');
+  const mu = n * pp, sd = Math.sqrt(n * pp * (1 - pp));
+  const lo = Math.max(-0.8, Math.floor(mu - 4.5 * sd)), hi = Math.min(n + .8, Math.ceil(mu + 4.5 * sd));
+  let mx = 0; for (let i = Math.max(0, Math.ceil(lo)); i <= hi; i++) mx = Math.max(mx, S.binomPmf(i, n, pp));
+  mx = Math.max(mx, S.phi(0) / sd);
+  p.view(lo, hi, 0, mx * 1.18).frame({tick: K.nice(hi - lo, 12), yT: 4, xl: 'k'});
+  p.area(S.fn(p, x => S.phi((x - mu) / sd) / sd, k, hi, 300), C.h, .18);
+  for (let i = Math.max(0, Math.ceil(lo)); i <= Math.min(n, Math.floor(hi)); i++) p.stem(i, S.binomPmf(i, n, pp), i > k ? C.mark : C.axis, {r: hi - lo > 60 ? 1.8 : 3, w: hi - lo > 60 ? 1.4 : 2, alpha: i > k ? 1 : .55});
+  p.curve(S.fn(p, x => S.phi((x - mu) / sd) / sd, lo, hi, 500), C.h, 2.2);
+  p.vline(k, C.h, 'k = ' + k);
+  const exact = 1 - S.binomCdf(k, n, pp), z = (k - mu) / sd, zc = (k + .5 - mu) / sd;
+  K.out('#ap-nv', n); K.out('#ap-pv', fx(pp)); K.out('#ap-kval', k);
+  kv('#ap-kv', [['E[S] = np , SD = √(np(1−p))', fmt(mu, 2) + ' , ' + fmt(sd, 3)], ['z = (k − np)/SD', fmt(z, 3), 'm'], ['ค่าตรง Σ binomial', fmt(exact, 4), 'g'],
+    ['CLT: 1 − Φ(z)', fmt(1 - S.Phi(z), 4), 'r'], ['CLT + continuity (k + ½)', fmt(1 - S.Phi(zc), 4), 'p'], ['n·min(p, 1−p) (อยากให้ ≥ 5–10)', fmt(n * Math.min(pp, 1 - pp), 1)]]);
+});
+K.bind('#ap-n, #ap-p, #ap-k');
+K.$('#ap-pre').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; K.$$('#ap-pre button').forEach(x => x.setAttribute('aria-pressed', x === b));
+  K.$('#ap-n').value = b.dataset.n; K.$('#ap-k').max = b.dataset.n; K.$('#ap-p').value = b.dataset.p; K.$('#ap-k').value = b.dataset.k; K.redraw(); });
+
+/* ===== 05 CI polling ===== */
+K.fig('ci-plot', p => {
+  const n = K.val('#ci-n'); const xEl = K.$('#ci-x'); if (+xEl.max !== n){ xEl.max = n; if (+xEl.value > n) xEl.value = n; }
+  const x = K.val('#ci-x'), z = +K.sval('#ci-c'), ph = x / n;
+  const mw = z * .5 / Math.sqrt(n), mp = z * Math.sqrt(ph * (1 - ph) / n);
+  p.pad = {l: 20, r: 20, t: 18, b: 26};
+  p.view(0, 1, 0, 3).frame({tick: .1, grid: .05, noY: true});
+  const seg = (y, a, b, col, lab) => { p.curve([[a, y], [b, y]], col, 5); p.dot(a, y, col, 4); p.dot(b, y, col, 4);
+    p.label(lab, Math.min(.98, Math.max(.02, (a + b) / 2)), y + .55, col, {font: '600 12px "IBM Plex Mono", monospace'}); };
+  seg(2, Math.max(0, ph - mw), Math.min(1, ph + mw), C.mark, `[${fmt(ph - mw, 3)}, ${fmt(ph + mw, 3)}]`);
+  seg(.9, Math.max(0, ph - mp), Math.min(1, ph + mp), C.prod, `[${fmt(ph - mp, 3)}, ${fmt(ph + mp, 3)}]`);
+  p.vline(ph, C.h, 'p̂ = ' + fmt(ph, 3));
+  p.vline(.5, C.axis, null, {dash: [2, 3]});
+  K.out('#ci-nv', n); K.out('#ci-xv', x);
+  kv('#ci-kv', [['p̂ = x/n', fmt(ph, 4), 'r'], ['σ ≤ 1/2 → z·σ<sub>X̄</sub> ≤ z/(2√n)', '± ' + fmt(mw, 4), 'm'], ['plug-in z√(p̂(1−p̂)/n)', '± ' + fmt(mp, 4), 'p'],
+    ['คร่อม 0.5 ไหม (worst case)', (ph - mw <= .5 && ph + mw >= .5) ? 'คร่อม — ยังสรุปไม่ได้' : 'ไม่คร่อม', (ph - mw <= .5 && ph + mw >= .5) ? 'r' : 'g'], ['n ที่ต้องใช้ให้ได้ ±1% (z = 2)', '10,000']]);
+});
+K.bind('#ci-n, #ci-x'); K.$('#ci-c').addEventListener('change', K.redraw);
+
+/* ===== 06 CI meaning ===== */
+let cmSeed = 99, cmTot = 0, cmHit = 0, cmLast = '';
+K.fig('cm-plot', p => {
+  const p0 = K.val('#cm-p'), n = K.val('#cm-n'), plug = K.sval('#cm-f') === 'p';
+  S.reseed(cmSeed);
+  const ivs = []; let hit = 0;
+  for (let i = 0; i < 100; i++){ const ph = S.sampleBinom(n, p0) / n; const m = plug ? 1.96 * Math.sqrt(ph * (1 - ph) / n) : 1 / Math.sqrt(n); const ok = ph - m <= p0 && p0 <= ph + m; if (ok) hit++; ivs.push([ph, m, ok]); }
+  const w = Math.max(...ivs.map(v => Math.abs(v[0] - p0) + v[1])) * 1.08;
+  p.pad = {l: 34, r: 16, t: 14, b: 26};
+  p.view(p0 - w, p0 + w, 0, 101).frame({yTick: 20});
+  ivs.forEach(([ph, m, ok], i) => { p.curve([[ph - m, i + 1], [ph + m, i + 1]], ok ? C.mark : C.h, ok ? 1.6 : 2.6, {alpha: ok ? .75 : 1}); p.dot(ph, i + 1, ok ? C.mark : C.h, 1.8); });
+  p.vline(p0, C.y, 'p₀ = ' + fx(p0), {w: 2});
+  const sig = [p0, n, plug, cmSeed].join();
+  if (sig !== cmLast){ cmLast = sig; cmTot += 100; cmHit += hit; }
+  K.out('#cm-pv', fx(p0)); K.out('#cm-nv', n);
+  K.html('#cm-eq', `รอบนี้ ${hit} จาก 100 ช่วงคร่อม p₀ · สะสมทั้งหมด ${cmHit.toLocaleString()} / ${cmTot.toLocaleString()} = ${S.pct(cmHit / cmTot, 1)}`);
+  K.html('#cm-sub', plug ? 'สูตร plug-in กับ z = 1.96 ออกแบบให้ได้ ~95% (ต่ำกว่าเล็กน้อยเมื่อ n เล็กหรือ p₀ ใกล้ 0/1)' : 'สูตร worst case กว้างกว่าที่จำเป็นเมื่อ p₀ ห่าง 0.5 จึงคร่อมได้มากกว่า 95% (อนุรักษ์นิยม)');
+  K.html('#cm-val', `${hit}/100`);
+});
+K.bind('#cm-p, #cm-n'); K.$('#cm-f').addEventListener('change', K.redraw);
+K.$('#cm-new').addEventListener('click', () => { cmSeed = (Math.random() * 1e9) | 0; K.redraw(); });
+
+K.boot();
+})();
+
+</script>
+</body>
+</html>

@@ -13,10 +13,14 @@ Visualizer Web/
 │   ├── fourier-dt.html                 ← Lecture 04 DTFS / DTFT / DFT / FFT
 │   ├── sampling-filtering.html         ← Lecture 05 Sampling & Filtering
 │   └── quantum-fourier.html            ← เสริม: Quantum Fourier Transform (ต่อจาก Lecture 04)
-└── Optimization/
-    ├── exam-2020.html                  ← เฉลย Quiz 1 2020/1 ครบ 8 ข้อ (ทีละขั้น)
-    ├── exam-2021.html                  ← เฉลย Quiz 1 2021 (3 ข้อ formulation)
-    └── exam-2025.html                  ← เฉลย Quiz 2025/1 ข้อ 6–7 (integer program)
+├── Optimization/
+│   ├── exam-2020.html                  ← เฉลย Quiz 1 2020/1 ครบ 8 ข้อ (ทีละขั้น)
+│   ├── exam-2021.html                  ← เฉลย Quiz 1 2021 (3 ข้อ formulation)
+│   └── exam-2025.html                  ← เฉลย Quiz 2025/1 ข้อ 6–7 (integer program)
+└── Prob & Stat/
+    ├── probability-review.html         ← Stats Lecture 0 Overview & Probability Review
+    ├── lln-clt.html                    ← Stats Lecture 1 LLN & CLT (+ confidence interval)
+    └── estimation.html                 ← Stats Lecture 1B Sampling & Estimation (MLE / MAP)
 
 ../Midterm Signals/index.html           ← เฉลย Midterm Quiz 2 (ลิงก์จาก Signal Part I ด้วย path)
 ```
@@ -48,4 +52,7 @@ Visualizer Web/
 | Sampling | `f = 13 Hz, fs = 10 Hz → fp = 3 Hz` · เสียง 5 kHz → `ωs = 62832 rad/s, T = 0.1 ms` |
 | Optim · Quiz 2020 | Q3 ช่องว่าง `a = 12, y = −8`, optimal `(5,12), z = 44` · Q4 `z = 5` ที่ `(2,0)` + alternative optima ถึง `(0,5)` · Q5 `z = 20` ที่ `(0,4)` · Q6 `0.61 ฿/g` · Q7 `฿15,500` · ตรวจด้วย scipy `linprog` |
 | Optim · Quiz 2021 | คนงาน `h₁ = 54.63, u₂ = 22.22`, ต้นทุน `1,831,759` (จ้างครบเมื่อค่าปรับ > 16,033) · แผนเงินเดือน A `d = 930, e = 100, ฿13,300` |
+| Stats · Review | coin `P(H)=0.7`, 10 ครั้ง → `P(X=6) = 0.2001` · ยา COVID 9/40 vs 10/40 · ลอตเตอรี่ `E ≈ 10¹⁰ − 10` · Anscombe ρ = 0.816 ทั้ง 4 ชุด |
+| Stats · LLN & CLT | เหรียญ 100 ครั้ง `P(S>55) ≈ P(Z>1) ≈ 0.16` (ค่าตรง 0.1356) · Maxwell `P(S>60) ≈ 0.023` (ค่าตรง 0.0176) · Ham-Hams 240/400 → 95% CI `[0.55, 0.65]` |
+| Stats · Estimation | `f(x)=2x → F⁻¹(u)=√u` · Exp `u=0.632 → x=1` · Maxwell 55/100 → `p̂=0.55` · เครื่องจักร 2,3,1,3,4 → `λ̂=5/13` · Cappy 0,0,2 → `p̂=3/5` · ลูกโอ๊ก posterior `0.0954/0.5825/0.3221`, MAP `0.5`, predictive `0.4964` |
 | Optim · Quiz 2025 | เลือกตั้ง `248` ที่นั่ง (ใช้ 996 ล้าน) · ชั้นวางตัวอย่าง 7.1–7.4 = `50 / 55.5 / 100 / 104` จาก scipy `milp` (ตัวเลขสินค้าเป็นตัวอย่างสมมติ) |
