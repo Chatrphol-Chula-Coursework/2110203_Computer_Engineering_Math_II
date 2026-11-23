@@ -156,7 +156,13 @@ const PARTS = [
       tags: ['<span class="math">X̄<sub>n</sub> ≈ N(μ, σ²/n)</span>', '<span class="math">p̂ ± 1/√n</span>', 'P(Z > 1) ≈ 0.16', 'CI coverage'] },
     { id: 'estimation', no: '01B', title: 'Sampling & Estimation', th: 'การสุ่มตัวอย่างและการประมาณค่า', file: 'estimation.html',
       desc: 'Inverse transform sampling (u → F⁻¹(u)), likelihood / log-likelihood ของ binomial ทีละขั้น, MLE ของ exponential (λ̂ = 5/13) และ geometric (p̂ = 3/5), bias ของ σ̂², MAP หาลูกโอ๊ก (posterior 0.0954 / 0.5825 / 0.3221) และ credible vs confidence interval',
-      tags: ['<span class="math">x = F<sup>−1</sup>(u)</span>', 'MLE', 'MAP', 'bias · variance', 'Beta prior'] }
+      tags: ['<span class="math">x = F<sup>−1</sup>(u)</span>', 'MLE', 'MAP', 'bias · variance', 'Beta prior'] },
+    { id: 'exam2024', no: '’24', kind: 'EXAM', title: 'Exam 2024', th: 'เฉลยข้อสอบเก่า', file: 'exam-2024.html',
+      desc: 'เฉลยครบ 6 ข้อทีละขั้น: correlation, หา c ของ pdf, CI, Bayes ตรวจมะเร็ง, p-value, z-test โพลเลือกตั้ง, t-test + Bonferroni (ช็อกโกแลต 10 รส), two-sample t-test, MLE ของ mixture (θ̂ = 5/11) และออกแบบ A/B test — พร้อมเตือนว่าตาราง t ในข้อสอบป้ายเลื่อน',
+      tags: ['z / t-test', 'Bonferroni', 'MLE mixture', 'A/B sample size'] },
+    { id: 'practice', no: 'W', kind: 'PRACTICE', title: 'More Practice', th: 'เฉลยโจทย์เขียนตอบ', file: 'practice.html',
+      desc: 'W1–W10: เลือก metric ด้วย coefficient of variation, ออกแบบ A/B test ระดับโพสต์ + power analysis, algorithm เปลี่ยนรายวัน, t-test ร้านกาแฟ, familiarity/วิชาที่สอน (Fisher, confounding) และครูจับโค้ด AI ได้ reliable ไหม',
+      tags: ['metric choice', 'power analysis', 'confounding', 'two-proportion'] }
   ]}
 ];
 

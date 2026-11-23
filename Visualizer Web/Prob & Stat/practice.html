@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- CP203 Stats · More practice questions step-by-step solutions -->
+<title>Stats Practice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400;1,600&display=swap">
+<style>
+
+html,body{margin:0}
+[hidden]{display:none!important}
+img{max-width:100%}
+/* ===== shared tokens & layout for CEMII lecture pages ===== */
+:root{
+  --bg:#EEF1F5; --surface:#FFFFFF; --sunk:#F6F8FB; --ink:#18202D; --muted:#5A6577; --line:#D3DAE4;
+  --grid:rgba(52,86,140,.10); --axis:#8792A5;
+  --x:#1C2638; --h:#D0392C; --mark:#2E6BD9; --prod:#7A4ED3; --y:#12865A; --amber:#B8770F; --on-mark:#FFFFFF;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1219; --surface:#151B24; --sunk:#111721; --ink:#E5E9F0; --muted:#98A2B3; --line:#29323F;
+    --grid:rgba(150,180,230,.08); --axis:#5F6979;
+    --x:#DDE4EF; --h:#FF6C5E; --mark:#6FA1FF; --prod:#B596FF; --y:#44CF98; --amber:#E8A93E; --on-mark:#0E1219;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1219; --surface:#151B24; --sunk:#111721; --ink:#E5E9F0; --muted:#98A2B3; --line:#29323F;
+  --grid:rgba(150,180,230,.08); --axis:#5F6979;
+  --x:#DDE4EF; --h:#FF6C5E; --mark:#6FA1FF; --prod:#B596FF; --y:#44CF98; --amber:#E8A93E; --on-mark:#0E1219;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.65 "IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:clamp(16px,3vw,36px);padding-block:28px 72px}
+.math{font-family:"STIX Two Text","Cambria Math","Times New Roman",serif;font-style:italic;letter-spacing:.01em}
+.up{font-style:normal}
+code{font:12.5px/1.4 "IBM Plex Mono",ui-monospace,monospace;background:color-mix(in srgb,var(--ink) 7%,transparent);padding:1px 5px;border-radius:4px;white-space:nowrap}
+:focus-visible{outline:2px solid var(--mark);outline-offset:2px}
+
+header.top{padding-bottom:20px;border-bottom:1px solid var(--line)}
+.eyebrow{font:500 12px/1.4 "IBM Plex Mono",ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+h1{font:600 clamp(28px,4.2vw,42px)/1.06 "STIX Two Text","Times New Roman",serif;margin:0;letter-spacing:-.01em;text-wrap:balance}
+h1 .math{font-weight:400;color:var(--muted);font-size:.58em;margin-left:.3em;white-space:nowrap}
+.lede{margin:10px 0 0;color:var(--muted);max-width:66ch}
+
+.layout{display:grid;grid-template-columns:248px minmax(0,1fr);gap:32px;margin-top:24px;align-items:start}
+@media (max-width:920px){.layout{grid-template-columns:minmax(0,1fr);gap:20px}}
+.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);display:flex;flex-direction:column;gap:2px;max-height:calc(100vh - 40px);overflow-y:auto}
+@media (max-width:920px){.toc{position:static;max-height:none;flex-direction:row;flex-wrap:wrap;gap:6px;padding-bottom:4px}}
+.toc .lab{font:500 11.5px/1.4 "IBM Plex Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+@media (max-width:920px){.toc .lab{width:100%;margin-bottom:2px}}
+.toc a{display:flex;gap:9px;align-items:baseline;padding:7px 10px;border-radius:8px;color:var(--muted);text-decoration:none;font-size:14px;line-height:1.35;border:1px solid transparent}
+.toc a b{font:600 11.5px/1.4 "IBM Plex Mono",monospace;color:var(--muted);flex:none}
+.toc a:hover{background:color-mix(in srgb,var(--mark) 7%,transparent);color:var(--ink)}
+.toc a.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.toc a.on b{color:inherit;opacity:.72}
+
+main{display:flex;flex-direction:column;gap:14px;min-width:0}
+section.sec{scroll-margin-top:24px;padding-block:14px 26px;border-top:1px dashed var(--line)}
+section.sec:first-of-type{border-top:0;padding-top:0}
+section.sec > h2{font:600 24px/1.25 "STIX Two Text","Times New Roman",serif;margin:0 0 4px;display:flex;flex-wrap:wrap;align-items:baseline;gap:10px}
+section.sec > h2 .n{font:600 12px/1 "IBM Plex Mono",monospace;color:var(--mark);letter-spacing:.06em}
+section.sec > h2 .th{font-family:"IBM Plex Sans Thai",sans-serif;font-size:15px;font-weight:400;color:var(--muted)}
+.intro{margin:6px 0 16px;color:var(--muted);max-width:74ch}
+.intro b{color:var(--ink);font-weight:600}
+
+/* formula card */
+.fcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:14px}
+.fcard .ftitle{font:500 11.5px/1.4 "IBM Plex Mono",monospace;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+.fbig{font-size:clamp(19px,2.6vw,25px);line-height:2.1;overflow-x:auto;padding-bottom:2px}
+.fbig.sm{font-size:clamp(17px,2.2vw,21px)}
+.legend-sym{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px 18px;margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
+.legend-sym div{display:flex;gap:9px;align-items:baseline;font-size:13.5px;color:var(--muted)}
+.legend-sym .s{font-family:"STIX Two Text",serif;font-style:italic;font-size:17px;color:var(--ink);flex:none;min-width:2.4em}
+.note{margin:10px 0 0;font-size:13.5px;color:var(--muted)}
+.note b{color:var(--ink)}
+.warn{border-left:3px solid var(--amber);padding-left:12px;margin:12px 0 0;font-size:13.5px;color:var(--muted)}
+.warn b{color:var(--ink)}
+
+/* derivation stepper */
+.deriv{margin:0;padding:0;list-style:none;counter-reset:d}
+.deriv li{counter-increment:d;display:grid;grid-template-columns:26px minmax(0,1fr);gap:4px 12px;padding:9px 0;border-top:1px solid var(--line);transition:opacity .2s}
+.deriv li:first-child{border-top:0}
+.deriv li::before{content:counter(d);font:600 11px/18px "IBM Plex Mono",monospace;color:var(--muted);background:var(--sunk);border-radius:50%;width:18px;height:18px;text-align:center;margin-top:5px}
+.deriv li.dim{opacity:.22}
+.deriv .ln{font-size:18px;overflow-x:auto}
+.deriv .why{grid-column:2;font-size:13px;color:var(--muted)}
+.dnav{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap}
+.dnav .cnt{font:500 12.5px/1 "IBM Plex Mono",monospace;color:var(--muted)}
+
+/* figures + controls */
+.plot{margin:0 0 12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px 6px}
+.plot figcaption{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 14px;align-items:baseline;margin-bottom:2px}
+.pt{font-weight:600;font-size:14px}
+.pt .math{font-weight:400;font-size:15.5px}
+.legend{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:12.5px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:3px;border-radius:2px;background:var(--c)}
+.legend i.dash{background:repeating-linear-gradient(90deg,var(--c) 0 4px,transparent 4px 7px)}
+.legend .math{font-size:14px;color:var(--ink)}
+canvas{display:block;width:100%;height:200px;touch-action:pan-y}
+canvas.drag{cursor:ew-resize}
+.ctrls{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:12px}
+.ctrl{display:flex;align-items:center;gap:9px;font-size:13.5px;flex:1 1 210px;min-width:0}
+.ctrl > span:first-child{color:var(--muted);white-space:nowrap}
+.ctrl input[type=range]{flex:1;min-width:80px;accent-color:var(--mark)}
+.ctrl output{font:600 13px/1 "IBM Plex Mono",monospace;color:var(--mark);min-width:3.4em;text-align:right;font-variant-numeric:tabular-nums}
+.ctrl select,.ctrl input[type=text]{font:13.5px "IBM Plex Mono",monospace;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 8px;max-width:100%}
+.ctrl select{font-family:"IBM Plex Sans Thai",sans-serif;cursor:pointer;flex:1}
+.btn{appearance:none;font:500 13.5px/1 "IBM Plex Sans Thai",system-ui,sans-serif;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 12px;min-height:34px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--mark)}
+.btn.primary{background:var(--mark);border-color:var(--mark);color:var(--on-mark)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.sm{min-height:30px;padding:6px 10px;font-size:13px}
+.chk{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;color:var(--muted);cursor:pointer}
+.chk input{accent-color:var(--mark)}
+
+/* readout */
+.out{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 20px;padding:12px 4px;border-block:1px dashed var(--line);margin-bottom:12px;min-height:74px}
+.out .l{display:flex;flex-direction:column;gap:3px;min-width:0;font-size:17px;flex:1 1 320px}
+.out .l .sub{font-size:13px;color:var(--muted)}
+.out .r{font:600 24px/1 "IBM Plex Mono",monospace;color:var(--y);white-space:nowrap}
+.out .r.small{font-size:18px}
+
+/* math bits */
+.bigop{display:inline-flex;align-items:center;vertical-align:middle;margin:0 .1em 0 .12em}
+.bigop .op{font-style:normal;font-size:1.4em;line-height:1}
+.bigop .lims{display:inline-flex;flex-direction:column;justify-content:space-between;font-size:.55em;line-height:1.2;margin-left:.12em;min-height:2.2em}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;font-size:.86em;line-height:1.25;margin:0 .14em}
+.frac>span:last-child{border-top:1px solid currentColor;padding-top:1px}
+.cases{display:inline-flex;align-items:center;vertical-align:middle}
+.cases .brace{font-size:2.6em;line-height:1;font-style:normal;margin-right:.08em}
+.cases .rows{display:grid;grid-template-columns:auto auto;gap:3px 16px;align-items:center;font-size:.92em}
+.cases .cond{color:var(--muted);white-space:nowrap}
+.box{display:inline-block;border:1.5px solid var(--y);border-radius:8px;padding:2px 10px;background:color-mix(in srgb,var(--y) 8%,transparent)}
+.hl{background:color-mix(in srgb,var(--mark) 16%,transparent);border-radius:4px;padding:0 3px}
+.hl2{background:color-mix(in srgb,var(--prod) 16%,transparent);border-radius:4px;padding:0 3px}
+
+/* tables */
+.tscroll{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface);margin-bottom:12px}
+table{border-collapse:collapse;font:13.5px/1.35 "IBM Plex Sans Thai",sans-serif;width:max-content;min-width:100%}
+th,td{padding:9px 12px;text-align:left;vertical-align:top;border-top:1px solid var(--line)}
+thead th{border-top:0;color:var(--muted);font-weight:500;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase}
+td.m,th.m{font-family:"STIX Two Text",serif;font-style:italic;font-size:15.5px}
+td.num{font-family:"IBM Plex Mono",monospace;font-style:normal;text-align:right;font-variant-numeric:tabular-nums}
+tbody tr.on{background:color-mix(in srgb,var(--mark) 10%,transparent)}
+.mini{font-size:12.5px;color:var(--muted)}
+footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:space-between}
+footer a{color:var(--mark)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+
+.wrapc{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.verdict{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;padding:6px 12px;border-radius:999px}
+.verdict.ok{color:var(--y);background:color-mix(in srgb,var(--y) 13%,transparent)}
+.verdict.bad{color:var(--h);background:color-mix(in srgb,var(--h) 13%,transparent)}
+.calc{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center}
+.calc input[type=number]{width:110px;font:14px "IBM Plex Mono",monospace;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+
+/* ===== Prob & Stat additions ===== */
+.two{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-bottom:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.card h3{margin:0 0 6px;font-size:15px;font-weight:600}
+.card h3 .tag{font:500 11px/1 "IBM Plex Mono",monospace;letter-spacing:.06em;color:var(--mark);margin-right:6px;text-transform:uppercase}
+.card p,.card ul{margin:0;font-size:14px;color:var(--muted)}
+.card ul{padding-left:18px}
+.card li{margin:3px 0}
+.card b{color:var(--ink);font-weight:600}
+.card .math{color:var(--ink)}
+.kv{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:0 0 12px}
+.kv div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;min-width:0}
+.kv span{display:block;font-size:12px;color:var(--muted)}
+.kv b{display:block;font:600 17px/1.3 "IBM Plex Mono",monospace;color:var(--ink);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.kv b.g{color:var(--y)} .kv b.r{color:var(--h)} .kv b.m{color:var(--mark)} .kv b.p{color:var(--prod)}
+.seg{display:inline-flex;flex-wrap:wrap;gap:4px;background:var(--sunk);border:1px solid var(--line);border-radius:10px;padding:3px}
+.seg button{appearance:none;border:0;background:transparent;color:var(--muted);font:500 13px/1 "IBM Plex Sans Thai",sans-serif;padding:7px 11px;border-radius:7px;cursor:pointer;min-height:30px}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.jt input{width:58px;font:13.5px "IBM Plex Mono",monospace;color:var(--ink);background:var(--sunk);border:1px solid var(--line);border-radius:6px;padding:5px 6px;text-align:right}
+.jt td,.jt th{text-align:center}
+.jt .mg{color:var(--prod);font-family:"IBM Plex Mono",monospace;font-weight:600}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:6px 0 12px}
+.flow .nd{background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13.5px;line-height:1.35}
+.flow .nd b{display:block;font-size:14.5px}
+.flow .nd span{color:var(--muted);font-size:12.5px}
+.flow .ar{color:var(--muted);font-size:12.5px;display:flex;flex-direction:column;align-items:center;line-height:1.2;text-align:center}
+.flow .ar::after{content:"⟶";font-size:20px;color:var(--mark);line-height:1}
+.src{font-size:12.5px;color:var(--muted);margin:4px 0 0}
+.ex{border:1px solid var(--line);border-left:3px solid var(--mark);border-radius:10px;background:var(--surface);padding:12px 14px;margin-bottom:12px}
+.ex .q{font-size:14.5px;margin:0 0 6px}
+.ex .q b{color:var(--mark)}
+.ex .a{font-size:14px;color:var(--muted);margin:0}
+.ex .a b{color:var(--ink)}
+.right{color:var(--y);font-weight:600}.wrong{color:var(--h);font-weight:600}
+.kv b.tx{font:italic 400 16px/1.5 "STIX Two Text",serif}
+.legend .math sub{font-size:.75em}
+.jt thead th{text-transform:none;letter-spacing:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">CP203 Stats · More practice questions · เฉลยทีละขั้น</p>
+    <h1>Stats Practice <span class="math">W1–W10</span></h1>
+    <p class="lede">เฉลยโจทย์เขียนตอบ 3 ชุด: A/B test บน “H” (W1–W4), ร้านกาแฟของ Noppo (W5–W7) และครู Oxnard จับโค้ด AI (W7–W10 ของอีกชุด) — โจทย์แบบนี้ให้คะแนนที่<b>เหตุผล + assumption + setup ของ test</b> จึงเขียนครบทุกส่วนพร้อมตัวเลขที่ตรวจด้วย scipy แล้ว</p>
+  </header>
+
+  <div class="layout">
+    <nav class="toc" aria-label="ข้อ">
+      <span class="lab">ข้อ</span>
+      <a href="#w1"><b>W1</b><span>เลือก metric</span></a>
+      <a href="#w2"><b>W2</b><span>ออกแบบการทดลอง</span></a>
+      <a href="#w3"><b>W3</b><span>Stopping criterion (10%)</span></a>
+      <a href="#w4"><b>W4</b><span>ถ้า algorithm เปลี่ยนทุกวัน</span></a>
+      <a href="#w5"><b>W5</b><span>ดูแค่ค่าเฉลี่ยพอไหม</span></a>
+      <a href="#w6"><b>W6</b><span>ข้อบกพร่องของการทดลอง</span></a>
+      <a href="#w7c"><b>W7</b><span>t-test ร้านกาแฟ</span></a>
+      <a href="#g7"><b>W7′</b><span>familiarity มีผลไหม</span></a>
+      <a href="#g8"><b>W8</b><span>วิชาที่สอนมีผลไหม</span></a>
+      <a href="#g9"><b>W9</b><span>ครูจับ AI ได้ reliable ไหม</span></a>
+      <a href="#g10"><b>W10</b><span>คำแนะนำให้ Oxnard</span></a>
+    </nav>
+
+    <main>
+      <!-- ================= Set 1 ================= -->
+      <section class="sec" id="w1">
+        <h2><span class="n">W1</span> ควรใช้ metric อะไร <span class="th">— ชุดที่ 1: Hamtaro บน “H”</span></h2>
+        <div class="ex"><p class="q"><b>สถานการณ์.</b> Algorithm ใหม่ทำให้ทุก metric ของโพสต์ลด 30% · Koushi เสนอว่า<b>ย้ายลิงก์จากในโพสต์ไปไว้ในคอมเมนต์</b>จะช่วยได้ · โพสต์ 1–3 กีฬา, 4–6 รีวิวร้านอาหาร, โพสต์ 3 และ 6 คุณภาพต่ำ (เขียนด้วย ChadGPT) · 99% ของ views เกิดในวันแรก ผู้ใช้เข้าช่วงพักเที่ยง</p></div>
+        <div class="tscroll"><table>
+          <thead><tr><th>Post</th><th>Reactions</th><th>Likes</th><th>Comments</th><th>“Read more”</th><th>Share</th></tr></thead>
+          <tbody id="w1-tab"></tbody></table></div>
+        <figure class="plot"><figcaption><span class="pt">ความแปรปรวนของแต่ละ metric ระหว่างโพสต์ (coefficient of variation = s/x̄)</span><span class="legend"><span><i style="--c:var(--mark)"></i>CV ทั้ง 6 โพสต์</span></span></figcaption><canvas id="w1-cv" data-h="190"></canvas></figure>
+        <div class="fcard"><ol class="deriv">
+          <li><div class="ln"><b>เกณฑ์เลือก metric</b>: (1) วัดสิ่งที่ treatment ตั้งใจเปลี่ยน (2) ไม่ถูก treatment “บิด” โดยตรง (3) variance ต่ำ → ใช้ sample น้อยกว่าในการเห็นผล (power สูง) (4) ไม่ขึ้นกับประเภท/คุณภาพโพสต์มาก</div><div class="why">variance ของ metric กำหนด sample size: n ∝ σ²/Δ²</div></li>
+          <li><div class="ln"><b>Comments ✗</b> — ถูก treatment ปนโดยตรง: ลิงก์อยู่ในคอมเมนต์ → คนเปิดคอมเมนต์มากขึ้น และเจ้าของโพสต์เองก็คอมเมนต์ลิงก์ · ยังผันผวนสูงสุด (CV ≈ 1.0: โพสต์ดราม่า Saudi 2,030 vs Are-Am-Eat 103)</div><div class="why">metric ที่ treatment เปลี่ยนเชิงกลไกจะทำให้ “ดูเหมือนดีขึ้น” โดยไม่มีอะไรดีขึ้นจริง</div></li>
+          <li><div class="ln"><b>Reactions ✗/△</b> — รวม comments อยู่แล้ว จึงปนเหมือนกัน และขึ้นกับคุณภาพโพสต์ (23k/22k สำหรับโพสต์คุณภาพต่ำ)</div><div class="why"></div></li>
+          <li><div class="ln"><b>Likes / Shares △</b> — ขึ้นกับ<b>ประเภท</b>โพสต์มาก (likes กีฬา ~2.2k vs รีวิว ~1.1k, shares รีวิว 3–5k vs กีฬา ≤1.2k) → ต้อง stratify ตามประเภท ใช้เป็น guardrail ได้</div><div class="why">ถ้าสุ่มแล้วได้ประเภทไม่สมดุล ผลจะเพี้ยน</div></li>
+          <li><div class="ln"><b>“Read more” clicks ✓</b> — นิ่งที่สุด (1.0–1.2k ทุกโพสต์, CV ≈ 6.7%) ไม่ขึ้นกับประเภทหรือคุณภาพ และสะท้อน <b>reach × ความสนใจ</b> ซึ่งคือสิ่งที่ algorithm ลดลง</div><div class="why">variance ต่ำ = sensitivity สูง → เห็นผล 10% ได้ด้วยโพสต์ไม่กี่อัน</div></li>
+          <li><div class="ln"><span class="box">Primary metric: “Read more” clicks ต่อโพสต์ (ใน 24 ชม.)</span> — ถ้าเก็บได้ ให้ใช้<b>คลิกลิงก์ / impressions</b> (CTR) ซึ่งตรงเป้าหมายธุรกิจที่สุด · guardrail: likes, shares</div><div class="why">ใช้ข้อมูลวันแรกพอ เพราะ 99% ของ views เกิดในวันแรก</div></li>
+        </ol></div>
+      </section>
+
+      <section class="sec" id="w2">
+        <h2><span class="n">W2</span> ควรทำการทดลองอย่างไร <span class="th">— การแบ่ง A/B และสิ่งที่ต้องคุม</span></h2>
+        <div class="fcard"><ol class="deriv">
+          <li><div class="ln"><b>หน่วยของการสุ่ม = โพสต์</b> (ไม่ใช่ผู้ใช้) — Hamtaro คุมไม่ได้ว่าผู้ใช้คนไหนเห็นอะไร platform เป็นคนกระจาย</div><div class="why">A = ลิงก์ในโพสต์ (control), B = ลิงก์ในคอมเมนต์ (treatment)</div></li>
+          <li><div class="ln"><b>Blocking / stratify</b>: จับคู่โพสต์ที่คล้ายกัน (ประเภทเดียวกัน คุณภาพเดียวกัน) แล้ว<b>สุ่ม</b>ว่าอันไหนได้ A อันไหนได้ B</div><div class="why">ลด variance จากประเภท/คุณภาพ และกันไม่ให้ treatment ปนกับประเภทโพสต์ (confounding)</div></li>
+          <li><div class="ln"><b>คุมเวลา</b>: โพสต์ทั้งคู่ช่วงพักเที่ยงของวันเดียวกัน (หรือสลับ A/B ทุกวันแบบสุ่ม) · คุมจำนวน/ขนาดรูป ความยาว และ<b>ตัดโพสต์คุณภาพต่ำจาก junior writer</b> หรือให้กระจายเท่ากันสองกลุ่ม</div><div class="why">ผู้ใช้เข้าช่วงเที่ยง → เวลาโพสต์มีผลต่อ reach</div></li>
+          <li><div class="ln"><b>ค่าที่ monitor</b>: “Read more” clicks (หรือ CTR) ของแต่ละโพสต์ ณ 24 ชม. หลังโพสต์ → ได้ 1 ค่าต่อโพสต์ · เปรียบเทียบด้วย two-sample t-test (หรือ paired t-test ถ้าจับคู่)</div><div class="why"></div></li>
+          <li><div class="ln"><b>Assumptions</b>: algorithm คงที่ระหว่างทดลอง · โพสต์แต่ละอันอิสระกัน (ไม่ดึง traffic กัน) · ผู้ติดตามเดิมไม่เปลี่ยนมาก · metric ประมาณ Normal (CLT จากผู้ใช้จำนวนมาก)</div><div class="why"></div></li>
+        </ol></div>
+      </section>
+
+      <section class="sec" id="w3">
+        <h2><span class="n">W3</span> Stopping criterion ถ้ายอมรับการปรับปรุงอย่างน้อย 10% <span class="th">— power analysis</span></h2>
+        <div class="fcard"><ol class="deriv">
+          <li><div class="ln math">Read more ก่อนเปลี่ยน: 1.1, 1.2, 1.0, 1.1, 1.2, 1.1 (k) → x̄ = 1.117k , s = 0.0753k</div><div class="why">ใช้ข้อมูลเก่าประมาณ σ</div></li>
+          <li><div class="ln math">หลัง algorithm ใหม่ (ลด 30%): μ ≈ 0.782k , σ ≈ 0.0527k</div><div class="why">assumption: ลดเป็นสัดส่วน → CV เท่าเดิม</div></li>
+          <li><div class="ln math">Δ = 10% × 0.782k = 0.0782k</div><div class="why">minimum detectable effect</div></li>
+          <li><div class="ln math">H₀: μ<sub>B</sub> − μ<sub>A</sub> ≤ 0 , H<sub>A</sub>: μ<sub>B</sub> − μ<sub>A</sub> &gt; 0 · α = 0.05 (one-sided), power 0.8</div><div class="why">สนใจเฉพาะว่า B ดีขึ้น</div></li>
+          <li><div class="ln math">n ต่อกลุ่ม = <span class="frac"><span>2(z<sub>α</sub> + z<sub>β</sub>)² σ²</span><span>Δ²</span></span> = <span class="frac"><span>2(1.645 + 0.842)²(0.0527)²</span><span>(0.0782)²</span></span> = 5.6 → <span class="box">6 โพสต์ต่อกลุ่ม</span></div><div class="why">ปัดขึ้น · σ ประมาณจากแค่ 6 โพสต์และใช้ t แทน z จริง → เผื่อเป็น 8 ต่อกลุ่มจะปลอดภัยกว่า</div></li>
+          <li><div class="ln"><b>กฎหยุด</b>: โพสต์ครบ n ต่อกลุ่ม (แต่ละโพสต์เก็บผล 24 ชม.) แล้วทดสอบครั้งเดียว: two-sample t-test, df = 2n − 2 = 10, ปฏิเสธ H₀ ถ้า t &gt; t<sub>0.05,10</sub> = 1.812 <b>และ</b> ผลต่างที่ประมาณได้ ≥ 10%</div><div class="why">ห้ามหยุดก่อนเพราะเห็นผลดี (peeking → false positive)</div></li>
+        </ol></div>
+        <div class="ctrls">
+          <label class="ctrl"><span>MDE (%)</span><input type="range" id="w3-m" min="2" max="40" step="1" value="10"><output id="w3-mv"></output></label>
+          <label class="ctrl"><span>CV ของ metric (%)</span><input type="range" id="w3-c" min="2" max="100" step="0.1" value="6.7"><output id="w3-cv"></output></label>
+          <label class="ctrl"><span>power</span><input type="range" id="w3-w" min="0.5" max="0.99" step="0.01" value="0.8"><output id="w3-wv"></output></label>
+        </div>
+        <div class="out"><div class="l"><div id="w3-eq"></div><div class="sub">ลองตั้ง CV = 100% (ถ้าใช้ comments เป็น metric) → ต้องใช้โพสต์มากกว่าร้อยเท่า นี่คือเหตุผลเชิงตัวเลขของ W1</div></div><div class="r" id="w3-val"></div></div>
+      </section>
+
+      <section class="sec" id="w4">
+        <h2><span class="n">W4</span> ถ้า Elon Mark เปลี่ยน algorithm ทุกวัน <span class="th">— non-stationarity</span></h2>
+        <div class="two">
+          <div class="card"><h3>ยังใช้ได้ไหม → <b>ไม่ได้ทั้งหมด</b></h3><ul><li>ผลของ treatment ปนกับผลของ algorithm แต่ละวัน (confounded with time) — ถ้า A ส่วนใหญ่อยู่วันที่ algorithm ใจดี ก็ชนะโดยไม่เกี่ยวกับตำแหน่งลิงก์</li><li>σ ที่ใช้คำนวณ sample size ไม่คงที่ → power analysis ผิด</li><li>ผลที่ได้อาจใช้ไม่ได้กับ algorithm ของวันพรุ่งนี้</li></ul></div>
+          <div class="card"><h3>ทำอย่างไรแทน</h3><ul><li><b>Block by day</b>: ทุกวันโพสต์ทั้ง A และ B (สุ่มลำดับ/ช่วงเวลา) แล้วใช้ <b>paired t-test</b> บนผลต่างรายวัน — algorithm ของวันนั้นหักล้างกันเอง</li><li>หรือใช้ <b>multi-armed bandit</b> (ε-greedy / Thompson sampling, ให้น้ำหนักข้อมูลล่าสุดมากกว่า) ที่ปรับตัวต่อเนื่องเมื่อสภาพแวดล้อมเปลี่ยน</li><li>ติดตามผลระยะยาว ไม่ตัดสินจากการทดลองครั้งเดียว</li></ul></div>
+        </div>
+      </section>
+
+      <!-- ================= Set 2 ================= -->
+      <section class="sec" id="w5">
+        <h2><span class="n">W5</span> ดูแค่ค่าเฉลี่ยแล้วสรุปว่าร้าน 2 เร็วกว่า ได้ไหม <span class="th">— ชุดที่ 2: The daily dose</span></h2>
+        <div class="tscroll"><table>
+          <thead><tr><th>Visit</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>Mean</th><th>s</th></tr></thead>
+          <tbody><tr><td>ร้าน 1 (นาที)</td><td class="num">1</td><td class="num">2</td><td class="num">1</td><td class="num">3</td><td class="num">2</td><td class="num"><b>1.8</b></td><td class="num">0.837</td></tr>
+          <tr><td>ร้าน 2 (นาที)</td><td class="num">3</td><td class="num">1</td><td class="num">1</td><td class="num">2</td><td class="num">1</td><td class="num"><b>1.6</b></td><td class="num">0.894</td></tr></tbody></table></div>
+        <div class="fcard"><ol class="deriv">
+          <li><div class="ln"><b>ไม่ควร</b> — ผลต่าง 0.2 นาที (12 วินาที) เล็กมากเมื่อเทียบกับความกระจายในแต่ละร้าน (s ≈ 0.84–0.89 นาที)</div><div class="why">ความต่างขนาดนี้เกิดจากความบังเอิญได้ง่าย</div></li>
+          <li><div class="ln math">s₁² = [(−0.8)² + 0.2² + (−0.8)² + 1.2² + 0.2²]/4 = 2.8/4 = 0.7 , s₂² = [1.4² + 3(−0.6)² + 0.4²]/4 = 3.2/4 = 0.8</div><div class="why">หารด้วย n − 1</div></li>
+          <li><div class="ln">ค่าเฉลี่ยอย่างเดียวไม่บอก<b>ความไม่แน่นอน</b> — ต้องรายงาน <b>SD/variance, จำนวนตัวอย่าง n, confidence interval</b> และ/หรือ <b>p-value</b> ของการทดสอบ</div><div class="why">95% CI ของผลต่าง: 0.2 ± 2.306 × 0.548 = [−1.06, 1.46] คร่อม 0 กว้างมาก</div></li>
+          <li><div class="ln">ข้อมูลเป็นจำนวนเต็มนาที (resolution หยาบ) และ n = 5 เล็กมาก → ค่าเฉลี่ยไม่เสถียร</div><div class="why"></div></li>
+        </ol></div>
+        <figure class="plot"><figcaption><span class="pt">เวลาสั่งแต่ละครั้ง + ค่าเฉลี่ย ± 1 SD</span><span class="legend"><span><i style="--c:var(--h)"></i>ร้าน 1</span><span><i style="--c:var(--mark)"></i>ร้าน 2</span></span></figcaption><canvas id="w5-c" data-h="160"></canvas></figure>
+      </section>
+
+      <section class="sec" id="w6">
+        <h2><span class="n">W6</span> ข้อบกพร่องของการทดลองนี้ <span class="th">— สิ่งที่ไม่ได้ควบคุม</span></h2>
+        <div class="two">
+          <div class="card"><h3>Confounding ด้านเวลา</h3><ul><li>ไปแต่ละร้าน “<b>ต่างเวลาของวัน</b>” — ช่วงเร่งด่วน (เช้า/เที่ยง) คิวยาวกว่า ถ้าร้าน 1 บังเอิญถูกไปช่วงคนเยอะมากกว่า ร้าน 1 ก็ดูช้ากว่าโดยไม่ได้ช้าจริง</li><li>10 วันต่างกัน (วันจันทร์ vs ศุกร์, วันฝนตก, โปรโมชัน)</li></ul></div>
+          <div class="card"><h3>อื่น ๆ</h3><ul><li>ไม่ได้<b>สุ่ม</b>ลำดับ/ช่วงเวลา และไม่ได้<b>จับคู่</b>เวลาเดียวกันระหว่างสองร้าน</li><li>ไม่ได้คุมเมนูที่สั่ง (เมนูซับซ้อนนานกว่า), พนักงาน/กะ, ระยะทางเดินไปร้าน</li><li>นิยาม “order time” ไม่ชัด (รวมเวลาต่อคิวไหม?), วัดเป็นนาทีเต็ม (rounding)</li><li>n = 5 ต่อร้าน → power ต่ำมาก · observer bias (Noppo จับเวลาเอง)</li></ul></div>
+        </div>
+      </section>
+
+      <section class="sec" id="w7c">
+        <h2><span class="n">W7</span> ทำ hypothesis test กับข้อมูลนี้ <span class="th">— two-sample t-test</span></h2>
+        <div class="fcard"><ol class="deriv">
+          <li><div class="ln math">H₀: μ₁ = μ₂ (สองร้านเร็วเท่ากัน) &nbsp; H<sub>A</sub>: μ₁ ≠ μ₂</div><div class="why">two-sided — ก่อนเก็บข้อมูลไม่รู้ว่าร้านไหนเร็วกว่า</div></li>
+          <li><div class="ln">Test: <b>independent two-sample t-test</b> (ไม่รู้ σ, n เล็ก, สองกลุ่มไม่ได้จับคู่เพราะไปต่างเวลา) · assumption: แต่ละครั้งอิสระ, ประมาณ Normal, variance ใกล้กัน</div><div class="why">ถ้าจับคู่เวลาไว้จริงจะใช้ paired t-test</div></li>
+          <li><div class="ln math">Null distribution: t ~ t<sub>df</sub> , df = n₁ + n₂ − 2 = 8</div><div class="why">pooled variance</div></li>
+          <li><div class="ln math">s<sub>p</sub>² = <span class="frac"><span>4(0.7) + 4(0.8)</span><span>8</span></span> = 0.75 , SE = √(0.75 (1/5 + 1/5)) = √0.3 = 0.548</div><div class="why"></div></li>
+          <li><div class="ln math">t = <span class="frac"><span>1.8 − 1.6</span><span>0.548</span></span> = 0.365 , p-value = 0.72</div><div class="why"></div></li>
+          <li><div class="ln math">critical (α = 0.05, two-sided): t<sub>0.025, 8</sub> = 2.306 → |0.365| &lt; 2.306</div><div class="why">ในตารางท้ายข้อสอบ 2024 ค่านี้อยู่ช่องที่ป้ายว่า 0.01 (ป้ายเลื่อน)</div></li>
+          <li><div class="ln"><span class="box">ไม่ปฏิเสธ H₀ — ไม่มีหลักฐานว่าสองร้านเร็วต่างกัน</span></div><div class="why">(ถ้าคิดแบบ paired: t = 0.343, df = 4, p = 0.75 — สรุปเหมือนกัน)</div></li>
+        </ol></div>
+        <figure class="plot"><figcaption><span class="pt">t<sub>8</sub> null distribution · t = 0.365 อยู่กลางกอง</span></figcaption><canvas id="w7-c" data-h="160"></canvas></figure>
+      </section>
+
+      <!-- ================= Set 3 ================= -->
+      <section class="sec" id="g7">
+        <h2><span class="n">W7′</span> Familiarity กับ GenAI มีผลต่อการจับโค้ด AI ไหม <span class="th">— ชุดที่ 3: Great Teacher Oxnard</span></h2>
+        <div class="tscroll"><table>
+          <thead><tr><th>Educator</th><th>Correct /5</th><th>Familiarity</th><th>สอนวิชาเขียนโปรแกรม?</th></tr></thead>
+          <tbody id="g-tab"></tbody></table></div>
+        <figure class="plot"><figcaption><span class="pt">อัตราตอบถูกตามระดับ familiarity (จำนวนข้อ)</span></figcaption><canvas id="g7c" data-h="180"></canvas></figure>
+        <div class="fcard"><ol class="deriv">
+          <li><div class="ln">แบ่งกลุ่ม: <b>familiarity สูง (≥ 4)</b> = E2–E7, E9 → 34/35 ข้อ (97.1%) · <b>ต่ำ (≤ 3)</b> = E1, E8, E10 → 9/15 ข้อ (60%)</div><div class="why">แต่ละระดับมีคนน้อยมาก จึงรวมเป็นสองกลุ่ม</div></li>
+          <li><div class="ln math">H₀: p<sub>high</sub> = p<sub>low</sub> &nbsp; H<sub>A</sub>: p<sub>high</sub> &gt; p<sub>low</sub></div><div class="why">one-sided: คาดว่าคุ้นเคยมากกว่าจะจับได้ดีกว่า</div></li>
+          <li><div class="ln math">Two-proportion z-test: p̂ = 43/50 = 0.86 , SE = √(0.86 · 0.14 (1/35 + 1/15)) = 0.1071</div><div class="why">pooled p ใต้ H₀</div></li>
+          <li><div class="ln math">z = (0.971 − 0.600)/0.1071 = 3.47 → p ≈ 0.0003 &lt; 0.05</div><div class="why">แต่ n(1 − p̂) ของกลุ่มต่ำ = 15 × 0.14 = 2.1 &lt; 5 → normal approximation ไม่ค่อยน่าเชื่อ → ใช้ <b>Fisher's exact test</b>: p = 0.0018 (two-sided) ยัง significant</div></li>
+          <li><div class="ln">ผล: <span class="box">มีความสัมพันธ์อย่างมีนัยสำคัญ</span> (Spearman ρ = 0.64 ระหว่าง familiarity กับคะแนน, p = 0.046)</div><div class="why"></div></li>
+          <li><div class="ln"><b>ข้อควรระวัง</b>: (1) n = 10 คน — ผลถูกขับด้วย E8 คนเดียว (familiarity 1, ถูก 1/5) ตัด E8 ออกแล้วความต่างเล็กลงมาก (2) 5 ข้อของคนเดียวกันไม่อิสระกัน (3) <b>Confounding</b> กับวิชาที่สอน — E8 ทั้งไม่คุ้น AI และไม่ได้สอนเขียนโปรแกรม → แยกไม่ออกว่าเป็นผลของอะไร (4) correlation ≠ causation</div><div class="why"></div></li>
+        </ol></div>
+      </section>
+
+      <section class="sec" id="g8">
+        <h2><span class="n">W8</span> วิชาที่สอนมีผลไหม <span class="th">— confounding</span></h2>
+        <div class="fcard"><ol class="deriv">
+          <li><div class="ln">แบ่ง: <b>สอน Programming / Software Engineering / Data Structures</b> = E2, E3, E4, E6, E7, E10 → 30/30 (100%) · <b>วิชาอื่น</b> (Architecture/OS, Database/Visualization/Web, Linear Algebra/Stats) = E1, E5, E8, E9 → 13/20 (65%)</div><div class="why">นิยามกลุ่มต้องประกาศก่อนดูผล</div></li>
+          <li><div class="ln math">Fisher's exact test: p = 0.0008 → ต่างอย่างมีนัยสำคัญ</div><div class="why">z-test ใช้ไม่ได้ เพราะกลุ่ม programming ผิด 0 ข้อ</div></li>
+          <li><div class="ln">แต่<b>สรุปเชิงเหตุไม่ได้</b>: ทุกคนที่สอนเขียนโปรแกรมมี familiarity ≥ 3 ส่วนคนที่ตกมากที่สุด (E8, E1) ทั้งไม่สอนโปรแกรมและคุ้น AI น้อยกว่า → สองปัจจัย<b>ซ้อนกัน (collinear)</b> ด้วยข้อมูล 10 คนแยกผลไม่ได้</div><div class="why">E5 (Database/Web) ถูก 5/5 ทั้งที่ไม่ได้สอน programming ตรง ๆ — ความหมายของ “วิชา” ยังกำกวม</div></li>
+          <li><div class="ln">ต้องการ: ครูมากขึ้น ที่มีทุกคู่ผสม (สอนโปรแกรมแต่ไม่คุ้น AI, คุ้น AI แต่ไม่สอนโปรแกรม) แล้วใช้ stratified analysis / logistic regression</div><div class="why"></div></li>
+        </ol></div>
+      </section>
+
+      <section class="sec" id="g9">
+        <h2><span class="n">W9</span> ครูจับโค้ด AI ได้ “reliable” ไหม <span class="th">— นิยามก่อน แล้วค่อยทดสอบ</span></h2>
+        <div class="fcard"><ol class="deriv">
+          <li><div class="ln"><b>นิยาม reliable</b> (assumption): ความแม่นยำ ≥ 90% เพราะการกล่าวหาผิด (false positive) มีผลร้ายแรงต่อนักเรียน · อย่างน้อยต้องดีกว่าการเดา (50% — เลือก 1 จาก 2)</div><div class="why">ผลสรุปเปลี่ยนตามนิยาม จึงต้องระบุ</div></li>
+          <li><div class="ln math">ดีกว่าเดาไหม: H₀: p = 0.5 , H<sub>A</sub>: p &gt; 0.5 → z = (0.86 − 0.5)/√(0.25/50) = 5.09 , p ≈ 10⁻⁷</div><div class="why">ดีกว่าเดาแน่นอน</div></li>
+          <li><div class="ln math">95% CI ของความแม่นยำรวม: 0.86 ± 1.96√(0.86 · 0.14/50) = 0.86 ± 0.096 = [0.764, 0.956]</div><div class="why">คร่อม 0.9 → <b>ยืนยันไม่ได้</b>ว่าถึง 90%</div></li>
+          <li><div class="ln">ความแปรปรวนระหว่างครูสูงมาก: 7 คนถูก 100% แต่ E8 ถูกแค่ 20% (แย่กว่าเดา) · Q1 ถูกแค่ 7/10</div><div class="why">“ครูโดยเฉลี่ย” ≠ “ครูทุกคน”</div></li>
+          <li><div class="ln"><b>Validity ของการทดลอง</b>: เป็นแบบ <b>forced-choice เป็นคู่</b> (รู้ว่าหนึ่งในสองเป็น AI) ซึ่งง่ายกว่าความจริงมาก — ในห้องเรียนครูเห็นทีละงาน ไม่มีคู่เทียบ · มีแค่ 5 ข้อ, AI ตัวเดียว, นักเรียนจริงแก้โค้ด AI ได้</div><div class="why">ผลจึงประเมินความสามารถจริง “สูงเกินไป”</div></li>
+          <li><div class="ln"><span class="box">สรุป: จับได้ดีกว่าเดามาก แต่ยังไม่ reliable พอจะใช้ลงโทษนักเรียน</span></div><div class="why">นึกถึงข้อ 1.4 ของข้อสอบ: ถ้าคนโกงมีน้อย (base rate ต่ำ) แม้ตรวจแม่น 90% ผลบวกจำนวนมากจะเป็นการกล่าวหาผิด</div></li>
+        </ol></div>
+        <div class="ctrls"><label class="ctrl"><span>สัดส่วนนักเรียนที่ใช้ AI จริง</span><input type="range" id="g9-b" min="0.01" max="0.9" step="0.01" value="0.1"><output id="g9-bv"></output></label><label class="ctrl"><span>sensitivity = specificity</span><input type="range" id="g9-a" min="0.5" max="0.99" step="0.01" value="0.86"><output id="g9-av"></output></label></div>
+        <div class="out"><div class="l"><div id="g9-eq"></div><div class="sub">ถ้าครูตัดสินทีละงาน: P(ใช้ AI จริง | ครูบอกว่าใช้) ด้วย Bayes</div></div><div class="r" id="g9-val"></div></div>
+      </section>
+
+      <section class="sec" id="g10">
+        <h2><span class="n">W10</span> คำแนะนำให้ Oxnard <span class="th">— จากผล W7–W9</span></h2>
+        <div class="two">
+          <div class="card"><h3>อย่าพึ่งการ “ดูด้วยตา” อย่างเดียว</h3><ul><li>ความแม่นยำยังไม่ถึงระดับที่ใช้ลงโทษได้ และ base rate ทำให้ false accusation สูง</li><li>ถ้าต้องตรวจ ให้ครูที่สอนโปรแกรม/คุ้น GenAI เป็นคนตรวจ และใช้หลายคนตรวจร่วม (majority vote ลด error)</li></ul></div>
+          <div class="card"><h3>ออกแบบการประเมินใหม่</h3><ul><li>สอบเขียนโค้ดในห้อง / สอบปากเปล่าให้อธิบายโค้ดตัวเอง (viva)</li><li>ให้ส่ง version history (git commits) และงานทีละขั้น</li><li>โจทย์เฉพาะบริบทห้องเรียน หรืออนุญาตใช้ AI แต่ต้องระบุและวิเคราะห์ผลลัพธ์</li><li>เก็บข้อมูลเพิ่ม: ครูมากขึ้น ข้อมากขึ้น ทดสอบแบบไม่มีคู่เทียบ (ใกล้ความจริง) ก่อนตัดสินนโยบาย</li></ul></div>
+        </div>
+      </section>
+
+      <footer>
+        <span>โจทย์: CEM2 Stats “more practice questions” (Set 1) · ตัวเลขตรวจด้วย scipy.stats</span>
+        <span>ทุกกราฟคำนวณสดในหน้านี้</span>
+      </footer>
+    </main>
+  </div>
+</div>
+
+<script>
+/* ===== shared kit: plots, steppers, controls (CEMII lecture pages) ===== */
+const K = (function(){
+'use strict';
+const MINUS = '−', TAU = Math.PI * 2;
+const C = {};
+const TOKENS = ['ink','muted','line','grid','axis','x','h','mark','prod','y','amber','surface','sunk'];
+function readColors(){ const cs = getComputedStyle(document.documentElement); TOKENS.forEach(k => { C[k] = cs.getPropertyValue('--'+k).trim() || '#888'; }); }
+readColors();
+
+/* ---------- numbers ---------- */
+function fmt(v, d){
+  if (d == null) d = 3;
+  if (!isFinite(v)) return (v < 0 ? MINUS : '') + '∞';
+  if (Math.abs(v) < 1e-10) v = 0;
+  const a = Math.abs(v), s = Number.isInteger(a) ? String(a) : String(+a.toFixed(d));
+  return (v < 0 && +s !== 0 ? MINUS : '') + s;
+}
+const fx = (v, d) => (v < 0 && Math.abs(v) >= Math.pow(10, -(d || 2)) / 2 ? MINUS : '') + Math.abs(v).toFixed(d == null ? 2 : d);
+function piLabel(v){
+  const k = v / Math.PI;
+  if (Math.abs(k) < 1e-9) return '0';
+  const q = Math.round(k * 4);
+  if (Math.abs(q - k * 4) > 1e-6) return fmt(v, 2);
+  const sg = q < 0 ? MINUS : '';
+  let num = Math.abs(q), den = 4;
+  const g = (a, b) => b ? g(b, a % b) : a;
+  const d = g(num, den); num /= d; den /= d;
+  return sg + (num === 1 ? 'π' : num + 'π') + (den === 1 ? '' : '/' + den);
+}
+function nice(range, target){
+  const raw = range / Math.max(1, target), p = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / p;
+  return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * p;
+}
+function rng(lo, hi, pad){
+  pad = pad == null ? .18 : pad;
+  const s = (hi - lo) || 1;
+  return [lo - (lo < 0 ? pad : pad * .5) * s, hi + pad * s];
+}
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+function simpson(f, a, b, n){
+  n = n % 2 ? n + 1 : n;
+  const hh = (b - a) / n; let s = f(a) + f(b);
+  for (let i = 1; i < n; i++) s += (i % 2 ? 4 : 2) * f(a + i * hh);
+  return s * hh / 3;
+}
+/* complex as [re, im] */
+const cadd = (a, b) => [a[0] + b[0], a[1] + b[1]];
+const cmul = (a, b) => [a[0]*b[0] - a[1]*b[1], a[0]*b[1] + a[1]*b[0]];
+const cabs = a => Math.hypot(a[0], a[1]);
+const carg = a => Math.atan2(a[1], a[0]);
+const cexp = th => [Math.cos(th), Math.sin(th)];
+function cstr(a, d){
+  d = d == null ? 3 : d;
+  const re = Math.abs(a[0]) < 5e-4 ? 0 : a[0], im = Math.abs(a[1]) < 5e-4 ? 0 : a[1];
+  if (im === 0) return fmt(re, d);
+  if (re === 0) return (im < 0 ? MINUS : '') + (Math.abs(im) === 1 ? '' : fmt(Math.abs(im), d)) + 'j';
+  return fmt(re, d) + (im < 0 ? ' ' + MINUS + ' ' : ' + ') + (Math.abs(im) === 1 ? '' : fmt(Math.abs(im), d)) + 'j';
+}
+/* DFT of complex array (arrays of [re,im]) — direct, N is small here */
+function dft(x){
+  const N = x.length, X = [];
+  for (let k = 0; k < N; k++){
+    let re = 0, im = 0;
+    for (let n = 0; n < N; n++){
+      const th = -TAU * k * n / N, c = Math.cos(th), s = Math.sin(th);
+      re += x[n][0] * c - x[n][1] * s; im += x[n][0] * s + x[n][1] * c;
+    }
+    X.push([re, im]);
+  }
+  return X;
+}
+
+/* ---------- plot ---------- */
+class Plot {
+  constructor(cv){ this.cv = cv; this.ctx = cv.getContext('2d'); this.h0 = +cv.dataset.h || 200; this.pad = {l:46, r:16, t:20, b:26}; }
+  size(){
+    const w = this.cv.clientWidth; if (!w) return false;
+    const H = Math.round(this.h0 * (w < 520 ? .84 : 1));
+    const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+    const W = Math.round(w * dpr), HH = Math.round(H * dpr);
+    if (this.cv.width !== W || this.cv.height !== HH){ this.cv.width = W; this.cv.height = HH; }
+    this.cv.style.height = H + 'px';
+    this.w = w; this.H = H;
+    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0); this.ctx.clearRect(0, 0, w, H);
+    return true;
+  }
+  view(x0, x1, y0, y1){ this.x0 = x0; this.x1 = x1; this.y0 = y0; this.y1 = y1; return this; }
+  get L(){ return this.pad.l; } get R(){ return this.w - this.pad.r; }
+  get T(){ return this.pad.t; } get B(){ return this.H - this.pad.b; }
+  pw(){ return this.R - this.L; }
+  X(v){ return this.L + (v - this.x0) / (this.x1 - this.x0) * this.pw(); }
+  Y(v){ return this.T + (this.y1 - v) / (this.y1 - this.y0) * (this.B - this.T); }
+  inv(px){ return this.x0 + (px - this.L) / this.pw() * (this.x1 - this.x0); }
+  frame(o){
+    o = o || {}; const c = this.ctx; c.save();
+    const pi = !!o.piTick;
+    const tick = o.tick || (pi ? Math.PI / 2 : nice(this.x1 - this.x0, Math.max(4, this.pw() / 64)));
+    const grid = o.grid || tick / 2;
+    const ys = o.yTick || nice(this.y1 - this.y0, o.yT || 4);
+    c.lineWidth = 1; c.strokeStyle = C.grid; c.beginPath();
+    for (let i = Math.ceil(this.x0 / grid - 1e-9); i * grid <= this.x1 + 1e-9; i++){ const px = Math.round(this.X(i * grid)) + .5; c.moveTo(px, this.T); c.lineTo(px, this.B); }
+    for (let i = Math.ceil(this.y0 / ys - 1e-9); i * ys <= this.y1 + 1e-9; i++){ const py = Math.round(this.Y(i * ys)) + .5; c.moveTo(this.L, py); c.lineTo(this.R, py); }
+    c.stroke();
+    c.strokeStyle = C.axis; c.beginPath();
+    const p0 = Math.round(this.Y(0)) + .5; c.moveTo(this.L, p0); c.lineTo(this.R, p0);
+    if (this.x0 < 0 && this.x1 > 0){ const q = Math.round(this.X(0)) + .5; c.moveTo(q, this.T); c.lineTo(q, this.B); }
+    c.stroke();
+    c.fillStyle = C.muted; c.font = '11px "IBM Plex Mono", ui-monospace, monospace';
+    c.textAlign = 'center'; c.textBaseline = 'top';
+    for (let i = Math.ceil(this.x0 / tick - 1e-9); i * tick <= this.x1 + 1e-9; i++){
+      const v = i * tick; if (o.skip0 && Math.abs(v) < 1e-9) continue;
+      c.fillText(pi ? piLabel(v) : fmt(v, 2), this.X(v), this.B + 8);
+    }
+    if (!o.noY){
+      c.textAlign = 'right'; c.textBaseline = 'middle';
+      for (let i = Math.ceil(this.y0 / ys - 1e-9); i * ys <= this.y1 + 1e-9; i++) c.fillText(fmt(i * ys, 2), this.L - 8, this.Y(i * ys));
+    }
+    if (o.xl){ c.font = 'italic 14px "STIX Two Text", serif'; c.fillStyle = C.ink; c.textAlign = 'left'; c.textBaseline = 'middle'; c.fillText(o.xl, this.R + 3, this.Y(0)); }
+    c.restore(); return this;
+  }
+  clip(){ const c = this.ctx; c.save(); c.beginPath(); c.rect(this.L, this.T - 8, this.pw(), this.B - this.T + 16); c.clip(); }
+  unclip(){ this.ctx.restore(); }
+  curve(pts, col, w, o){
+    o = o || {}; if (!pts.length) return this; const c = this.ctx; this.clip();
+    c.globalAlpha = o.alpha == null ? 1 : o.alpha; c.strokeStyle = col; c.lineWidth = w || 2; c.lineJoin = 'round'; c.lineCap = 'round';
+    if (o.dash) c.setLineDash(o.dash);
+    const yc = v => clamp(this.Y(v), -5000, 5000);
+    c.beginPath(); let down = false;
+    pts.forEach(p => { if (p == null || !isFinite(p[1])){ down = false; return; } const X = this.X(p[0]), Y = yc(p[1]); if (down) c.lineTo(X, Y); else { c.moveTo(X, Y); down = true; } });
+    c.stroke(); this.unclip(); return this;
+  }
+  area(pts, col, al){
+    if (!pts.length) return this; const c = this.ctx; this.clip();
+    const yc = v => clamp(this.Y(v), -5000, 5000);
+    c.globalAlpha = al == null ? .25 : al; c.fillStyle = col; c.beginPath(); c.moveTo(this.X(pts[0][0]), this.Y(0));
+    pts.forEach(p => c.lineTo(this.X(p[0]), yc(p[1]))); c.lineTo(this.X(pts[pts.length-1][0]), this.Y(0)); c.closePath(); c.fill();
+    this.unclip(); return this;
+  }
+  stem(k, v, col, o){
+    o = o || {}; const c = this.ctx; const px = this.X(k) + (o.dx || 0), p0 = this.Y(0), p1 = clamp(this.Y(v), this.T - 6, this.B + 6);
+    if (px < this.L - 6 || px > this.R + 6) return this;
+    c.save(); c.globalAlpha = o.alpha == null ? 1 : o.alpha; c.strokeStyle = col; c.fillStyle = col; c.lineWidth = o.w || 2;
+    if (Math.abs(v) > 1e-12){ c.beginPath(); c.moveTo(px, p0); c.lineTo(px, p1); c.stroke(); }
+    c.beginPath(); c.arc(px, p1, o.r == null ? 3.4 : o.r, 0, TAU); c.fill();
+    if (o.ring){ c.strokeStyle = o.ring; c.lineWidth = 2; c.beginPath(); c.arc(px, p1, (o.r == null ? 3.4 : o.r) + 3.5, 0, TAU); c.stroke(); }
+    if (o.label != null){ c.font = '600 10.5px "IBM Plex Mono", monospace'; c.textAlign = 'center'; c.textBaseline = v >= 0 ? 'bottom' : 'top'; c.fillText(o.label, px, v >= 0 ? p1 - 6 : p1 + 6); }
+    c.restore(); return this;
+  }
+  arrow(x, v, col, o){ /* impulse arrow */
+    o = o || {}; const c = this.ctx, px = this.X(x), p0 = this.Y(0), p1 = this.Y(v);
+    if (px < this.L - 4 || px > this.R + 4) return this;
+    c.save(); c.strokeStyle = col; c.fillStyle = col; c.lineWidth = o.w || 2;
+    c.beginPath(); c.moveTo(px, p0); c.lineTo(px, p1); c.stroke();
+    const d = v >= 0 ? 1 : -1;
+    c.beginPath(); c.moveTo(px, p1); c.lineTo(px - 4.5, p1 + 8 * d); c.lineTo(px + 4.5, p1 + 8 * d); c.closePath(); c.fill();
+    if (o.label){ c.font = '600 10.5px "IBM Plex Mono", monospace'; c.textAlign = 'center'; c.textBaseline = v >= 0 ? 'bottom' : 'top'; c.fillText(o.label, px, v >= 0 ? p1 - 10 : p1 + 10); }
+    c.restore(); return this;
+  }
+  dot(x, y, col, r){ const c = this.ctx; c.save(); c.fillStyle = col; c.beginPath(); c.arc(this.X(x), clamp(this.Y(y), this.T - 4, this.B + 4), r || 3, 0, TAU); c.fill(); c.restore(); return this; }
+  point(x, y, col, ring){ const c = this.ctx; c.save(); c.fillStyle = col; c.beginPath(); c.arc(this.X(x), clamp(this.Y(y), this.T, this.B), 5, 0, TAU); c.fill(); if (ring){ c.strokeStyle = ring; c.lineWidth = 2; c.beginPath(); c.arc(this.X(x), clamp(this.Y(y), this.T, this.B), 9, 0, TAU); c.stroke(); } c.restore(); return this; }
+  vline(x, col, label, o){
+    o = o || {}; const c = this.ctx, px = Math.round(this.X(x)) + .5; if (px < this.L - 1 || px > this.R + 1) return this;
+    c.save(); c.strokeStyle = col; c.lineWidth = o.w || 1.2; if (o.dash !== false) c.setLineDash(o.dash || [4, 4]);
+    c.beginPath(); c.moveTo(px, this.T - 2); c.lineTo(px, this.B); c.stroke(); c.setLineDash([]);
+    if (label){ c.fillStyle = col; c.font = '500 11.5px "IBM Plex Mono", monospace'; c.textBaseline = 'bottom'; const right = px > this.R - 62; c.textAlign = right ? 'right' : 'left'; c.fillText(label, px + (right ? -5 : 5), this.T - 3); }
+    c.restore(); return this;
+  }
+  band(a, b, col, al){ const c = this.ctx; c.save(); c.globalAlpha = al == null ? .1 : al; c.fillStyle = col; const x0 = Math.max(this.L, this.X(a)), x1 = Math.min(this.R, this.X(b)); if (x1 > x0) c.fillRect(x0, this.T, x1 - x0, this.B - this.T); c.restore(); return this; }
+  text(s, x, y, col, o){
+    o = o || {}; const c = this.ctx; c.save(); c.fillStyle = col;
+    c.font = o.font || '500 12px "IBM Plex Sans Thai", sans-serif';
+    c.textAlign = o.align || 'center'; c.textBaseline = o.base || 'middle';
+    c.fillText(s, x, y); c.restore(); return this;
+  }
+  label(s, x, y, col, o){ return this.text(s, this.X(x), this.Y(y), col, o); }
+}
+
+/* ---------- figure registry ---------- */
+const FIGS = [];
+function fig(id, draw){
+  const cv = document.getElementById(id); if (!cv) return null;
+  const p = new Plot(cv); FIGS.push({p, draw, cv}); return p;
+}
+let raf = 0;
+function redraw(){ if (raf) return; raf = requestAnimationFrame(() => { raf = 0; FIGS.forEach(f => { if (f.cv.offsetParent === null && f.cv.clientWidth === 0) return; if (f.p.size()) f.draw(f.p); }); }); }
+const $ = s => document.querySelector(s);
+const $$ = s => Array.prototype.slice.call(document.querySelectorAll(s));
+function val(sel){ const e = $(sel); return e ? +e.value : 0; }
+function sval(sel){ const e = $(sel); return e ? e.value : ''; }
+function chk(sel){ const e = $(sel); return !!(e && e.checked); }
+function bind(sel, fn){
+  $$(sel).forEach(e => e.addEventListener('input', ev => { if (fn) fn(ev); redraw(); }));
+}
+function out(sel, text){ const e = $(sel); if (e) e.textContent = text; }
+function html(sel, s){ const e = $(sel); if (e) e.innerHTML = s; }
+
+/* ---------- derivation steppers ---------- */
+function derivInit(){
+  $$('.deriv').forEach(list => {
+    const items = Array.prototype.slice.call(list.children);
+    const nav = document.createElement('div'); nav.className = 'dnav';
+    nav.innerHTML = '<button class="btn sm" type="button" data-a="prev">‹ ก่อนหน้า</button>'
+      + '<button class="btn sm primary" type="button" data-a="next">ขั้นถัดไป ›</button>'
+      + '<span class="cnt"></span><button class="btn sm" type="button" data-a="all">แสดงทั้งหมด</button>';
+    list.parentNode.insertBefore(nav, list.nextSibling);
+    let i = 1;
+    function render(){
+      items.forEach((li, k) => li.classList.toggle('dim', k >= i));
+      nav.querySelector('.cnt').textContent = `ขั้นที่ ${Math.min(i, items.length)} / ${items.length}`;
+      nav.querySelector('[data-a=prev]').disabled = i <= 1;
+      nav.querySelector('[data-a=next]').disabled = i >= items.length;
+    }
+    nav.addEventListener('click', e => {
+      const a = e.target.closest('[data-a]'); if (!a) return;
+      if (a.dataset.a === 'next') i = Math.min(items.length, i + 1);
+      else if (a.dataset.a === 'prev') i = Math.max(1, i - 1);
+      else i = items.length;
+      render();
+    });
+    render();
+  });
+}
+
+/* ---------- table of contents scrollspy ---------- */
+function tocInit(){
+  const links = $$('.toc a'); if (!links.length) return;
+  const secs = links.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      if (!en.isIntersecting) return;
+      links.forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + en.target.id));
+    });
+  }, {rootMargin: '-10% 0px -70% 0px', threshold: 0});
+  secs.forEach(s => io.observe(s));
+}
+
+/* ---------- animation loop helper ---------- */
+function ticker(step){
+  let on = false, last = 0, id = 0;
+  function frame(now){
+    if (!on) return;
+    const dt = Math.min(.05, (now - last) / 1000); last = now;
+    step(dt); redraw(); id = requestAnimationFrame(frame);
+  }
+  return {
+    start(){ if (on) return; on = true; last = performance.now(); id = requestAnimationFrame(frame); },
+    stop(){ on = false; if (id) cancelAnimationFrame(id); id = 0; },
+    toggle(){ on ? this.stop() : this.start(); return on; },
+    get running(){ return on; }
+  };
+}
+
+/* ---------- boot ---------- */
+function boot(){
+  derivInit(); tocInit(); redraw();
+  const onTheme = () => { readColors(); redraw(); };
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', onTheme);
+  new MutationObserver(onTheme).observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
+  if (window.ResizeObserver) new ResizeObserver(() => redraw()).observe(document.body);
+  else window.addEventListener('resize', redraw);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(redraw);
+}
+
+return {C, MINUS, TAU, fmt, fx, piLabel, nice, rng, clamp, simpson, cadd, cmul, cabs, carg, cexp, cstr, dft,
+        Plot, fig, redraw, $, $$, val, sval, chk, bind, out, html, ticker, boot, readColors};
+})();
+
+/* ===== stats kit: random numbers, distributions, histograms (CEMII Prob & Stat pages) ===== */
+const S = (function(){
+'use strict';
+const {fmt, clamp, TAU} = K;
+
+/* seeded RNG so a page looks the same on every load until you press "สุ่มใหม่" */
+function mulberry32(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+let R = mulberry32(20261123);
+function reseed(s){ R = mulberry32(s == null ? (Math.random() * 2 ** 31) | 0 : s); }
+const rand = () => R();
+function randn(){ let u = 0; while (u === 0) u = R(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(TAU * R()); }
+
+/* special functions */
+function lgamma(z){
+  const g = 7, c = [0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313, -176.61503916999185, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+  if (z < 0.5) return Math.log(Math.PI / Math.abs(Math.sin(Math.PI * z))) - lgamma(1 - z);
+  z -= 1; let x = c[0]; for (let i = 1; i < g + 2; i++) x += c[i] / (z + i);
+  const t = z + g + 0.5; return 0.5 * Math.log(TAU) + (z + 0.5) * Math.log(t) - t + Math.log(x);
+}
+const lchoose = (n, k) => lgamma(n + 1) - lgamma(k + 1) - lgamma(n - k + 1);
+const choose = (n, k) => (k < 0 || k > n) ? 0 : Math.round(Math.exp(lchoose(n, k)));
+function erf(x){ /* Abramowitz & Stegun 7.1.26 refined by a series near 0 */
+  const s = x < 0 ? -1 : 1; x = Math.abs(x);
+  if (x < 0.5){ let sum = x, term = x, n = 0; while (Math.abs(term) > 1e-16 && n < 60){ n++; term *= -x * x / n; sum += term / (2 * n + 1); } return s * 2 / Math.sqrt(Math.PI) * sum; }
+  const t = 1 / (1 + 0.5 * x);
+  const y = 1 - t * Math.exp(-x * x - 1.26551223 + t * (1.00002368 + t * (0.37409196 + t * (0.09678418 + t * (-0.18628806 + t * (0.27886807 + t * (-1.13520398 + t * (1.48851587 + t * (-0.82215223 + t * 0.17087277)))))))));
+  return s * y;
+}
+const Phi = z => 0.5 * (1 + erf(z / Math.SQRT2));
+const phi = z => Math.exp(-z * z / 2) / Math.sqrt(TAU);
+function Phinv(p){ /* Acklam */
+  const a = [-3.969683028665376e+01, 2.209460984245205e+02, -2.759285104469687e+02, 1.383577518672690e+02, -3.066479806614716e+01, 2.506628277459239e+00];
+  const b = [-5.447609879822406e+01, 1.615858368580409e+02, -1.556989798598866e+02, 6.680131188771972e+01, -1.328068155288572e+01];
+  const c = [-7.784894002430293e-03, -3.223964580411365e-01, -2.400758277161838e+00, -2.549732539343734e+00, 4.374664141464968e+00, 2.938163982698783e+00];
+  const d = [7.784695709041462e-03, 3.224671290700398e-01, 2.445134137142996e+00, 3.754408661907416e+00];
+  p = clamp(p, 1e-12, 1 - 1e-12); const pl = 0.02425;
+  if (p < pl){ const q = Math.sqrt(-2 * Math.log(p)); return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1); }
+  if (p > 1 - pl){ const q = Math.sqrt(-2 * Math.log(1 - p)); return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1); }
+  const q = p - 0.5, r = q * q;
+  return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q / (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
+}
+function binomPmf(k, n, p){ if (k < 0 || k > n) return 0; if (p <= 0) return k === 0 ? 1 : 0; if (p >= 1) return k === n ? 1 : 0; return Math.exp(lchoose(n, k) + k * Math.log(p) + (n - k) * Math.log(1 - p)); }
+function binomCdf(k, n, p){ let s = 0; for (let i = 0; i <= Math.min(k, n); i++) s += binomPmf(i, n, p); return Math.min(1, s); }
+function sampleBinom(n, p){ let s = 0; for (let i = 0; i < n; i++) if (R() < p) s++; return s; }
+function samplePois(l){ const L = Math.exp(-l); let k = 0, q = 1; do { k++; q *= R(); } while (q > L); return k - 1; }
+
+/* ---------- distribution catalogue ----------
+   each: disc, f (pmf/pdf), F (cdf), mean, var, sample(), lo/hi = plotting range, Q (quantile) */
+function quantDisc(F, lo, hi, u){ for (let k = lo; k <= hi; k++) if (F(k) >= u - 1e-12) return k; return hi; }
+const DIST = {
+  bern: { name: 'Bernoulli', th: 'โยน 1 ครั้ง', disc: true, params: [['p', 0.01, 0.99, 0.01, 0.3]],
+    make: ([p]) => ({ f: k => k === 0 ? 1 - p : k === 1 ? p : 0, F: x => x < 0 ? 0 : x < 1 ? 1 - p : 1, mean: p, var: p * (1 - p), lo: 0, hi: 1,
+      sample: () => R() < p ? 1 : 0, tex: `p(1) = p, p(0) = 1 − p` }) },
+  binom: { name: 'Binomial', th: 'นับสำเร็จใน n ครั้ง', disc: true, params: [['n', 1, 40, 1, 10], ['p', 0.01, 0.99, 0.01, 0.7]],
+    make: ([n, p]) => ({ f: k => binomPmf(k, n, p), F: x => x < 0 ? 0 : binomCdf(Math.floor(x), n, p), mean: n * p, var: n * p * (1 - p), lo: 0, hi: n,
+      sample: () => sampleBinom(n, p), tex: `p(k) = C(n,k) p<sup>k</sup>(1 − p)<sup>n−k</sup>` }) },
+  geom: { name: 'Geometric', th: 'จำนวนครั้งที่ล้มเหลวก่อนสำเร็จ', disc: true, params: [['p', 0.05, 0.95, 0.01, 0.3]],
+    make: ([p]) => ({ f: k => k < 0 ? 0 : Math.pow(1 - p, k) * p, F: x => x < 0 ? 0 : 1 - Math.pow(1 - p, Math.floor(x) + 1), mean: (1 - p) / p, var: (1 - p) / (p * p), lo: 0,
+      hi: Math.max(4, Math.ceil(Math.log(0.004) / Math.log(1 - p))), sample: () => { let k = 0; while (R() >= p) k++; return k; }, tex: `p(k) = (1 − p)<sup>k</sup> p` }) },
+  pois: { name: 'Poisson', th: 'จำนวนเหตุการณ์ต่อช่วงเวลา', disc: true, params: [['λ', 0.2, 15, 0.1, 3]],
+    make: ([l]) => { const f = k => k < 0 ? 0 : Math.exp(k * Math.log(l) - l - lgamma(k + 1));
+      return { f, F: x => { let s = 0; for (let k = 0; k <= Math.floor(x); k++) s += f(k); return Math.min(1, s); }, mean: l, var: l, lo: 0, hi: Math.ceil(l + 4 * Math.sqrt(l) + 3),
+        sample: () => samplePois(l), tex: `p(k) = λ<sup>k</sup>e<sup>−λ</sup> / k!` }; } },
+  dunif: { name: 'Uniform (discrete)', th: 'ลูกเต๋า n หน้า', disc: true, params: [['n', 2, 12, 1, 6]],
+    make: ([n]) => ({ f: k => (k >= 1 && k <= n && Number.isInteger(k)) ? 1 / n : 0, F: x => clamp(Math.floor(x), 0, n) / n, mean: (n + 1) / 2, var: (n * n - 1) / 12, lo: 1, hi: n,
+      sample: () => 1 + Math.floor(R() * n), tex: `p(k) = 1/n, k = 1…n` }) },
+  norm: { name: 'Normal', th: 'ระฆังคว่ำ', disc: false, params: [['μ', -3, 3, 0.1, 0], ['σ', 0.3, 3, 0.05, 1]],
+    make: ([m, s]) => ({ f: x => phi((x - m) / s) / s, F: x => Phi((x - m) / s), mean: m, var: s * s, lo: m - 4 * s, hi: m + 4 * s,
+      sample: () => m + s * randn(), Q: u => m + s * Phinv(u), tex: `f(x) = <span class="frac"><span>1</span><span>√(2πσ²)</span></span> e<sup>−(x−μ)²/2σ²</sup>` }) },
+  expo: { name: 'Exponential', th: 'เวลารอ', disc: false, params: [['λ', 0.2, 3, 0.05, 1]],
+    make: ([l]) => ({ f: x => x < 0 ? 0 : l * Math.exp(-l * x), F: x => x < 0 ? 0 : 1 - Math.exp(-l * x), mean: 1 / l, var: 1 / (l * l), lo: 0, hi: 5.5 / l,
+      sample: () => -Math.log(1 - R()) / l, Q: u => -Math.log(1 - u) / l, tex: `f(x) = λe<sup>−λx</sup>, x ≥ 0` }) },
+  unif: { name: 'Uniform', th: 'เท่ากันทุกจุดใน [a, b]', disc: false, params: [['a', -3, 2, 0.1, 0], ['b', -2, 5, 0.1, 1]],
+    make: ([a, b]) => { if (b <= a + 0.05) b = a + 0.05; const w = b - a;
+      return { f: x => (x >= a && x <= b) ? 1 / w : 0, F: x => clamp((x - a) / w, 0, 1), mean: (a + b) / 2, var: w * w / 12, lo: a - 0.35 * w, hi: b + 0.35 * w,
+        sample: () => a + w * R(), Q: u => a + w * u, tex: `f(x) = 1/(b − a), a ≤ x ≤ b` }; } },
+  pareto: { name: 'Pareto', th: 'power law · หางยาว', disc: false, params: [['x_m', 0.5, 3, 0.1, 1], ['α', 0.6, 5, 0.05, 2.5]],
+    make: ([xm, a]) => ({ f: x => x < xm ? 0 : a * Math.pow(xm, a) / Math.pow(x, a + 1), F: x => x < xm ? 0 : 1 - Math.pow(xm / x, a),
+      mean: a > 1 ? a * xm / (a - 1) : Infinity, var: a > 2 ? xm * xm * a / ((a - 1) * (a - 1) * (a - 2)) : Infinity, lo: 0, hi: xm * Math.pow(0.02, -1 / a),
+      sample: () => xm / Math.pow(1 - R(), 1 / a), Q: u => xm / Math.pow(1 - u, 1 / a), tex: `f(x) = αx<sub>m</sub><sup>α</sup> / x<sup>α+1</sup>, x ≥ x<sub>m</sub>` }) }
+};
+function build(key, vals){ const d = DIST[key]; const o = d.make(vals); o.key = key; o.name = d.name; o.disc = d.disc; o.sd = Math.sqrt(o.var);
+  if (!o.Q) o.Q = u => quantDisc(o.F, o.lo, o.hi + 200, u); return o; }
+
+/* ---------- drawing helpers on K.Plot ---------- */
+function hist(p, data, lo, hi, nb, col, o){
+  o = o || {}; const w = (hi - lo) / nb, cnt = new Array(nb).fill(0); let n = 0;
+  data.forEach(v => { const i = Math.floor((v - lo) / w); if (i >= 0 && i < nb){ cnt[i]++; } n++; });
+  const c = p.ctx; p.clip(); c.fillStyle = col; c.globalAlpha = o.alpha == null ? .45 : o.alpha;
+  const dens = o.density !== false;
+  let mx = 0;
+  cnt.forEach((k, i) => { const h = dens ? k / (n * w) : k; mx = Math.max(mx, h); const x0 = p.X(lo + i * w), x1 = p.X(lo + (i + 1) * w), y = p.Y(h);
+    c.fillRect(x0 + .5, y, Math.max(0.5, x1 - x0 - 1), p.Y(0) - y); });
+  c.globalAlpha = 1; p.unclip(); return mx;
+}
+function histMax(data, lo, hi, nb){ const w = (hi - lo) / nb, cnt = new Array(nb).fill(0); data.forEach(v => { const i = Math.floor((v - lo) / w); if (i >= 0 && i < nb) cnt[i]++; }); return Math.max.apply(null, cnt) / (data.length * w); }
+function counts(data, lo, hi){ const m = {}; for (let k = lo; k <= hi; k++) m[k] = 0; data.forEach(v => { if (m[v] != null) m[v]++; }); return m; }
+function fn(p, f, x0, x1, n){ const pts = []; n = n || 500; for (let i = 0; i <= n; i++){ const x = x0 + (x1 - x0) * i / n; pts.push([x, f(x)]); } return pts; }
+function rect(p, x0, x1, y0, y1, col, al){ const c = p.ctx; p.clip(); c.globalAlpha = al == null ? .3 : al; c.fillStyle = col; const X0 = p.X(x0), X1 = p.X(x1), Y0 = p.Y(y0), Y1 = p.Y(y1); c.fillRect(Math.min(X0, X1), Math.min(Y0, Y1), Math.abs(X1 - X0), Math.abs(Y1 - Y0)); c.globalAlpha = 1; p.unclip(); }
+const mean = a => a.reduce((s, v) => s + v, 0) / a.length;
+function variance(a, ddof){ const m = mean(a); return a.reduce((s, v) => s + (v - m) * (v - m), 0) / (a.length - (ddof || 0)); }
+const pct = (v, d) => fmt(100 * v, d == null ? 1 : d) + '%';
+/* tiny helper: build slider rows for a distribution's parameters */
+function paramCtrls(host, key, prefix){
+  const d = DIST[key];
+  host.innerHTML = d.params.map((q, i) => `<label class="ctrl"><span class="math">${q[0].replace('_m', '<sub>m</sub>')}</span><input type="range" id="${prefix}-p${i}" min="${q[1]}" max="${q[2]}" step="${q[3]}" value="${q[4]}"><output id="${prefix}-p${i}v">${q[4]}</output></label>`).join('');
+}
+function paramVals(key, prefix){ return DIST[key].params.map((q, i) => { const e = document.getElementById(`${prefix}-p${i}`); const v = e ? +e.value : q[4]; const o = document.getElementById(`${prefix}-p${i}v`); if (o) o.textContent = fmt(v, 2); return v; }); }
+
+return {rand, randn, reseed, lgamma, lchoose, choose, erf, Phi, phi, Phinv, binomPmf, binomCdf, sampleBinom, samplePois,
+        DIST, build, hist, histMax, counts, fn, rect, mean, variance, pct, paramCtrls, paramVals};
+})();
+
+(function(){
+'use strict';
+const {fmt, fx} = K;
+const C = K.C;
+const tpdf = (x, v) => Math.exp(S.lgamma((v + 1) / 2) - S.lgamma(v / 2) - 0.5 * Math.log(v * Math.PI) - (v + 1) / 2 * Math.log(1 + x * x / v));
+
+/* W1 table + CV */
+const POSTS = ['1 Buriram United wins Thailand tournament', '2 Dena Baystars wins Japan Series', '3 Saudi wins World cup bid ⚠', '4 Ichiran review', '5 Pangcha review', '6 Are-Am-Eat review ⚠'];
+const MET = {Reactions: [34, 36, 23, 35, 32, 22], Likes: [2.3, 2.2, 2.1, 1.0, 1.2, 1.1], Comments: [.632, 1.05, 2.03, 3.0, .203, .103], 'Read more': [1.1, 1.2, 1.0, 1.1, 1.2, 1.1], Share: [1.2, 1.0, .6, 5.3, 5.2, 3.2]};
+const keys = Object.keys(MET);
+K.html('#w1-tab', POSTS.map((p, i) => `<tr><td>${p}</td>${keys.map(k => `<td class="num">${k === 'Comments' ? Math.round(MET[k][i] * 1000) : MET[k][i] + 'k'}</td>`).join('')}</tr>`).join('') +
+  `<tr><td><b>CV = s/x̄</b></td>${keys.map(k => `<td class="num"><b>${S.pct(Math.sqrt(S.variance(MET[k], 1)) / S.mean(MET[k]), 1)}</b></td>`).join('')}</tr>`);
+K.fig('w1-cv', p => {
+  const cv = keys.map(k => Math.sqrt(S.variance(MET[k], 1)) / S.mean(MET[k]));
+  p.view(.4, keys.length + .6, 0, 1.15).frame({tick: 1, yTick: .25});
+  const c = p.ctx; c.save(); c.fillStyle = C.surface; c.fillRect(p.L, p.B + 2, p.pw(), 22); c.restore();
+  cv.forEach((v, i) => { S.rect(p, i + 1 - .3, i + 1 + .3, 0, v, keys[i] === 'Read more' ? C.y : keys[i] === 'Comments' ? C.h : C.mark, .7);
+    p.label(S.pct(v, 1), i + 1, v + .06, C.ink, {font: '600 12px "IBM Plex Mono", monospace'});
+    p.text(keys[i], p.X(i + 1), p.B + 13, C.muted, {font: '600 12px "IBM Plex Sans Thai", sans-serif'}); });
+});
+
+/* W3 sample size */
+function w3(){
+  const m = K.val('#w3-m') / 100, cv = K.val('#w3-c') / 100, w = K.val('#w3-w');
+  const z = S.Phinv(.95) + S.Phinv(w), n = 2 * z * z * cv * cv / (m * m);
+  K.out('#w3-mv', Math.round(m * 100)); K.out('#w3-cv', fmt(cv * 100, 1)); K.out('#w3-wv', fx(w));
+  K.html('#w3-eq', `n = 2(${fmt(z, 3)})² × (${fmt(cv, 3)})² / (${fmt(m, 2)})² = ${fmt(n, 2)}`);
+  K.html('#w3-val', Math.ceil(n).toLocaleString() + ' โพสต์/กลุ่ม');
+}
+K.$$('#w3-m, #w3-c, #w3-w').forEach(e => e.addEventListener('input', w3)); w3();
+
+/* W5 */
+const S1 = [1, 2, 1, 3, 2], S2 = [3, 1, 1, 2, 1];
+K.fig('w5-c', p => {
+  p.view(.3, 3.7, 0, 3).frame({tick: .5, noY: true, xl: 'นาที'});
+  const stack = (arr, y0, col) => { const c = {}; arr.forEach(v => { c[v] = (c[v] || 0) + 1; p.dot(v, y0 + .25 * (c[v] - 1), col, 6); }); };
+  stack(S1, 1.9, C.h); stack(S2, .5, C.mark);
+  [[S1, 1.6, C.h], [S2, .2, C.mark]].forEach(([a, y, col]) => { const m = S.mean(a), s = Math.sqrt(S.variance(a, 1)); p.curve([[m - s, y], [m + s, y]], col, 3); p.dot(m, y, col, 5); });
+});
+
+/* W7 */
+K.fig('w7-c', p => {
+  const f = x => tpdf(x, 8);
+  p.view(-4, 4, 0, .45).frame({tick: 1, yT: 3, xl: 't'});
+  p.area(S.fn(p, f, 2.306, 4, 200), C.h, .3); p.area(S.fn(p, f, -4, -2.306, 200), C.h, .3);
+  p.curve(S.fn(p, f, -4, 4, 400), C.x, 2);
+  p.vline(.365, C.mark, 't = 0.365', {dash: false, w: 2.4}); p.vline(2.306, C.h, '2.306'); p.vline(-2.306, C.h, null);
+});
+
+/* GTO */
+const ED = [[3, 3, 0], [5, 4, 1], [5, 5, 1], [5, 4, 1], [5, 4, 0], [5, 4, 1], [5, 4, 1], [1, 1, 0], [4, 4, 0], [5, 3, 1]];
+K.html('#g-tab', ED.map(([c, f, pr], i) => `<tr><td>E${i + 1}</td><td class="num">${c}</td><td class="num">${f}</td><td>${pr ? '✓' : '—'}</td></tr>`).join(''));
+K.fig('g7c', p => {
+  const lv = [1, 3, 4, 5], agg = lv.map(l => { let c = 0, n = 0; ED.forEach(([cc, f]) => { if (f === l){ c += cc; n += 5; } }); return [c, n]; });
+  p.view(.3, 5.7, 0, 1.15).frame({tick: 1, yTick: .25, xl: 'familiarity'});
+  agg.forEach(([c, n], i) => { S.rect(p, lv[i] - .3, lv[i] + .3, 0, c / n, lv[i] >= 4 ? C.y : C.h, .65); p.label(`${c}/${n}`, lv[i], c / n + .06, C.ink, {font: '600 12px "IBM Plex Mono", monospace'}); });
+  p.curve([[.3, .5], [5.7, .5]], C.axis, 1.4, {dash: [5, 4]}); p.text('เดา 50%', p.L + 4, p.Y(.5) - 8, C.muted, {align: 'left'});
+});
+function g9(){
+  const b = K.val('#g9-b'), a = K.val('#g9-a'), ppv = a * b / (a * b + (1 - a) * (1 - b));
+  K.out('#g9-bv', fx(b)); K.out('#g9-av', fx(a));
+  K.html('#g9-eq', `P(AI | ครูว่า AI) = ${fx(a)}×${fx(b)} / (${fx(a)}×${fx(b)} + ${fx(1 - a)}×${fx(1 - b)})`);
+  K.html('#g9-val', S.pct(ppv, 1));
+}
+K.$$('#g9-b, #g9-a').forEach(e => e.addEventListener('input', g9)); g9();
+
+K.boot();
+})();
+
+</script>
+</body>
+</html>
