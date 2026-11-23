@@ -146,6 +146,17 @@ const PARTS = [
     { id: 'quiz2025', no: '’25', kind: 'QUIZ', title: 'Quiz · 2025', th: 'เฉลยข้อสอบเก่า', file: 'exam-2025.html',
       desc: 'ข้อ 6–7 ปี 2025 แบบ integer program: เลือกตั้ง (ราคาต่อเขต → 248 ที่นั่ง) และจัดชั้นวางสินค้า 7.1–7.4 (หมุน / หลายแถว / ซ้อน) พร้อมรูปชั้นวางที่แก้ด้วย IP จริง',
       tags: ['integer program', 'knapsack', 'LP relaxation', 'bonus 7.4'] }
+  ]},
+  { id: 'probstat', name: 'Prob & Stat', short: 'Stats', th: 'ความน่าจะเป็นและสถิติ', folder: 'Prob & Stat', lectures: [
+    { id: 'review', no: '00', title: 'Probability Review', th: 'ทบทวนความน่าจะเป็น', file: 'probability-review.html',
+      desc: 'Bayes แบบพื้นที่สี่เหลี่ยม, PMF / PDF / CDF + quantile ของ 9 การแจกแจง, ตาราง joint → marginal (เช็คอิสระ), ผลบวก RV = convolution, กฎของ E / Var, covariance & correlation (Anscombe) และ Binomial → Poisson',
+      tags: ['<span class="math">P(A|B) = P(B|A)P(A)/P(B)</span>', 'PMF / PDF / CDF', '<span class="math">f<sub>X+Y</sub> = f<sub>X</sub> ∗ f<sub>Y</sub></span>', 'Cov · ρ'] },
+    { id: 'lln-clt', no: '01', title: 'LLN & CLT', th: 'กฎจำนวนมาก · ทฤษฎีบทขีดจำกัดกลาง', file: 'lln-clt.html',
+      desc: 'ค่าเฉลี่ยสะสมลู่เข้า μ (และ Cauchy ที่ไม่ลู่เข้า), histogram ของ X̄ₙ กลายเป็นระฆังจากประชากรรูปไหนก็ได้, ประมาณ P(S > k) ด้วย CLT เทียบค่าตรง, CI จากโพล p̂ ± 1/√n และจำลอง 100 ช่วงว่า “95%” แปลว่าอะไร',
+      tags: ['<span class="math">X̄<sub>n</sub> ≈ N(μ, σ²/n)</span>', '<span class="math">p̂ ± 1/√n</span>', 'P(Z > 1) ≈ 0.16', 'CI coverage'] },
+    { id: 'estimation', no: '01B', title: 'Sampling & Estimation', th: 'การสุ่มตัวอย่างและการประมาณค่า', file: 'estimation.html',
+      desc: 'Inverse transform sampling (u → F⁻¹(u)), likelihood / log-likelihood ของ binomial ทีละขั้น, MLE ของ exponential (λ̂ = 5/13) และ geometric (p̂ = 3/5), bias ของ σ̂², MAP หาลูกโอ๊ก (posterior 0.0954 / 0.5825 / 0.3221) และ credible vs confidence interval',
+      tags: ['<span class="math">x = F<sup>−1</sup>(u)</span>', 'MLE', 'MAP', 'bias · variance', 'Beta prior'] }
   ]}
 ];
 
