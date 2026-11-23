@@ -198,6 +198,12 @@ footer a{color:var(--mark)}
 .kv b.tx{font:italic 400 16px/1.5 "STIX Two Text",serif}
 .legend .math sub{font-size:.75em}
 .jt thead th{text-transform:none;letter-spacing:0}
+.steps{margin:0 0 12px;padding:0;list-style:none;counter-reset:d;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 16px}
+.steps li{counter-increment:d;display:grid;grid-template-columns:26px minmax(0,1fr);gap:4px 12px;padding:9px 0;border-top:1px solid var(--line)}
+.steps li:first-child{border-top:0}
+.steps li::before{content:counter(d);font:600 11px/18px "IBM Plex Mono",monospace;color:var(--muted);background:var(--sunk);border-radius:50%;width:18px;height:18px;text-align:center;margin-top:5px}
+.steps .ln{font-size:17px;overflow-x:auto}
+.steps .why{grid-column:2;font-size:13px;color:var(--muted)}
 </style>
 </head>
 <body>

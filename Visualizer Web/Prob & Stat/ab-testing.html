@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- CP203 Stats · Lecture 03 A/B Testing -->
+<title>A/B Testing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400;1,600&display=swap">
+<style>
+
+html,body{margin:0}
+[hidden]{display:none!important}
+img{max-width:100%}
+/* ===== shared tokens & layout for CEMII lecture pages ===== */
+:root{
+  --bg:#EEF1F5; --surface:#FFFFFF; --sunk:#F6F8FB; --ink:#18202D; --muted:#5A6577; --line:#D3DAE4;
+  --grid:rgba(52,86,140,.10); --axis:#8792A5;
+  --x:#1C2638; --h:#D0392C; --mark:#2E6BD9; --prod:#7A4ED3; --y:#12865A; --amber:#B8770F; --on-mark:#FFFFFF;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1219; --surface:#151B24; --sunk:#111721; --ink:#E5E9F0; --muted:#98A2B3; --line:#29323F;
+    --grid:rgba(150,180,230,.08); --axis:#5F6979;
+    --x:#DDE4EF; --h:#FF6C5E; --mark:#6FA1FF; --prod:#B596FF; --y:#44CF98; --amber:#E8A93E; --on-mark:#0E1219;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1219; --surface:#151B24; --sunk:#111721; --ink:#E5E9F0; --muted:#98A2B3; --line:#29323F;
+  --grid:rgba(150,180,230,.08); --axis:#5F6979;
+  --x:#DDE4EF; --h:#FF6C5E; --mark:#6FA1FF; --prod:#B596FF; --y:#44CF98; --amber:#E8A93E; --on-mark:#0E1219;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.65 "IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:clamp(16px,3vw,36px);padding-block:28px 72px}
+.math{font-family:"STIX Two Text","Cambria Math","Times New Roman",serif;font-style:italic;letter-spacing:.01em}
+.up{font-style:normal}
+code{font:12.5px/1.4 "IBM Plex Mono",ui-monospace,monospace;background:color-mix(in srgb,var(--ink) 7%,transparent);padding:1px 5px;border-radius:4px;white-space:nowrap}
+:focus-visible{outline:2px solid var(--mark);outline-offset:2px}
+
+header.top{padding-bottom:20px;border-bottom:1px solid var(--line)}
+.eyebrow{font:500 12px/1.4 "IBM Plex Mono",ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+h1{font:600 clamp(28px,4.2vw,42px)/1.06 "STIX Two Text","Times New Roman",serif;margin:0;letter-spacing:-.01em;text-wrap:balance}
+h1 .math{font-weight:400;color:var(--muted);font-size:.58em;margin-left:.3em;white-space:nowrap}
+.lede{margin:10px 0 0;color:var(--muted);max-width:66ch}
+
+.layout{display:grid;grid-template-columns:248px minmax(0,1fr);gap:32px;margin-top:24px;align-items:start}
+@media (max-width:920px){.layout{grid-template-columns:minmax(0,1fr);gap:20px}}
+.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);display:flex;flex-direction:column;gap:2px;max-height:calc(100vh - 40px);overflow-y:auto}
+@media (max-width:920px){.toc{position:static;max-height:none;flex-direction:row;flex-wrap:wrap;gap:6px;padding-bottom:4px}}
+.toc .lab{font:500 11.5px/1.4 "IBM Plex Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+@media (max-width:920px){.toc .lab{width:100%;margin-bottom:2px}}
+.toc a{display:flex;gap:9px;align-items:baseline;padding:7px 10px;border-radius:8px;color:var(--muted);text-decoration:none;font-size:14px;line-height:1.35;border:1px solid transparent}
+.toc a b{font:600 11.5px/1.4 "IBM Plex Mono",monospace;color:var(--muted);flex:none}
+.toc a:hover{background:color-mix(in srgb,var(--mark) 7%,transparent);color:var(--ink)}
+.toc a.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.toc a.on b{color:inherit;opacity:.72}
+
+main{display:flex;flex-direction:column;gap:14px;min-width:0}
+section.sec{scroll-margin-top:24px;padding-block:14px 26px;border-top:1px dashed var(--line)}
+section.sec:first-of-type{border-top:0;padding-top:0}
+section.sec > h2{font:600 24px/1.25 "STIX Two Text","Times New Roman",serif;margin:0 0 4px;display:flex;flex-wrap:wrap;align-items:baseline;gap:10px}
+section.sec > h2 .n{font:600 12px/1 "IBM Plex Mono",monospace;color:var(--mark);letter-spacing:.06em}
+section.sec > h2 .th{font-family:"IBM Plex Sans Thai",sans-serif;font-size:15px;font-weight:400;color:var(--muted)}
+.intro{margin:6px 0 16px;color:var(--muted);max-width:74ch}
+.intro b{color:var(--ink);font-weight:600}
+
+/* formula card */
+.fcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:14px}
+.fcard .ftitle{font:500 11.5px/1.4 "IBM Plex Mono",monospace;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+.fbig{font-size:clamp(19px,2.6vw,25px);line-height:2.1;overflow-x:auto;padding-bottom:2px}
+.fbig.sm{font-size:clamp(17px,2.2vw,21px)}
+.legend-sym{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px 18px;margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
+.legend-sym div{display:flex;gap:9px;align-items:baseline;font-size:13.5px;color:var(--muted)}
+.legend-sym .s{font-family:"STIX Two Text",serif;font-style:italic;font-size:17px;color:var(--ink);flex:none;min-width:2.4em}
+.note{margin:10px 0 0;font-size:13.5px;color:var(--muted)}
+.note b{color:var(--ink)}
+.warn{border-left:3px solid var(--amber);padding-left:12px;margin:12px 0 0;font-size:13.5px;color:var(--muted)}
+.warn b{color:var(--ink)}
+
+/* derivation stepper */
+.deriv{margin:0;padding:0;list-style:none;counter-reset:d}
+.deriv li{counter-increment:d;display:grid;grid-template-columns:26px minmax(0,1fr);gap:4px 12px;padding:9px 0;border-top:1px solid var(--line);transition:opacity .2s}
+.deriv li:first-child{border-top:0}
+.deriv li::before{content:counter(d);font:600 11px/18px "IBM Plex Mono",monospace;color:var(--muted);background:var(--sunk);border-radius:50%;width:18px;height:18px;text-align:center;margin-top:5px}
+.deriv li.dim{opacity:.22}
+.deriv .ln{font-size:18px;overflow-x:auto}
+.deriv .why{grid-column:2;font-size:13px;color:var(--muted)}
+.dnav{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap}
+.dnav .cnt{font:500 12.5px/1 "IBM Plex Mono",monospace;color:var(--muted)}
+
+/* figures + controls */
+.plot{margin:0 0 12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px 6px}
+.plot figcaption{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 14px;align-items:baseline;margin-bottom:2px}
+.pt{font-weight:600;font-size:14px}
+.pt .math{font-weight:400;font-size:15.5px}
+.legend{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:12.5px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:3px;border-radius:2px;background:var(--c)}
+.legend i.dash{background:repeating-linear-gradient(90deg,var(--c) 0 4px,transparent 4px 7px)}
+.legend .math{font-size:14px;color:var(--ink)}
+canvas{display:block;width:100%;height:200px;touch-action:pan-y}
+canvas.drag{cursor:ew-resize}
+.ctrls{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:12px}
+.ctrl{display:flex;align-items:center;gap:9px;font-size:13.5px;flex:1 1 210px;min-width:0}
+.ctrl > span:first-child{color:var(--muted);white-space:nowrap}
+.ctrl input[type=range]{flex:1;min-width:80px;accent-color:var(--mark)}
+.ctrl output{font:600 13px/1 "IBM Plex Mono",monospace;color:var(--mark);min-width:3.4em;text-align:right;font-variant-numeric:tabular-nums}
+.ctrl select,.ctrl input[type=text]{font:13.5px "IBM Plex Mono",monospace;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 8px;max-width:100%}
+.ctrl select{font-family:"IBM Plex Sans Thai",sans-serif;cursor:pointer;flex:1}
+.btn{appearance:none;font:500 13.5px/1 "IBM Plex Sans Thai",system-ui,sans-serif;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 12px;min-height:34px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--mark)}
+.btn.primary{background:var(--mark);border-color:var(--mark);color:var(--on-mark)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.sm{min-height:30px;padding:6px 10px;font-size:13px}
+.chk{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;color:var(--muted);cursor:pointer}
+.chk input{accent-color:var(--mark)}
+
+/* readout */
+.out{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 20px;padding:12px 4px;border-block:1px dashed var(--line);margin-bottom:12px;min-height:74px}
+.out .l{display:flex;flex-direction:column;gap:3px;min-width:0;font-size:17px;flex:1 1 320px}
+.out .l .sub{font-size:13px;color:var(--muted)}
+.out .r{font:600 24px/1 "IBM Plex Mono",monospace;color:var(--y);white-space:nowrap}
+.out .r.small{font-size:18px}
+
+/* math bits */
+.bigop{display:inline-flex;align-items:center;vertical-align:middle;margin:0 .1em 0 .12em}
+.bigop .op{font-style:normal;font-size:1.4em;line-height:1}
+.bigop .lims{display:inline-flex;flex-direction:column;justify-content:space-between;font-size:.55em;line-height:1.2;margin-left:.12em;min-height:2.2em}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;font-size:.86em;line-height:1.25;margin:0 .14em}
+.frac>span:last-child{border-top:1px solid currentColor;padding-top:1px}
+.cases{display:inline-flex;align-items:center;vertical-align:middle}
+.cases .brace{font-size:2.6em;line-height:1;font-style:normal;margin-right:.08em}
+.cases .rows{display:grid;grid-template-columns:auto auto;gap:3px 16px;align-items:center;font-size:.92em}
+.cases .cond{color:var(--muted);white-space:nowrap}
+.box{display:inline-block;border:1.5px solid var(--y);border-radius:8px;padding:2px 10px;background:color-mix(in srgb,var(--y) 8%,transparent)}
+.hl{background:color-mix(in srgb,var(--mark) 16%,transparent);border-radius:4px;padding:0 3px}
+.hl2{background:color-mix(in srgb,var(--prod) 16%,transparent);border-radius:4px;padding:0 3px}
+
+/* tables */
+.tscroll{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface);margin-bottom:12px}
+table{border-collapse:collapse;font:13.5px/1.35 "IBM Plex Sans Thai",sans-serif;width:max-content;min-width:100%}
+th,td{padding:9px 12px;text-align:left;vertical-align:top;border-top:1px solid var(--line)}
+thead th{border-top:0;color:var(--muted);font-weight:500;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase}
+td.m,th.m{font-family:"STIX Two Text",serif;font-style:italic;font-size:15.5px}
+td.num{font-family:"IBM Plex Mono",monospace;font-style:normal;text-align:right;font-variant-numeric:tabular-nums}
+tbody tr.on{background:color-mix(in srgb,var(--mark) 10%,transparent)}
+.mini{font-size:12.5px;color:var(--muted)}
+footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:space-between}
+footer a{color:var(--mark)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+
+.wrapc{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.verdict{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;padding:6px 12px;border-radius:999px}
+.verdict.ok{color:var(--y);background:color-mix(in srgb,var(--y) 13%,transparent)}
+.verdict.bad{color:var(--h);background:color-mix(in srgb,var(--h) 13%,transparent)}
+.calc{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center}
+.calc input[type=number]{width:110px;font:14px "IBM Plex Mono",monospace;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+
+/* ===== Prob & Stat additions ===== */
+.two{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-bottom:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.card h3{margin:0 0 6px;font-size:15px;font-weight:600}
+.card h3 .tag{font:500 11px/1 "IBM Plex Mono",monospace;letter-spacing:.06em;color:var(--mark);margin-right:6px;text-transform:uppercase}
+.card p,.card ul{margin:0;font-size:14px;color:var(--muted)}
+.card ul{padding-left:18px}
+.card li{margin:3px 0}
+.card b{color:var(--ink);font-weight:600}
+.card .math{color:var(--ink)}
+.kv{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:0 0 12px}
+.kv div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;min-width:0}
+.kv span{display:block;font-size:12px;color:var(--muted)}
+.kv b{display:block;font:600 17px/1.3 "IBM Plex Mono",monospace;color:var(--ink);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.kv b.g{color:var(--y)} .kv b.r{color:var(--h)} .kv b.m{color:var(--mark)} .kv b.p{color:var(--prod)}
+.seg{display:inline-flex;flex-wrap:wrap;gap:4px;background:var(--sunk);border:1px solid var(--line);border-radius:10px;padding:3px}
+.seg button{appearance:none;border:0;background:transparent;color:var(--muted);font:500 13px/1 "IBM Plex Sans Thai",sans-serif;padding:7px 11px;border-radius:7px;cursor:pointer;min-height:30px}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.jt input{width:58px;font:13.5px "IBM Plex Mono",monospace;color:var(--ink);background:var(--sunk);border:1px solid var(--line);border-radius:6px;padding:5px 6px;text-align:right}
+.jt td,.jt th{text-align:center}
+.jt .mg{color:var(--prod);font-family:"IBM Plex Mono",monospace;font-weight:600}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:6px 0 12px}
+.flow .nd{background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13.5px;line-height:1.35}
+.flow .nd b{display:block;font-size:14.5px}
+.flow .nd span{color:var(--muted);font-size:12.5px}
+.flow .ar{color:var(--muted);font-size:12.5px;display:flex;flex-direction:column;align-items:center;line-height:1.2;text-align:center}
+.flow .ar::after{content:"⟶";font-size:20px;color:var(--mark);line-height:1}
+.src{font-size:12.5px;color:var(--muted);margin:4px 0 0}
+.ex{border:1px solid var(--line);border-left:3px solid var(--mark);border-radius:10px;background:var(--surface);padding:12px 14px;margin-bottom:12px}
+.ex .q{font-size:14.5px;margin:0 0 6px}
+.ex .q b{color:var(--mark)}
+.ex .a{font-size:14px;color:var(--muted);margin:0}
+.ex .a b{color:var(--ink)}
+.right{color:var(--y);font-weight:600}.wrong{color:var(--h);font-weight:600}
+.kv b.tx{font:italic 400 16px/1.5 "STIX Two Text",serif}
+.legend .math sub{font-size:.75em}
+.jt thead th{text-transform:none;letter-spacing:0}
+.steps{margin:0 0 12px;padding:0;list-style:none;counter-reset:d;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 16px}
+.steps li{counter-increment:d;display:grid;grid-template-columns:26px minmax(0,1fr);gap:4px 12px;padding:9px 0;border-top:1px solid var(--line)}
+.steps li:first-child{border-top:0}
+.steps li::before{content:counter(d);font:600 11px/18px "IBM Plex Mono",monospace;color:var(--muted);background:var(--sunk);border-radius:50%;width:18px;height:18px;text-align:center;margin-top:5px}
+.steps .ln{font-size:17px;overflow-x:auto}
+.steps .why{grid-column:2;font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">CP203 Stats · Lecture 03 · A/B Testing in the Wild</p>
+    <h1>A/B Testing <span class="math">n = 2((z<sub>α</sub> + z<sub>β</sub>)σ / MDE)²</span></h1>
+    <p class="lede">ทำไมข้อมูลเชิงสังเกตบอก “เหตุ” ไม่ได้ (Simpson's paradox) และขั้นตอน A/B test 6 ขั้นแบบที่ใช้จริงในบริษัท ผ่านตัวอย่างเดียวตลอดทั้งบท: Dr. Hamtaro ทดสอบสีซองเมล็ดทานตะวัน <b>แดง (A) vs เทา (B)</b> บน hamzada.com — เลือก metric, แบ่งกลุ่ม, เลือก test, คำนวณ sample size จาก MDE, ห้าม peek, แก้ multiple testing แล้วตัดสินใจ</p>
+  </header>
+
+  <div class="layout">
+    <nav class="toc" aria-label="หัวข้อ">
+      <span class="lab">หัวข้อ</span>
+      <a href="#cause"><b>01</b><span>Correlation ≠ causation · Simpson</span></a>
+      <a href="#why"><b>02</b><span>ทำไมต้อง A/B test</span></a>
+      <a href="#metric"><b>03</b><span>① Define relevant metrics</span></a>
+      <a href="#split"><b>04</b><span>② Split comparable groups</span></a>
+      <a href="#test"><b>05</b><span>③ Statistical test &amp; p-value</span></a>
+      <a href="#mde"><b>06</b><span>④ Stopping: MDE · power · n</span></a>
+      <a href="#aa"><b>07</b><span>A/A test · seasonality</span></a>
+      <a href="#peek"><b>08</b><span>⑤ Run &amp; monitor · ห้าม peek</span></a>
+      <a href="#multi"><b>09</b><span>⑥ Multiple test corrections</span></a>
+      <a href="#limit"><b>10</b><span>Limitations &amp; design journal</span></a>
+    </nav>
+
+    <main>
+      <!-- ============ 01 ============ -->
+      <section class="sec" id="cause">
+        <h2><span class="n">01</span> Correlation ≠ causation <span class="th">— และ Simpson's paradox</span></h2>
+        <p class="intro">สังเกตว่า “คนดื่ม Diet Coke อ้วน” → (A) Diet Coke ทำให้อ้วน หรือ (B) คนอ้วนชอบดื่ม Diet Coke? <b>ดูแค่ข้อมูลเชิงสังเกต (observational data) ตอบไม่ได้</b> ว่าอันไหนเป็นเหตุ ต้อง<b>ทดลองแบบสุ่ม</b></p>
+        <div class="ex"><p class="q"><b>Story 1 (สไลด์): “The Bad / Bad / Good Drug”</b> — ยาแย่สำหรับผู้หญิง แย่สำหรับผู้ชาย แต่รวมกันแล้ว “ดี”?</p><p class="a">ตัวแปรที่มีผลทั้งต่อตัวแปรต้น (ได้ยาหรือไม่) และตัวแปรตาม (heart attack) เรียกว่า <b>confounder</b> — ในที่นี้คือ<b>เพศ</b>: ผู้ชายเสี่ยง heart attack สูงกว่า และอยู่กลุ่ม control เยอะกว่า</p></div>
+        <div class="ctrls"><div class="seg" id="sp-pre" role="group" aria-label="ชุดข้อมูล"><button type="button" data-k="slide" aria-pressed="true">ข้อมูลในสไลด์</button><button type="button" data-k="rand">ถ้าสุ่มกลุ่ม (สัดส่วนเพศเท่ากัน)</button></div></div>
+        <div class="tscroll"><table class="jt" id="sp-tab"></table></div>
+        <figure class="plot"><figcaption><span class="pt">อัตรา heart attack: แยกเพศ vs รวม</span><span class="legend"><span><i style="--c:var(--x)"></i>Control (ไม่ได้ยา)</span><span><i style="--c:var(--h)"></i>Treatment (ได้ยา)</span></span></figcaption><canvas id="sp-plot" data-h="200"></canvas></figure>
+        <div class="out"><div class="l"><div id="sp-eq"></div><div class="sub" id="sp-sub"></div></div><div class="r small" id="sp-val"></div></div>
+      </section>
+
+      <!-- ============ 02 ============ -->
+      <section class="sec" id="why">
+        <h2><span class="n">02</span> ทำไมต้อง A/B test <span class="th">— จัดการกับความสุ่มในการตัดสินใจทางธุรกิจ</span></h2>
+        <div class="two">
+          <div class="card"><h3>ธุรกิจตัดสินใจกันอย่างไร</h3><ul><li>Realistic assumptions, scientific methods ✓</li><li>Gut feelings, extrapolation จากประสบการณ์, proxies</li><li><b>FOMO</b> (กลัวตกขบวน) และ <b>HiPPO</b> (Highest Paid Person's Opinion — เชื่อคนเงินเดือนสูงสุด)</li></ul></div>
+          <div class="card"><h3>Randomness</h3><p>เกมอย่างหมากรุก/โกะ: action → outcome ตรง ๆ · แต่ UI/UX, แคมเปญการตลาด, product, clinical trial มี<b>ความสุ่ม</b> (ความชอบลูกค้า เทรนด์ ฤดูกาล คู่แข่ง) คั่นกลาง → ต้อง<b>ตรึงปัจจัยอื่นให้คงที่</b> ให้ความต่างเหลือแค่สีซอง + ความสุ่ม แล้วใช้สถิติแยกสองอย่างนั้นออกจากกัน</p></div>
+        </div>
+        <div class="tscroll"><table>
+          <thead><tr><th>Use case (สไลด์)</th><th>ผล</th></tr></thead>
+          <tbody>
+            <tr><td>Bing link color (2014)</td><td>เปลี่ยนสีลิงก์ → รายได้โฆษณาเพิ่ม <b>10M USD</b></td></tr>
+            <tr><td>Google “Speed matters” (2009)</td><td>หน้าเว็บโหลดช้าลง → การใช้งานต่อวันต่อผู้ใช้ลดลง</td></tr>
+            <tr><td>Baby Shark (Pinkfong, 2018)</td><td>ทำ 30–40 เวอร์ชัน (R&amp;B, EDM, …) แล้วทดสอบว่าเวอร์ชันไหนติด</td></tr>
+            <tr><td>Facebook Emotional Contagion (2014)</td><td>ปรับอารมณ์ของ News Feed ผู้ใช้ 689,003 คน → คนโพสต์อารมณ์ตามสิ่งที่อ่าน (ประเด็นจริยธรรม!)</td></tr>
+          </tbody></table></div>
+        <div class="flow">
+          <div class="nd"><b>① Metrics</b><span>วัดอะไร</span></div><div class="ar"></div>
+          <div class="nd"><b>② Split</b><span>แบ่งกลุ่มให้เทียบกันได้</span></div><div class="ar"></div>
+          <div class="nd"><b>③ Test</b><span>เลือก test + เช็ก assumption</span></div><div class="ar"></div>
+          <div class="nd"><b>④ Stopping</b><span>MDE, n</span></div><div class="ar"></div>
+          <div class="nd"><b>⑤ Run &amp; monitor</b><span>ห้าม peek</span></div><div class="ar"></div>
+          <div class="nd"><b>⑥ Analyze</b><span>แก้ multiple test, ตัดสินใจ</span></div>
+        </div>
+      </section>
+
+      <!-- ============ 03 ============ -->
+      <section class="sec" id="metric">
+        <h2><span class="n">03</span> ① Define relevant metrics <span class="th">— build intuition about your system</span></h2>
+        <div class="two">
+          <div class="card"><h3><span class="tag">Relevance vs vanity</span></h3><p>Funnel: Home/Search/Listing → <b>Product page (variation อยู่ตรงนี้)</b> → Add-to-cart → Checkout → Payment<br><b>Relevant</b>: conversions, add-to-cart rate, checkout rate · <b>Vanity</b>: clicks / CTR, page views — ดูดีแต่ไม่ได้บอกว่าขายได้มากขึ้น</p></div>
+          <div class="card"><h3><span class="tag">Assumed distributions</span></h3><p>Frequentist test ต้องรู้ variance ของข้อมูล:<br><b>Bernoulli</b> — event probability (ซื้อ/ไม่ซื้อ) · <b>Exponential</b> — average revenue per user, average position clicked · <b>Normal / Student t</b> — ส่วนสูง น้ำหนัก คะแนน measurement error · ต้อง i.i.d. ด้วย — <b>plot ดูก่อนเสมอ</b></p></div>
+        </div>
+        <p class="note" style="margin:0 0 8px"><b>Granularity</b> — metric ส่วนใหญ่คือ event probability = # event / # หน่วย แต่ “หน่วย” เลือกได้หลายแบบ:</p>
+        <div class="tscroll"><table>
+          <thead><tr><th>Event probability</th><th>ข้อดี / ปัญหา</th></tr></thead>
+          <tbody>
+            <tr><td># checkout / # hits</td><td>นับซ้ำเมื่อ refresh หน้า</td></tr>
+            <tr><td># checkout / # sessions</td><td>นับซ้ำ visit ที่ไม่ active (timeout 15–30 นาที) · ดีถ้าอยากรู้ว่าสินค้าไหนซื้อได้ในไม่กี่ visit</td></tr>
+            <tr><td># checkout / # cookies</td><td>ใช้ “users” เป็นตัวหาร รวมทั้งคนล็อกอินและไม่ล็อกอิน · คนเดียวหลาย browser/device นับซ้ำ</td></tr>
+            <tr><td># payment / # cookies</td><td>นับเฉพาะการซื้อที่สำเร็จจริง</td></tr>
+            <tr><td># payment / # user IDs</td><td>คนไม่ล็อกอินทั้งหมดนับเป็น 1 user</td></tr>
+            <tr><td># payment / # people</td><td>อุดมคติ แต่ “people” คือใคร วัดไม่ได้</td></tr>
+          </tbody></table></div>
+        <div class="fcard"><p class="ftitle">Attribution period — ลูกค้าหนึ่งคน journey ยาวแค่ไหน</p>
+          <p class="note" style="margin:0 0 10px">ตัวอย่างสไลด์: cookie เดียว เข้า Home → Product (วันที่ 1), Search → Product (วันที่ 4), Product → <b>Purchase</b> (วันที่ 6) · metric = # payment / # cookies ต่อ X วัน</p>
+          <div class="ctrls" style="margin:0 0 10px"><label class="ctrl"><span>attribution window (วัน)</span><input type="range" id="at-x" min="1" max="7" step="1" value="1"><output id="at-xv"></output></label></div>
+          <figure class="plot" style="margin:0"><figcaption><span class="pt">journey ที่นับได้ภายใต้ window นี้</span></figcaption><canvas id="at-plot" data-h="130"></canvas></figure>
+          <div class="out" style="margin:10px 0 0"><div class="l"><div id="at-eq"></div><div class="sub">e-commerce (Amazon) จบใน 1 วัน · ตั๋วเครื่องบิน (Air Asia) หลายวัน · สมัครงาน (LinkedIn) เป็นสัปดาห์–เดือน → plot ระยะ journey จริงก่อนเลือก window · event-based (conversion ใน ส.ค. / คนเข้าใน ส.ค.) vs <b>cohort-based</b> (conversion ภายใน X วัน / คนที่เข้าใน ส.ค.)</div></div><div class="r" id="at-val"></div></div>
+        </div>
+        <div class="two">
+          <div class="card"><h3><span class="tag">Robustness vs sensitivity</span></h3><p>สถิติสรุป (เช่น latency ของ YouTube) ต้อง<b>ไม่เปลี่ยน</b>สำหรับของที่เหมือนกัน (robust — median ทนค่าโดด) แต่<b>เปลี่ยน</b>สำหรับของที่ต่างกัน (sensitive — mean/p90 จับหางได้) → ลองกับข้อมูลจริงทั้งสองแบบ</p></div>
+          <div class="card"><h3><span class="tag">Tasks ต่างกัน วัดต่างกัน</span></h3><p>Recommendation ซื้อครั้งถัดไป → optimize purchase within session · แจ้งสิทธิประโยชน์สมาชิก → retention เดือนหน้า · แนะนำของขวัญวันพ่อ → purchase เดือนหน้า · ระวัง features vs targets และ target หลายตัวขัดกัน</p></div>
+        </div>
+        <div class="warn"><b>Design journal (Sunflower):</b> Metric = <b># payment / # cookie-days</b> — แต่ละ cookie คือ Bernoulli trial → metric เป็น normalized binomial</div>
+      </section>
+
+      <!-- ============ 04 ============ -->
+      <section class="sec" id="split">
+        <h2><span class="n">04</span> ② Split samples into comparable groups</h2>
+        <div class="two">
+          <div class="card"><h3><span class="tag">Split independently</span></h3><ul><li>Test ต้องการข้อมูล i.i.d. — <b>hits / sessions มักไม่อิสระ</b> เพราะคนเดียวอาจถูกนับทั้งในกลุ่ม control และ test</li><li>Hits: วัด usability (เปลี่ยนเมื่อ refresh) · Sessions: ไม่เปลี่ยนในหนึ่ง session · <b>Cookies</b>: “user” เดิมเห็นแบบเดิมเสมอ · User IDs: เข้มกว่าแต่ใช้กับคนไม่ล็อกอินไม่ได้</li><li>แบ่งที่ granularity ใหญ่กว่าที่วัด (แบ่ง cookie แต่วัด hit) → ต้องใช้ sample มากขึ้นเพื่อ power เท่าเดิม</li><li>อย่าให้กลุ่มมีปฏิสัมพันธ์กัน (ฟีเจอร์โซเชียล)</li></ul></div>
+          <div class="card"><h3><span class="tag">Control for X</span></h3><ul><li><b>Simpson's paradox</b> — ต้องคุม confounder</li><li>ที่มาของ traffic เป็น confounder: คนมาจาก Search ตั้งใจหาเมล็ดทานตะวัน (conversion สูง) คนเข้าตรงอาจมาจาก ads (conversion ต่ำ) → <b>เก็บ traffic source แล้ว A/B test ภายในแต่ละ source</b></li><li><b>Frame fairly</b>: UI ใหม่ (ย้ายคอมเมนต์ไปด้านบน) ผู้ใช้อาจหาไม่เจอ → บอกผู้ใช้</li><li><b>Multiple experiments</b>: ถ้ารันทดลองราคา/ฟอนต์ไปพร้อมกัน ต้องให้กระจายเท่ากันทุกกลุ่มสี ไม่งั้นแดงอาจชนะเพราะได้ราคาถูกกว่า</li></ul></div>
+        </div>
+        <p class="note" style="margin:0 0 10px"><b>50/50 vs 80/20</b> — 50/50 ใช้เวลาสั้นกว่าแต่เสี่ยงกว่า (ถ้า B แย่ เสียครึ่งหนึ่ง) · 80/20 เสี่ยงน้อยแต่ต้องรันนานกว่า เพราะกลุ่มเล็กเป็นตัวจำกัด power — ลองดูจำนวนตัวอย่างรวมที่ต้องใช้:</p>
+        <div class="ctrls"><label class="ctrl"><span>สัดส่วนกลุ่ม B</span><input type="range" id="sl-b" min="0.05" max="0.5" step="0.01" value="0.5"><output id="sl-bv"></output></label></div>
+        <figure class="plot"><figcaption><span class="pt">จำนวนตัวอย่างรวมที่ต้องใช้ (เทียบกับ 50/50 = 1×) · p = 10%, MDE = 1%, one-tailed α = 0.05, power 0.8</span></figcaption><canvas id="sl-plot" data-h="170"></canvas></figure>
+        <div class="out"><div class="l"><div id="sl-eq"></div><div class="sub">สูตรในสไลด์: n = <span class="math">((m + 1)/m)·((z<sub>α</sub> + z<sub>β</sub>)σ/MDE)²</span> ต่อกลุ่มใหญ่ โดย m = อัตราส่วนกลุ่ม (1 = 50/50, 2 = 33/67)</div></div><div class="r small" id="sl-val"></div></div>
+        <div class="warn"><b>Design journal:</b> 50/50 split บน cookies · รัน test แยกสำหรับ cookies ที่มาจาก direct traffic</div>
+      </section>
+
+      <!-- ============ 05 ============ -->
+      <section class="sec" id="test">
+        <h2><span class="n">05</span> ③ Choose statistical tests &amp; validate assumptions</h2>
+        <div class="fcard"><p class="ftitle">Frequentist hypothesis test กำลังพูดว่า…</p>
+          <p style="margin:0;font-size:15px">สมมติว่า <b style="color:var(--prod)">สิ่งที่เราเชื่อเป็นจริง</b> (H₀: conversion ไม่ต่างกัน) → <b style="color:var(--amber)">โอกาส (p-value)</b> ที่จะเห็นค่าเฉลี่ยตัวอย่างสุดโต่งกว่า <b style="color:var(--y)">ที่เห็นอยู่ตอนนี้ (Z score)</b> นั้น<b>น้อยกว่า</b> false positive rate ที่เรายอมรับได้ (<b>statistical significance</b>; 1%, 5%, 10%)</p></div>
+        <div class="ctrls">
+          <label class="ctrl"><span>A: ผู้เข้าชม</span><input type="range" id="zt-na" min="100" max="50000" step="100" value="5000"><output id="zt-nav"></output></label>
+          <label class="ctrl"><span>A: ซื้อ</span><input type="range" id="zt-xa" min="0" max="5000" step="1" value="500"><output id="zt-xav"></output></label>
+          <label class="ctrl"><span>B: ผู้เข้าชม</span><input type="range" id="zt-nb" min="100" max="50000" step="100" value="5000"><output id="zt-nbv"></output></label>
+          <label class="ctrl"><span>B: ซื้อ</span><input type="range" id="zt-xb" min="0" max="5000" step="1" value="550"><output id="zt-xbv"></output></label>
+        </div>
+        <div class="ctrls">
+          <div class="seg" id="zt-side" role="group" aria-label="H0"><button type="button" data-k="pos">H₀: diff ≥ 0 (ทดสอบ B &lt; A)</button><button type="button" data-k="two">H₀: diff = 0 (two-tailed)</button><button type="button" data-k="neg" aria-pressed="true">H₀: diff ≤ 0 (ทดสอบ B &gt; A)</button></div>
+          <label class="ctrl"><span>α</span><select id="zt-a"><option value="0.01">1%</option><option value="0.05" selected>5%</option><option value="0.1">10%</option></select></label>
+        </div>
+        <figure class="plot"><figcaption><span class="pt">Standard normal ของ Z ใต้ H₀ · แดง = rejection region · เส้นน้ำเงิน = Z ที่เห็น</span></figcaption><canvas id="zt-plot" data-h="200"></canvas></figure>
+        <ol class="steps" id="zt-steps"></ol>
+        <p class="note">ทางเลือกด้านเดียว (more vs less) มี threshold ของ Z <b>ไม่สุดโต่งเท่า</b> two-tailed เพราะดูหางเดียว (1.645 vs 1.96 ที่ α = 5%) — ต้องเลือกก่อนเห็นข้อมูล</p>
+        <div class="card" style="margin-top:12px"><h3>สิ่งที่ p-value <span class="wrong">ไม่ได้</span>บอก (misuse of p-values)</h3><ul>
+          <li>ไม่ใช่ความน่าจะเป็นที่ H₀ จริง หรือที่ H<sub>A</sub> ผิด</li>
+          <li>ไม่ใช่ความน่าจะเป็นที่ผลเกิดจากความบังเอิญล้วน ๆ</li>
+          <li>0.05 เป็นแค่ “ธรรมเนียม”</li>
+          <li>ไม่ได้บอกขนาดหรือความสำคัญของผล (n ใหญ่มาก ผลจิ๋วก็ significant)</li>
+          <li>ไม่ใช่ false positive rate ที่สังเกตได้ — ขึ้นกับ prevalence (base rate) ของการเปลี่ยนแปลงที่ได้ผลจริง</li></ul></div>
+        <div class="warn"><b>Design journal:</b> ใช้ <b>one-tailed Z test ที่ significance 5%</b></div>
+      </section>
+
+      <!-- ============ 06 ============ -->
+      <section class="sec" id="mde">
+        <h2><span class="n">06</span> ④ Decide on stopping criteria <span class="th">— Minimum Detectable Effect &amp; power</span></h2>
+        <p class="intro">“Test แบบ frequentist ส่วนใหญ่จะ significant ถ้ารันนานพอ” — Z = (X̄ − μ)/(σ/√n) โตตาม √n: <b>variance สูง</b> ทำให้เห็นความต่างยาก, <b>n มาก</b> ทำให้เห็นง่าย → ต้องกำหนดก่อนว่าความต่างเล็กสุดที่ “มีความหมายทางธุรกิจ” (MDE) คือเท่าไร แล้วคำนวณ n ที่พอดี</p>
+        <div class="ctrls">
+          <label class="ctrl"><span>MDE (effect size d)</span><input type="range" id="pw-d" min="0.5" max="8" step="0.1" value="6"><output id="pw-dv"></output></label>
+          <label class="ctrl"><span>α</span><input type="range" id="pw-a" min="0.01" max="0.2" step="0.01" value="0.05"><output id="pw-av"></output></label>
+          <label class="ctrl"><span>SE = σ√(2/n)</span><input type="range" id="pw-s" min="0.5" max="5" step="0.05" value="2.5"><output id="pw-sv"></output></label>
+        </div>
+        <figure class="plot"><figcaption><span class="pt">Control (H₀) vs Experimental (H<sub>A</sub>) · α = false positive, β = false negative, power = 1 − β</span><span class="legend"><span><i style="--c:var(--h)"></i>Control</span><span><i style="--c:var(--mark)"></i>Experimental</span><span><i style="--c:var(--y)"></i>critical</span></span></figcaption><canvas id="pw-plot" data-h="210"></canvas></figure>
+        <div class="kv" id="pw-kv"></div>
+        <div class="fcard"><p class="ftitle">Back-calculate sample size ต่อกลุ่ม (สไลด์) — pooled variance เท่ากัน, m = split ratio</p><ol class="deriv">
+          <li><div class="ln math">Φ<sup>−1</sup>(1 − α) = z<sub>α</sub> , Φ<sup>−1</sup>(1 − β) = z<sub>β</sub></div><div class="why">α = false positive rate (confidence = 1 − α), β = false negative rate (power = 1 − β)</div></li>
+          <li><div class="ln math">ใต้ H₀: Z<sub>critical</sub> = μ<sub>H0</sub> + z<sub>α</sub>√(σ²(1/n + 1/mn)) = 0 + z<sub>α</sub>√(σ²(1/n + 1/mn))</div><div class="why">μ<sub>H0</sub> = 0 (ไม่ต่างกัน) · variance ของผลต่างค่าเฉลี่ยสองกลุ่ม</div></li>
+          <li><div class="ln math">ใต้ H<sub>A</sub>: Z<sub>critical</sub> = μ<sub>H1</sub> − μ<sub>H0</sub> − z<sub>β</sub>√(σ²(1/n + 1/mn)) = MDE − z<sub>β</sub>√(…)</div><div class="why">เส้นเดียวกันต้องตัดหาง β ของ H<sub>A</sub> พอดี</div></li>
+          <li><div class="ln math">z<sub>α</sub>√(σ²(1/n + 1/mn)) = MDE − z<sub>β</sub>√(σ²(1/n + 1/mn)) ⇒ z<sub>α</sub> + z<sub>β</sub> = <span class="frac"><span>MDE</span><span>√(σ²(1/n + 1/mn))</span></span></div><div class="why">ตั้งสองสมการเท่ากัน</div></li>
+          <li><div class="ln math"><span class="frac"><span>(m + 1)σ²</span><span>mn</span></span> = (<span class="frac"><span>MDE</span><span>z<sub>α</sub> + z<sub>β</sub></span></span>)² ⇒ n = <span class="frac"><span>m + 1</span><span>m</span></span>(<span class="frac"><span>(z<sub>α</sub> + z<sub>β</sub>)σ</span><span>MDE</span></span>)²</div><div class="why">1/n + 1/mn = (m + 1)/(mn)</div></li>
+          <li><div class="ln math"><span class="box">n = 2(<span class="frac"><span>(z<sub>α</sub> + z<sub>β</sub>)σ</span><span>MDE</span></span>)² ; m = 1</span></div><div class="why">split 50/50 · ถ้าตั้ง power = 50% → z<sub>β</sub> = 0</div></li>
+          <li><div class="ln math">ตัวอย่างสไลด์: p = 10% → σ² = p(1−p) = 0.09 , MDE = 0.01 , z<sub>0.05</sub> = 1.645 , z<sub>0.2</sub> = 0.842 ⇒ n = 2(2.486)²(0.09)/0.0001 ≈ <b>11,128</b> ต่อกลุ่ม</div><div class="why">ตรงกับ “Minimum required samples at MDE 0.01 = 11128” ในกราฟสไลด์</div></li>
+        </ol></div>
+        <div class="ctrls">
+          <label class="ctrl"><span>baseline p (%)</span><input type="range" id="ss-p" min="0.5" max="50" step="0.5" value="10"><output id="ss-pv"></output></label>
+          <label class="ctrl"><span>MDE (absolute %)</span><input type="range" id="ss-m" min="0.1" max="10" step="0.1" value="1"><output id="ss-mv"></output></label>
+          <label class="ctrl"><span>power</span><input type="range" id="ss-w" min="0.5" max="0.99" step="0.01" value="0.8"><output id="ss-wv"></output></label>
+          <label class="ctrl"><span>tail</span><select id="ss-t"><option value="1" selected>one-tailed</option><option value="2">two-tailed</option></select></label>
+        </div>
+        <figure class="plot"><figcaption><span class="pt">Power เทียบกับ sample size ต่อกลุ่ม (เส้นแดง = 0.8)</span></figcaption><canvas id="ss-plot" data-h="190"></canvas></figure>
+        <div class="out"><div class="l"><div class="math" id="ss-eq"></div><div class="sub">MDE ครึ่งหนึ่ง → ต้องใช้ n สี่เท่า (n ∝ 1/MDE²)</div></div><div class="r" id="ss-val"></div></div>
+      </section>
+
+      <!-- ============ 07 ============ -->
+      <section class="sec" id="aa">
+        <h2><span class="n">07</span> A/A tests · trends &amp; seasonality</h2>
+        <p class="intro"><b>A/A test</b>: ตั้งใจแบ่ง cookies เป็น control กับ control ให้เห็นหน้าเดียวกัน แล้ว plot การแจกแจงของผลต่าง conversion — บอกว่า “ความต่างจากความบังเอิญล้วน ๆ” ใหญ่แค่ไหน (ใช้เลือก MDE และประมาณ pooled variance เชิงประจักษ์) และเช็กว่าระบบแบ่งกลุ่มทำงานถูก</p>
+        <div class="ctrls">
+          <label class="ctrl"><span>p ทั้งสองกลุ่ม (%)</span><input type="range" id="aa-p" min="1" max="50" step="1" value="10"><output id="aa-pv"></output></label>
+          <label class="ctrl"><span>n ต่อกลุ่ม</span><input type="range" id="aa-n" min="2" max="4.5" step="0.05" value="3.7"><output id="aa-nv"></output></label>
+          <button class="btn sm" type="button" id="aa-new">รัน A/A ใหม่ 2,000 ครั้ง</button>
+        </div>
+        <figure class="plot"><figcaption><span class="pt">Histogram ของ p̂<sub>A1</sub> − p̂<sub>A2</sub> จาก A/A test · ส่วนแดง = “significant” ทั้งที่ไม่ต่างจริง (α = 5% two-tailed)</span></figcaption><canvas id="aa-plot" data-h="190"></canvas></figure>
+        <div class="out"><div class="l"><div id="aa-eq"></div><div class="sub">ควรได้ ~5% — ถ้ามากกว่านี้มาก แปลว่าระบบแบ่งกลุ่ม/tracking ผิด หรือข้อมูลไม่อิสระ</div></div><div class="r" id="aa-val"></div></div>
+        <div class="card"><h3>Trends &amp; seasonality</h3><p>รันจนกว่าจะ<b>ครบ sample ที่คำนวณไว้ หรือครบทุก seasonality ที่รู้</b> แล้วแต่อันไหนนานกว่า — เช่นอย่างน้อย 1 สัปดาห์เต็มให้มีคนซื้อวันหยุด · ใช้ข้อมูลปีต่อปี (year-on-year) normalize เพื่อตัด trend</p></div>
+        <div class="warn"><b>Design journal:</b> สมมติ MDE 1% จาก A/A tests แล้วรันจนครบ n ต่อ variation <b>และอย่างน้อย 1 สัปดาห์</b></div>
+      </section>
+
+      <!-- ============ 08 ============ -->
+      <section class="sec" id="peek">
+        <h2><span class="n">08</span> ⑤ Run &amp; monitor — Do not peek <span class="th">— keep your tests in line</span></h2>
+        <p class="intro">ถ้า H₀ จริง test แบบ frequentist <b>สัญญา</b>ว่า false positive rate ≤ α — แต่ถ้าแอบดูผลหลายครั้งก่อนครบ n แล้วหยุดทันทีที่ significant <b>สัญญานั้นพัง</b> สไลด์: จำลอง 1,000 ครั้ง กลุ่มที่<b>ไม่ต่างจริง</b>ถูกปฏิเสธ H₀ ด้วยการ peek ถึง <b>22.4%</b> (ดูตอนจบครั้งเดียวได้ 6.4%)</p>
+        <div class="ctrls">
+          <label class="ctrl"><span>จำนวนครั้งที่ peek</span><input type="range" id="pk-k" min="1" max="60" step="1" value="30"><output id="pk-kv"></output></label>
+          <label class="ctrl"><span>ความต่างจริง (%)</span><input type="range" id="pk-d" min="0" max="2" step="0.1" value="0"><output id="pk-dv"></output></label>
+          <button class="btn sm primary" type="button" id="pk-run">จำลอง 1,000 การทดลอง</button>
+        </div>
+        <figure class="plot"><figcaption><span class="pt">Z สะสม (cumulative) ระหว่างแคมเปญ ของ 20 การทดลองแรก · เส้นประ = ±1.96</span><span class="legend"><span><i style="--c:var(--h)"></i>เคยข้ามเส้นตอน peek</span><span><i style="--c:var(--mark)"></i>ไม่เคยข้าม</span></span></figcaption><canvas id="pk-plot" data-h="230"></canvas></figure>
+        <div class="kv" id="pk-kv"></div>
+        <div class="two">
+          <div class="card"><h3>Sanity check — ทุกอย่างเป็นไปตามแผนไหม</h3><ul><li>กลุ่มถูกแบ่งตามที่ตั้งใจ? cookie เดียวเห็นทั้งสองแบบ = หายนะ</li><li>ตัวแปรที่คุมถูกคุมจริงไหม</li><li><b>Twyman's law</b>: สถิติที่ดูน่าสนใจ มักเป็นความผิดพลาด — dev ใช้ random() แทน cookie-based split, variation หนึ่งโหลดไม่ขึ้น, tracking พัง</li><li>Tracking: เว็บผ่าน Google Tag Manager → BI / ads platforms · แอปผ่าน Firebase SDK</li></ul></div>
+          <div class="card"><h3>Post-test monitoring</h3><ul><li><b>Novelty effect</b>: ลูกค้าสนใจเพราะของใหม่ แล้วค่อย ๆ กลับไปเท่ากลุ่ม control</li><li>หลังตัดสินใจแล้ว เก็บ control ไว้ส่วนเล็ก ๆ (เช่น 10%) เพื่อยืนยันผลระยะยาว</li></ul></div>
+        </div>
+        <div class="warn"><b>Design journal:</b> เช็กว่า cookie เห็นเฉพาะ variation ของตัวเอง · หลังจบเก็บ 10% ไว้ที่ control</div>
+      </section>
+
+      <!-- ============ 09 ============ -->
+      <section class="sec" id="multi">
+        <h2><span class="n">09</span> ⑥ Analyze results — multiple test corrections <span class="th">— we are running a business after all</span></h2>
+        <p class="intro">ทดสอบมากพอ ยังไงก็เจอ significant: รัน test จากข้อมูลรายวัน 60 ครั้ง จะมี ~3 ครั้งปฏิเสธ H₀ แม้สองกลุ่ม conversion เท่ากันจริง (60 × 0.05 = 3)</p>
+        <div class="fcard"><ol class="deriv">
+          <li><div class="ln math">FWER = P(มี false positive ≥ 1 จาก m tests) = 1 − (1 − α)<sup>m</sup></div><div class="why">ถ้า test อิสระกัน</div></li>
+          <li><div class="ln math">Bonferroni: α<sub>each</sub> = α<sub>overall</sub>/m → 0.05/10 = 0.005</div><div class="why">ง่ายและ conservative มาก</div></li>
+          <li><div class="ln math">Šidák: α<sub>overall</sub> = 1 − (1 − α<sub>Šidák</sub>)<sup>m</sup> ⇒ α<sub>Šidák</sub> = 1 − (1 − α<sub>overall</sub>)<sup>1/m</sup> = 1 − 0.95<sup>1/10</sup> = 0.005116</div><div class="why">สไลด์เขียนตัวอย่างเป็น “1 − (1−0.05)^10” แต่ตัวเลข 0.005116 มาจากยกกำลัง <b>1/10</b> (ถ้ายกกำลัง 10 จะได้ 0.401)</div></li>
+          <li><div class="ln">มีวิธีที่ conservative น้อยกว่า เช่น <b>Benjamini–Hochberg</b> (คุม false discovery rate)</div><div class="why"></div></li>
+        </ol></div>
+        <div class="ctrls">
+          <label class="ctrl"><span>จำนวน test m</span><input type="range" id="mt-m" min="1" max="100" step="1" value="10"><output id="mt-mv"></output></label>
+          <label class="ctrl"><span>α overall</span><input type="range" id="mt-a" min="0.01" max="0.2" step="0.01" value="0.05"><output id="mt-av"></output></label>
+        </div>
+        <figure class="plot"><figcaption><span class="pt">FWER เมื่อเพิ่มจำนวน test</span><span class="legend"><span><i style="--c:var(--h)"></i>ไม่แก้</span><span><i style="--c:var(--y)"></i>Bonferroni / Šidák</span></span></figcaption><canvas id="mt-plot" data-h="180"></canvas></figure>
+        <div class="kv" id="mt-kv"></div>
+        <div class="card"><h3>Take actions; understand the risks</h3><p>A/B test มีไว้ช่วย<b>ตัดสินใจในโลกจริง</b> ไม่ใช่ให้เราเป็นเครื่องคิดเลข — ประเมินว่าถ้าผิด (false positive/negative) จะเสียอะไร · ส่วนใหญ่ <b>control ชนะ</b> สิ่งสำคัญคือเราตอบสนองอย่างไร</p></div>
+        <div class="warn"><b>Design journal:</b> รัน test ครั้งเดียวตอนจบ แล้วใช้ซองสีที่ชนะ</div>
+      </section>
+
+      <!-- ============ 10 ============ -->
+      <section class="sec" id="limit">
+        <h2><span class="n">10</span> Limitations &amp; design journal ฉบับเต็ม</h2>
+        <div class="two">
+          <div class="card"><h3>เมื่อไหร่ <span class="wrong">ไม่ควร</span> ทำ A/B test</h3><ul><li>สิ่งที่สรุปเป็น metric ไม่กี่ตัวไม่ได้ (“ผู้ใช้มีความสุขไหม?”)</li><li>ของใหม่หมด เทียบ apple-to-apple ไม่ได้ → survey, focus group, design thinking</li><li>ผลล่าช้า (การซื้อซ้ำรอบ 3 เดือน)</li><li>เหตุการณ์ครั้งเดียว (11.11, Black Friday ไม่เคยเหมือนกัน)</li><li>แบ่งกลุ่มอิสระไม่ได้ (layout ร้านสาขาเดียว)</li></ul></div>
+          <div class="card"><h3>A/B testing in the wild — บทเรียน</h3><ul><li>เข้าใจธุรกิจของตัวเอง</li><li>Tracking, tracking, tracking</li><li>ทำครบกระบวนการสักรอบ สำคัญกว่าทำทุกขั้นให้สมบูรณ์</li><li>ระบุ assumption ให้ชัด และเตรียมรับความเสี่ยง</li><li>Control ชนะบ่อย — สำคัญที่การตอบสนอง</li></ul></div>
+        </div>
+        <div class="tscroll"><table>
+          <thead><tr><th>ขั้น</th><th>Sunflower seeds packet A/B test — design journal</th></tr></thead>
+          <tbody>
+            <tr><td>① Metric</td><td># payment / # cookie-days · แต่ละ cookie = Bernoulli trial (normalized binomial)</td></tr>
+            <tr><td>② Split</td><td>50/50 บน cookies · test แยกสำหรับ cookies ที่มาจาก direct</td></tr>
+            <tr><td>③ Test</td><td>one-tailed Z test, significance 5%</td></tr>
+            <tr><td>④ Stopping</td><td>MDE 1% จาก A/A tests · รันจนครบ n ต่อ variation (≈ 11,128 ที่ p = 10%) และอย่างน้อย 1 สัปดาห์</td></tr>
+            <tr><td>⑤ Monitor</td><td>เช็ก cookie เห็นแค่ variation ของตัวเอง · ห้าม peek · เก็บ 10% ไว้ที่ control หลังจบ</td></tr>
+            <tr><td>⑥ Analyze</td><td>test ครั้งเดียวตอนจบ (แก้ multiple test ถ้ามีหลาย source/วัน) → ใช้ซองที่ชนะ</td></tr>
+          </tbody></table></div>
+      </section>
+
+      <footer>
+        <span>อ้างอิง: CP203 Stats L03 A/B Testing (2026; slides courtesy of Charin Polpanumas) · Kohavi, Tang &amp; Xu · Udacity A/B Testing by Google</span>
+        <span>ทุกกราฟคำนวณ/จำลองสดในหน้านี้</span>
+      </footer>
+    </main>
+  </div>
+</div>
+
+<script>
+/* ===== shared kit: plots, steppers, controls (CEMII lecture pages) ===== */
+const K = (function(){
+'use strict';
+const MINUS = '−', TAU = Math.PI * 2;
+const C = {};
+const TOKENS = ['ink','muted','line','grid','axis','x','h','mark','prod','y','amber','surface','sunk'];
+function readColors(){ const cs = getComputedStyle(document.documentElement); TOKENS.forEach(k => { C[k] = cs.getPropertyValue('--'+k).trim() || '#888'; }); }
+readColors();
+
+/* ---------- numbers ---------- */
+function fmt(v, d){
+  if (d == null) d = 3;
+  if (!isFinite(v)) return (v < 0 ? MINUS : '') + '∞';
+  if (Math.abs(v) < 1e-10) v = 0;
+  const a = Math.abs(v), s = Number.isInteger(a) ? String(a) : String(+a.toFixed(d));
+  return (v < 0 && +s !== 0 ? MINUS : '') + s;
+}
+const fx = (v, d) => (v < 0 && Math.abs(v) >= Math.pow(10, -(d || 2)) / 2 ? MINUS : '') + Math.abs(v).toFixed(d == null ? 2 : d);
+function piLabel(v){
+  const k = v / Math.PI;
+  if (Math.abs(k) < 1e-9) return '0';
+  const q = Math.round(k * 4);
+  if (Math.abs(q - k * 4) > 1e-6) return fmt(v, 2);
+  const sg = q < 0 ? MINUS : '';
+  let num = Math.abs(q), den = 4;
+  const g = (a, b) => b ? g(b, a % b) : a;
+  const d = g(num, den); num /= d; den /= d;
+  return sg + (num === 1 ? 'π' : num + 'π') + (den === 1 ? '' : '/' + den);
+}
+function nice(range, target){
+  const raw = range / Math.max(1, target), p = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / p;
+  return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * p;
+}
+function rng(lo, hi, pad){
+  pad = pad == null ? .18 : pad;
+  const s = (hi - lo) || 1;
+  return [lo - (lo < 0 ? pad : pad * .5) * s, hi + pad * s];
+}
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+function simpson(f, a, b, n){
+  n = n % 2 ? n + 1 : n;
+  const hh = (b - a) / n; let s = f(a) + f(b);
+  for (let i = 1; i < n; i++) s += (i % 2 ? 4 : 2) * f(a + i * hh);
+  return s * hh / 3;
+}
+/* complex as [re, im] */
+const cadd = (a, b) => [a[0] + b[0], a[1] + b[1]];
+const cmul = (a, b) => [a[0]*b[0] - a[1]*b[1], a[0]*b[1] + a[1]*b[0]];
+const cabs = a => Math.hypot(a[0], a[1]);
+const carg = a => Math.atan2(a[1], a[0]);
+const cexp = th => [Math.cos(th), Math.sin(th)];
+function cstr(a, d){
+  d = d == null ? 3 : d;
+  const re = Math.abs(a[0]) < 5e-4 ? 0 : a[0], im = Math.abs(a[1]) < 5e-4 ? 0 : a[1];
+  if (im === 0) return fmt(re, d);
+  if (re === 0) return (im < 0 ? MINUS : '') + (Math.abs(im) === 1 ? '' : fmt(Math.abs(im), d)) + 'j';
+  return fmt(re, d) + (im < 0 ? ' ' + MINUS + ' ' : ' + ') + (Math.abs(im) === 1 ? '' : fmt(Math.abs(im), d)) + 'j';
+}
+/* DFT of complex array (arrays of [re,im]) — direct, N is small here */
+function dft(x){
+  const N = x.length, X = [];
+  for (let k = 0; k < N; k++){
+    let re = 0, im = 0;
+    for (let n = 0; n < N; n++){
+      const th = -TAU * k * n / N, c = Math.cos(th), s = Math.sin(th);
+      re += x[n][0] * c - x[n][1] * s; im += x[n][0] * s + x[n][1] * c;
+    }
+    X.push([re, im]);
+  }
+  return X;
+}
+
+/* ---------- plot ---------- */
+class Plot {
+  constructor(cv){ this.cv = cv; this.ctx = cv.getContext('2d'); this.h0 = +cv.dataset.h || 200; this.pad = {l:46, r:16, t:20, b:26}; }
+  size(){
+    const w = this.cv.clientWidth; if (!w) return false;
+    const H = Math.round(this.h0 * (w < 520 ? .84 : 1));
+    const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+    const W = Math.round(w * dpr), HH = Math.round(H * dpr);
+    if (this.cv.width !== W || this.cv.height !== HH){ this.cv.width = W; this.cv.height = HH; }
+    this.cv.style.height = H + 'px';
+    this.w = w; this.H = H;
+    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0); this.ctx.clearRect(0, 0, w, H);
+    return true;
+  }
+  view(x0, x1, y0, y1){ this.x0 = x0; this.x1 = x1; this.y0 = y0; this.y1 = y1; return this; }
+  get L(){ return this.pad.l; } get R(){ return this.w - this.pad.r; }
+  get T(){ return this.pad.t; } get B(){ return this.H - this.pad.b; }
+  pw(){ return this.R - this.L; }
+  X(v){ return this.L + (v - this.x0) / (this.x1 - this.x0) * this.pw(); }
+  Y(v){ return this.T + (this.y1 - v) / (this.y1 - this.y0) * (this.B - this.T); }
+  inv(px){ return this.x0 + (px - this.L) / this.pw() * (this.x1 - this.x0); }
+  frame(o){
+    o = o || {}; const c = this.ctx; c.save();
+    const pi = !!o.piTick;
+    const tick = o.tick || (pi ? Math.PI / 2 : nice(this.x1 - this.x0, Math.max(4, this.pw() / 64)));
+    const grid = o.grid || tick / 2;
+    const ys = o.yTick || nice(this.y1 - this.y0, o.yT || 4);
+    c.lineWidth = 1; c.strokeStyle = C.grid; c.beginPath();
+    for (let i = Math.ceil(this.x0 / grid - 1e-9); i * grid <= this.x1 + 1e-9; i++){ const px = Math.round(this.X(i * grid)) + .5; c.moveTo(px, this.T); c.lineTo(px, this.B); }
+    for (let i = Math.ceil(this.y0 / ys - 1e-9); i * ys <= this.y1 + 1e-9; i++){ const py = Math.round(this.Y(i * ys)) + .5; c.moveTo(this.L, py); c.lineTo(this.R, py); }
+    c.stroke();
+    c.strokeStyle = C.axis; c.beginPath();
+    const p0 = Math.round(this.Y(0)) + .5; c.moveTo(this.L, p0); c.lineTo(this.R, p0);
+    if (this.x0 < 0 && this.x1 > 0){ const q = Math.round(this.X(0)) + .5; c.moveTo(q, this.T); c.lineTo(q, this.B); }
+    c.stroke();
+    c.fillStyle = C.muted; c.font = '11px "IBM Plex Mono", ui-monospace, monospace';
+    c.textAlign = 'center'; c.textBaseline = 'top';
+    for (let i = Math.ceil(this.x0 / tick - 1e-9); i * tick <= this.x1 + 1e-9; i++){
+      const v = i * tick; if (o.skip0 && Math.abs(v) < 1e-9) continue;
+      c.fillText(pi ? piLabel(v) : fmt(v, 2), this.X(v), this.B + 8);
+    }
+    if (!o.noY){
+      c.textAlign = 'right'; c.textBaseline = 'middle';
+      for (let i = Math.ceil(this.y0 / ys - 1e-9); i * ys <= this.y1 + 1e-9; i++) c.fillText(fmt(i * ys, 2), this.L - 8, this.Y(i * ys));
+    }
+    if (o.xl){ c.font = 'italic 14px "STIX Two Text", serif'; c.fillStyle = C.ink; c.textAlign = 'left'; c.textBaseline = 'middle'; c.fillText(o.xl, this.R + 3, this.Y(0)); }
+    c.restore(); return this;
+  }
+  clip(){ const c = this.ctx; c.save(); c.beginPath(); c.rect(this.L, this.T - 8, this.pw(), this.B - this.T + 16); c.clip(); }
+  unclip(){ this.ctx.restore(); }
+  curve(pts, col, w, o){
+    o = o || {}; if (!pts.length) return this; const c = this.ctx; this.clip();
+    c.globalAlpha = o.alpha == null ? 1 : o.alpha; c.strokeStyle = col; c.lineWidth = w || 2; c.lineJoin = 'round'; c.lineCap = 'round';
+    if (o.dash) c.setLineDash(o.dash);
+    const yc = v => clamp(this.Y(v), -5000, 5000);
+    c.beginPath(); let down = false;
+    pts.forEach(p => { if (p == null || !isFinite(p[1])){ down = false; return; } const X = this.X(p[0]), Y = yc(p[1]); if (down) c.lineTo(X, Y); else { c.moveTo(X, Y); down = true; } });
+    c.stroke(); this.unclip(); return this;
+  }
+  area(pts, col, al){
+    if (!pts.length) return this; const c = this.ctx; this.clip();
+    const yc = v => clamp(this.Y(v), -5000, 5000);
+    c.globalAlpha = al == null ? .25 : al; c.fillStyle = col; c.beginPath(); c.moveTo(this.X(pts[0][0]), this.Y(0));
+    pts.forEach(p => c.lineTo(this.X(p[0]), yc(p[1]))); c.lineTo(this.X(pts[pts.length-1][0]), this.Y(0)); c.closePath(); c.fill();
+    this.unclip(); return this;
+  }
+  stem(k, v, col, o){
+    o = o || {}; const c = this.ctx; const px = this.X(k) + (o.dx || 0), p0 = this.Y(0), p1 = clamp(this.Y(v), this.T - 6, this.B + 6);
+    if (px < this.L - 6 || px > this.R + 6) return this;
+    c.save(); c.globalAlpha = o.alpha == null ? 1 : o.alpha; c.strokeStyle = col; c.fillStyle = col; c.lineWidth = o.w || 2;
+    if (Math.abs(v) > 1e-12){ c.beginPath(); c.moveTo(px, p0); c.lineTo(px, p1); c.stroke(); }
+    c.beginPath(); c.arc(px, p1, o.r == null ? 3.4 : o.r, 0, TAU); c.fill();
+    if (o.ring){ c.strokeStyle = o.ring; c.lineWidth = 2; c.beginPath(); c.arc(px, p1, (o.r == null ? 3.4 : o.r) + 3.5, 0, TAU); c.stroke(); }
+    if (o.label != null){ c.font = '600 10.5px "IBM Plex Mono", monospace'; c.textAlign = 'center'; c.textBaseline = v >= 0 ? 'bottom' : 'top'; c.fillText(o.label, px, v >= 0 ? p1 - 6 : p1 + 6); }
+    c.restore(); return this;
+  }
+  arrow(x, v, col, o){ /* impulse arrow */
+    o = o || {}; const c = this.ctx, px = this.X(x), p0 = this.Y(0), p1 = this.Y(v);
+    if (px < this.L - 4 || px > this.R + 4) return this;
+    c.save(); c.strokeStyle = col; c.fillStyle = col; c.lineWidth = o.w || 2;
+    c.beginPath(); c.moveTo(px, p0); c.lineTo(px, p1); c.stroke();
+    const d = v >= 0 ? 1 : -1;
+    c.beginPath(); c.moveTo(px, p1); c.lineTo(px - 4.5, p1 + 8 * d); c.lineTo(px + 4.5, p1 + 8 * d); c.closePath(); c.fill();
+    if (o.label){ c.font = '600 10.5px "IBM Plex Mono", monospace'; c.textAlign = 'center'; c.textBaseline = v >= 0 ? 'bottom' : 'top'; c.fillText(o.label, px, v >= 0 ? p1 - 10 : p1 + 10); }
+    c.restore(); return this;
+  }
+  dot(x, y, col, r){ const c = this.ctx; c.save(); c.fillStyle = col; c.beginPath(); c.arc(this.X(x), clamp(this.Y(y), this.T - 4, this.B + 4), r || 3, 0, TAU); c.fill(); c.restore(); return this; }
+  point(x, y, col, ring){ const c = this.ctx; c.save(); c.fillStyle = col; c.beginPath(); c.arc(this.X(x), clamp(this.Y(y), this.T, this.B), 5, 0, TAU); c.fill(); if (ring){ c.strokeStyle = ring; c.lineWidth = 2; c.beginPath(); c.arc(this.X(x), clamp(this.Y(y), this.T, this.B), 9, 0, TAU); c.stroke(); } c.restore(); return this; }
+  vline(x, col, label, o){
+    o = o || {}; const c = this.ctx, px = Math.round(this.X(x)) + .5; if (px < this.L - 1 || px > this.R + 1) return this;
+    c.save(); c.strokeStyle = col; c.lineWidth = o.w || 1.2; if (o.dash !== false) c.setLineDash(o.dash || [4, 4]);
+    c.beginPath(); c.moveTo(px, this.T - 2); c.lineTo(px, this.B); c.stroke(); c.setLineDash([]);
+    if (label){ c.fillStyle = col; c.font = '500 11.5px "IBM Plex Mono", monospace'; c.textBaseline = 'bottom'; const right = px > this.R - 62; c.textAlign = right ? 'right' : 'left'; c.fillText(label, px + (right ? -5 : 5), this.T - 3); }
+    c.restore(); return this;
+  }
+  band(a, b, col, al){ const c = this.ctx; c.save(); c.globalAlpha = al == null ? .1 : al; c.fillStyle = col; const x0 = Math.max(this.L, this.X(a)), x1 = Math.min(this.R, this.X(b)); if (x1 > x0) c.fillRect(x0, this.T, x1 - x0, this.B - this.T); c.restore(); return this; }
+  text(s, x, y, col, o){
+    o = o || {}; const c = this.ctx; c.save(); c.fillStyle = col;
+    c.font = o.font || '500 12px "IBM Plex Sans Thai", sans-serif';
+    c.textAlign = o.align || 'center'; c.textBaseline = o.base || 'middle';
+    c.fillText(s, x, y); c.restore(); return this;
+  }
+  label(s, x, y, col, o){ return this.text(s, this.X(x), this.Y(y), col, o); }
+}
+
+/* ---------- figure registry ---------- */
+const FIGS = [];
+function fig(id, draw){
+  const cv = document.getElementById(id); if (!cv) return null;
+  const p = new Plot(cv); FIGS.push({p, draw, cv}); return p;
+}
+let raf = 0;
+function redraw(){ if (raf) return; raf = requestAnimationFrame(() => { raf = 0; FIGS.forEach(f => { if (f.cv.offsetParent === null && f.cv.clientWidth === 0) return; if (f.p.size()) f.draw(f.p); }); }); }
+const $ = s => document.querySelector(s);
+const $$ = s => Array.prototype.slice.call(document.querySelectorAll(s));
+function val(sel){ const e = $(sel); return e ? +e.value : 0; }
+function sval(sel){ const e = $(sel); return e ? e.value : ''; }
+function chk(sel){ const e = $(sel); return !!(e && e.checked); }
+function bind(sel, fn){
+  $$(sel).forEach(e => e.addEventListener('input', ev => { if (fn) fn(ev); redraw(); }));
+}
+function out(sel, text){ const e = $(sel); if (e) e.textContent = text; }
+function html(sel, s){ const e = $(sel); if (e) e.innerHTML = s; }
+
+/* ---------- derivation steppers ---------- */
+function derivInit(){
+  $$('.deriv').forEach(list => {
+    const items = Array.prototype.slice.call(list.children);
+    const nav = document.createElement('div'); nav.className = 'dnav';
+    nav.innerHTML = '<button class="btn sm" type="button" data-a="prev">‹ ก่อนหน้า</button>'
+      + '<button class="btn sm primary" type="button" data-a="next">ขั้นถัดไป ›</button>'
+      + '<span class="cnt"></span><button class="btn sm" type="button" data-a="all">แสดงทั้งหมด</button>';
+    list.parentNode.insertBefore(nav, list.nextSibling);
+    let i = 1;
+    function render(){
+      items.forEach((li, k) => li.classList.toggle('dim', k >= i));
+      nav.querySelector('.cnt').textContent = `ขั้นที่ ${Math.min(i, items.length)} / ${items.length}`;
+      nav.querySelector('[data-a=prev]').disabled = i <= 1;
+      nav.querySelector('[data-a=next]').disabled = i >= items.length;
+    }
+    nav.addEventListener('click', e => {
+      const a = e.target.closest('[data-a]'); if (!a) return;
+      if (a.dataset.a === 'next') i = Math.min(items.length, i + 1);
+      else if (a.dataset.a === 'prev') i = Math.max(1, i - 1);
+      else i = items.length;
+      render();
+    });
+    render();
+  });
+}
+
+/* ---------- table of contents scrollspy ---------- */
+function tocInit(){
+  const links = $$('.toc a'); if (!links.length) return;
+  const secs = links.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      if (!en.isIntersecting) return;
+      links.forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + en.target.id));
+    });
+  }, {rootMargin: '-10% 0px -70% 0px', threshold: 0});
+  secs.forEach(s => io.observe(s));
+}
+
+/* ---------- animation loop helper ---------- */
+function ticker(step){
+  let on = false, last = 0, id = 0;
+  function frame(now){
+    if (!on) return;
+    const dt = Math.min(.05, (now - last) / 1000); last = now;
+    step(dt); redraw(); id = requestAnimationFrame(frame);
+  }
+  return {
+    start(){ if (on) return; on = true; last = performance.now(); id = requestAnimationFrame(frame); },
+    stop(){ on = false; if (id) cancelAnimationFrame(id); id = 0; },
+    toggle(){ on ? this.stop() : this.start(); return on; },
+    get running(){ return on; }
+  };
+}
+
+/* ---------- boot ---------- */
+function boot(){
+  derivInit(); tocInit(); redraw();
+  const onTheme = () => { readColors(); redraw(); };
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', onTheme);
+  new MutationObserver(onTheme).observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
+  if (window.ResizeObserver) new ResizeObserver(() => redraw()).observe(document.body);
+  else window.addEventListener('resize', redraw);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(redraw);
+}
+
+return {C, MINUS, TAU, fmt, fx, piLabel, nice, rng, clamp, simpson, cadd, cmul, cabs, carg, cexp, cstr, dft,
+        Plot, fig, redraw, $, $$, val, sval, chk, bind, out, html, ticker, boot, readColors};
+})();
+
+/* ===== stats kit: random numbers, distributions, histograms (CEMII Prob & Stat pages) ===== */
+const S = (function(){
+'use strict';
+const {fmt, clamp, TAU} = K;
+
+/* seeded RNG so a page looks the same on every load until you press "สุ่มใหม่" */
+function mulberry32(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+let R = mulberry32(20261123);
+function reseed(s){ R = mulberry32(s == null ? (Math.random() * 2 ** 31) | 0 : s); }
+const rand = () => R();
+function randn(){ let u = 0; while (u === 0) u = R(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(TAU * R()); }
+
+/* special functions */
+function lgamma(z){
+  const g = 7, c = [0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313, -176.61503916999185, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+  if (z < 0.5) return Math.log(Math.PI / Math.abs(Math.sin(Math.PI * z))) - lgamma(1 - z);
+  z -= 1; let x = c[0]; for (let i = 1; i < g + 2; i++) x += c[i] / (z + i);
+  const t = z + g + 0.5; return 0.5 * Math.log(TAU) + (z + 0.5) * Math.log(t) - t + Math.log(x);
+}
+const lchoose = (n, k) => lgamma(n + 1) - lgamma(k + 1) - lgamma(n - k + 1);
+const choose = (n, k) => (k < 0 || k > n) ? 0 : Math.round(Math.exp(lchoose(n, k)));
+function erf(x){ /* Abramowitz & Stegun 7.1.26 refined by a series near 0 */
+  const s = x < 0 ? -1 : 1; x = Math.abs(x);
+  if (x < 0.5){ let sum = x, term = x, n = 0; while (Math.abs(term) > 1e-16 && n < 60){ n++; term *= -x * x / n; sum += term / (2 * n + 1); } return s * 2 / Math.sqrt(Math.PI) * sum; }
+  const t = 1 / (1 + 0.5 * x);
+  const y = 1 - t * Math.exp(-x * x - 1.26551223 + t * (1.00002368 + t * (0.37409196 + t * (0.09678418 + t * (-0.18628806 + t * (0.27886807 + t * (-1.13520398 + t * (1.48851587 + t * (-0.82215223 + t * 0.17087277)))))))));
+  return s * y;
+}
+const Phi = z => 0.5 * (1 + erf(z / Math.SQRT2));
+const phi = z => Math.exp(-z * z / 2) / Math.sqrt(TAU);
+function Phinv(p){ /* Acklam */
+  const a = [-3.969683028665376e+01, 2.209460984245205e+02, -2.759285104469687e+02, 1.383577518672690e+02, -3.066479806614716e+01, 2.506628277459239e+00];
+  const b = [-5.447609879822406e+01, 1.615858368580409e+02, -1.556989798598866e+02, 6.680131188771972e+01, -1.328068155288572e+01];
+  const c = [-7.784894002430293e-03, -3.223964580411365e-01, -2.400758277161838e+00, -2.549732539343734e+00, 4.374664141464968e+00, 2.938163982698783e+00];
+  const d = [7.784695709041462e-03, 3.224671290700398e-01, 2.445134137142996e+00, 3.754408661907416e+00];
+  p = clamp(p, 1e-12, 1 - 1e-12); const pl = 0.02425;
+  if (p < pl){ const q = Math.sqrt(-2 * Math.log(p)); return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1); }
+  if (p > 1 - pl){ const q = Math.sqrt(-2 * Math.log(1 - p)); return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1); }
+  const q = p - 0.5, r = q * q;
+  return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q / (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
+}
+function binomPmf(k, n, p){ if (k < 0 || k > n) return 0; if (p <= 0) return k === 0 ? 1 : 0; if (p >= 1) return k === n ? 1 : 0; return Math.exp(lchoose(n, k) + k * Math.log(p) + (n - k) * Math.log(1 - p)); }
+function binomCdf(k, n, p){ let s = 0; for (let i = 0; i <= Math.min(k, n); i++) s += binomPmf(i, n, p); return Math.min(1, s); }
+function sampleBinom(n, p){ let s = 0; for (let i = 0; i < n; i++) if (R() < p) s++; return s; }
+function samplePois(l){ const L = Math.exp(-l); let k = 0, q = 1; do { k++; q *= R(); } while (q > L); return k - 1; }
+
+/* ---------- distribution catalogue ----------
+   each: disc, f (pmf/pdf), F (cdf), mean, var, sample(), lo/hi = plotting range, Q (quantile) */
+function quantDisc(F, lo, hi, u){ for (let k = lo; k <= hi; k++) if (F(k) >= u - 1e-12) return k; return hi; }
+const DIST = {
+  bern: { name: 'Bernoulli', th: 'โยน 1 ครั้ง', disc: true, params: [['p', 0.01, 0.99, 0.01, 0.3]],
+    make: ([p]) => ({ f: k => k === 0 ? 1 - p : k === 1 ? p : 0, F: x => x < 0 ? 0 : x < 1 ? 1 - p : 1, mean: p, var: p * (1 - p), lo: 0, hi: 1,
+      sample: () => R() < p ? 1 : 0, tex: `p(1) = p, p(0) = 1 − p` }) },
+  binom: { name: 'Binomial', th: 'นับสำเร็จใน n ครั้ง', disc: true, params: [['n', 1, 40, 1, 10], ['p', 0.01, 0.99, 0.01, 0.7]],
+    make: ([n, p]) => ({ f: k => binomPmf(k, n, p), F: x => x < 0 ? 0 : binomCdf(Math.floor(x), n, p), mean: n * p, var: n * p * (1 - p), lo: 0, hi: n,
+      sample: () => sampleBinom(n, p), tex: `p(k) = C(n,k) p<sup>k</sup>(1 − p)<sup>n−k</sup>` }) },
+  geom: { name: 'Geometric', th: 'จำนวนครั้งที่ล้มเหลวก่อนสำเร็จ', disc: true, params: [['p', 0.05, 0.95, 0.01, 0.3]],
+    make: ([p]) => ({ f: k => k < 0 ? 0 : Math.pow(1 - p, k) * p, F: x => x < 0 ? 0 : 1 - Math.pow(1 - p, Math.floor(x) + 1), mean: (1 - p) / p, var: (1 - p) / (p * p), lo: 0,
+      hi: Math.max(4, Math.ceil(Math.log(0.004) / Math.log(1 - p))), sample: () => { let k = 0; while (R() >= p) k++; return k; }, tex: `p(k) = (1 − p)<sup>k</sup> p` }) },
+  pois: { name: 'Poisson', th: 'จำนวนเหตุการณ์ต่อช่วงเวลา', disc: true, params: [['λ', 0.2, 15, 0.1, 3]],
+    make: ([l]) => { const f = k => k < 0 ? 0 : Math.exp(k * Math.log(l) - l - lgamma(k + 1));
+      return { f, F: x => { let s = 0; for (let k = 0; k <= Math.floor(x); k++) s += f(k); return Math.min(1, s); }, mean: l, var: l, lo: 0, hi: Math.ceil(l + 4 * Math.sqrt(l) + 3),
+        sample: () => samplePois(l), tex: `p(k) = λ<sup>k</sup>e<sup>−λ</sup> / k!` }; } },
+  dunif: { name: 'Uniform (discrete)', th: 'ลูกเต๋า n หน้า', disc: true, params: [['n', 2, 12, 1, 6]],
+    make: ([n]) => ({ f: k => (k >= 1 && k <= n && Number.isInteger(k)) ? 1 / n : 0, F: x => clamp(Math.floor(x), 0, n) / n, mean: (n + 1) / 2, var: (n * n - 1) / 12, lo: 1, hi: n,
+      sample: () => 1 + Math.floor(R() * n), tex: `p(k) = 1/n, k = 1…n` }) },
+  norm: { name: 'Normal', th: 'ระฆังคว่ำ', disc: false, params: [['μ', -3, 3, 0.1, 0], ['σ', 0.3, 3, 0.05, 1]],
+    make: ([m, s]) => ({ f: x => phi((x - m) / s) / s, F: x => Phi((x - m) / s), mean: m, var: s * s, lo: m - 4 * s, hi: m + 4 * s,
+      sample: () => m + s * randn(), Q: u => m + s * Phinv(u), tex: `f(x) = <span class="frac"><span>1</span><span>√(2πσ²)</span></span> e<sup>−(x−μ)²/2σ²</sup>` }) },
+  expo: { name: 'Exponential', th: 'เวลารอ', disc: false, params: [['λ', 0.2, 3, 0.05, 1]],
+    make: ([l]) => ({ f: x => x < 0 ? 0 : l * Math.exp(-l * x), F: x => x < 0 ? 0 : 1 - Math.exp(-l * x), mean: 1 / l, var: 1 / (l * l), lo: 0, hi: 5.5 / l,
+      sample: () => -Math.log(1 - R()) / l, Q: u => -Math.log(1 - u) / l, tex: `f(x) = λe<sup>−λx</sup>, x ≥ 0` }) },
+  unif: { name: 'Uniform', th: 'เท่ากันทุกจุดใน [a, b]', disc: false, params: [['a', -3, 2, 0.1, 0], ['b', -2, 5, 0.1, 1]],
+    make: ([a, b]) => { if (b <= a + 0.05) b = a + 0.05; const w = b - a;
+      return { f: x => (x >= a && x <= b) ? 1 / w : 0, F: x => clamp((x - a) / w, 0, 1), mean: (a + b) / 2, var: w * w / 12, lo: a - 0.35 * w, hi: b + 0.35 * w,
+        sample: () => a + w * R(), Q: u => a + w * u, tex: `f(x) = 1/(b − a), a ≤ x ≤ b` }; } },
+  pareto: { name: 'Pareto', th: 'power law · หางยาว', disc: false, params: [['x_m', 0.5, 3, 0.1, 1], ['α', 0.6, 5, 0.05, 2.5]],
+    make: ([xm, a]) => ({ f: x => x < xm ? 0 : a * Math.pow(xm, a) / Math.pow(x, a + 1), F: x => x < xm ? 0 : 1 - Math.pow(xm / x, a),
+      mean: a > 1 ? a * xm / (a - 1) : Infinity, var: a > 2 ? xm * xm * a / ((a - 1) * (a - 1) * (a - 2)) : Infinity, lo: 0, hi: xm * Math.pow(0.02, -1 / a),
+      sample: () => xm / Math.pow(1 - R(), 1 / a), Q: u => xm / Math.pow(1 - u, 1 / a), tex: `f(x) = αx<sub>m</sub><sup>α</sup> / x<sup>α+1</sup>, x ≥ x<sub>m</sub>` }) }
+};
+function build(key, vals){ const d = DIST[key]; const o = d.make(vals); o.key = key; o.name = d.name; o.disc = d.disc; o.sd = Math.sqrt(o.var);
+  if (!o.Q) o.Q = u => quantDisc(o.F, o.lo, o.hi + 200, u); return o; }
+
+/* ---------- drawing helpers on K.Plot ---------- */
+function hist(p, data, lo, hi, nb, col, o){
+  o = o || {}; const w = (hi - lo) / nb, cnt = new Array(nb).fill(0); let n = 0;
+  data.forEach(v => { const i = Math.floor((v - lo) / w); if (i >= 0 && i < nb){ cnt[i]++; } n++; });
+  const c = p.ctx; p.clip(); c.fillStyle = col; c.globalAlpha = o.alpha == null ? .45 : o.alpha;
+  const dens = o.density !== false;
+  let mx = 0;
+  cnt.forEach((k, i) => { const h = dens ? k / (n * w) : k; mx = Math.max(mx, h); const x0 = p.X(lo + i * w), x1 = p.X(lo + (i + 1) * w), y = p.Y(h);
+    c.fillRect(x0 + .5, y, Math.max(0.5, x1 - x0 - 1), p.Y(0) - y); });
+  c.globalAlpha = 1; p.unclip(); return mx;
+}
+function histMax(data, lo, hi, nb){ const w = (hi - lo) / nb, cnt = new Array(nb).fill(0); data.forEach(v => { const i = Math.floor((v - lo) / w); if (i >= 0 && i < nb) cnt[i]++; }); return Math.max.apply(null, cnt) / (data.length * w); }
+function counts(data, lo, hi){ const m = {}; for (let k = lo; k <= hi; k++) m[k] = 0; data.forEach(v => { if (m[v] != null) m[v]++; }); return m; }
+function fn(p, f, x0, x1, n){ const pts = []; n = n || 500; for (let i = 0; i <= n; i++){ const x = x0 + (x1 - x0) * i / n; pts.push([x, f(x)]); } return pts; }
+function rect(p, x0, x1, y0, y1, col, al){ const c = p.ctx; p.clip(); c.globalAlpha = al == null ? .3 : al; c.fillStyle = col; const X0 = p.X(x0), X1 = p.X(x1), Y0 = p.Y(y0), Y1 = p.Y(y1); c.fillRect(Math.min(X0, X1), Math.min(Y0, Y1), Math.abs(X1 - X0), Math.abs(Y1 - Y0)); c.globalAlpha = 1; p.unclip(); }
+const mean = a => a.reduce((s, v) => s + v, 0) / a.length;
+function variance(a, ddof){ const m = mean(a); return a.reduce((s, v) => s + (v - m) * (v - m), 0) / (a.length - (ddof || 0)); }
+const pct = (v, d) => fmt(100 * v, d == null ? 1 : d) + '%';
+/* tiny helper: build slider rows for a distribution's parameters */
+function paramCtrls(host, key, prefix){
+  const d = DIST[key];
+  host.innerHTML = d.params.map((q, i) => `<label class="ctrl"><span class="math">${q[0].replace('_m', '<sub>m</sub>')}</span><input type="range" id="${prefix}-p${i}" min="${q[1]}" max="${q[2]}" step="${q[3]}" value="${q[4]}"><output id="${prefix}-p${i}v">${q[4]}</output></label>`).join('');
+}
+function paramVals(key, prefix){ return DIST[key].params.map((q, i) => { const e = document.getElementById(`${prefix}-p${i}`); const v = e ? +e.value : q[4]; const o = document.getElementById(`${prefix}-p${i}v`); if (o) o.textContent = fmt(v, 2); return v; }); }
+
+return {rand, randn, reseed, lgamma, lchoose, choose, erf, Phi, phi, Phinv, binomPmf, binomCdf, sampleBinom, samplePois,
+        DIST, build, hist, histMax, counts, fn, rect, mean, variance, pct, paramCtrls, paramVals};
+})();
+
+(function(){
+'use strict';
+const {fmt, fx} = K;
+const C = K.C;
+const kv = (sel, items) => K.html(sel, items.map(([k, v, c]) => `<div><span>${k}</span><b class="${c || ''}">${v}</b></div>`).join(''));
+const segBind = (sel, fn) => K.$(sel).addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; K.$$(sel + ' button').forEach(x => x.setAttribute('aria-pressed', x === b)); fn(b.dataset.k); K.redraw(); });
+
+/* ===== 01 Simpson ===== */
+const SP = {slide: {F: [[1, 19], [3, 37]], M: [[12, 28], [8, 12]]}, rand: {F: [[2, 38], [3, 37]], M: [[12, 28], [16, 24]]}};
+let spK = 'slide';
+segBind('#sp-pre', k => { spK = k; });
+K.fig('sp-plot', p => {
+  const d = SP[spK], r = (a) => a[0] / (a[0] + a[1]);
+  const tot = g => [d.F[g][0] + d.M[g][0], d.F[g][1] + d.M[g][1]];
+  const rows = [['Female', d.F[0], d.F[1]], ['Male', d.M[0], d.M[1]], ['Total', tot(0), tot(1)]];
+  K.html('#sp-tab', '<thead><tr><th></th><th>Control: HA</th><th>No HA</th><th>อัตรา</th><th>Treatment: HA</th><th>No HA</th><th>อัตรา</th></tr></thead><tbody>' +
+    rows.map(([nm, c, t]) => `<tr${nm === 'Total' ? ' class="on"' : ''}><td>${nm}</td><td class="num">${c[0]}</td><td class="num">${c[1]}</td><td class="num"><b>${S.pct(r(c), 1)}</b></td><td class="num">${t[0]}</td><td class="num">${t[1]}</td><td class="num"><b>${S.pct(r(t), 1)}</b></td></tr>`).join('') + '</tbody>');
+  p.view(.4, 3.6, 0, .5).frame({tick: 1, yTick: .1});
+  const c = p.ctx; c.save(); c.fillStyle = C.surface; c.fillRect(p.L, p.B + 2, p.pw(), 22); c.restore();
+  rows.forEach(([nm, cc, tt], i) => { const x = i + 1; S.rect(p, x - .3, x - .02, 0, r(cc), C.x, .7); S.rect(p, x + .02, x + .3, 0, r(tt), C.h, .7);
+    p.label(S.pct(r(cc), 1), x - .16, r(cc) + .025, C.ink, {font: '600 11px "IBM Plex Mono", monospace'}); p.label(S.pct(r(tt), 1), x + .16, r(tt) + .025, C.ink, {font: '600 11px "IBM Plex Mono", monospace'});
+    p.text(nm, p.X(x), p.B + 13, C.muted, {font: '600 12px "IBM Plex Sans Thai", sans-serif'}); });
+  const fC = (d.F[0][0] + d.F[0][1]) / (tot(0)[0] + tot(0)[1]), fT = (d.F[1][0] + d.F[1][1]) / (tot(1)[0] + tot(1)[1]);
+  const good = r(tot(1)) < r(tot(0));
+  K.html('#sp-eq', good ? 'แยกเพศ: ยาแย่ทั้งหญิงและชาย · รวมกัน: ยา “ดี” → <b>Simpson\'s paradox</b>' : 'แยกเพศ: ยาแย่ทั้งคู่ · รวมกัน: ยาแย่ — ไม่มี paradox');
+  K.html('#sp-sub', `สัดส่วนผู้หญิง: control ${S.pct(fC, 0)} vs treatment ${S.pct(fT, 0)} ${Math.abs(fC - fT) > .01 ? '— ไม่เท่ากัน! ผู้หญิง (เสี่ยงต่ำ) ไปกองอยู่กลุ่มได้ยา ทำให้กลุ่มยาดูดี' : '— เท่ากัน เพราะสุ่มแบ่งกลุ่ม confounder จึงหายไป'}`);
+  K.html('#sp-val', `<span class="verdict ${good ? 'bad' : 'ok'}">${good ? 'Paradox' : 'สอดคล้อง'}</span>`);
+});
+
+/* ===== 03 attribution ===== */
+const VIS = [[1, 'Home→Product'], [4, 'Search→Product'], [6, 'Product→Purchase']];
+K.fig('at-plot', p => {
+  const X = K.val('#at-x'); const js = []; let cur = null;
+  VIS.forEach(([d, nm]) => { if (!cur || d > cur.s + X - 1){ cur = {s: d, v: []}; js.push(cur); } cur.v.push([d, nm]); });
+  p.pad = {l: 20, r: 20, t: 16, b: 26};
+  p.view(.4, 7.6, 0, 2).frame({tick: 1, noY: true, xl: 'วัน'});
+  js.forEach((j, i) => { const ok = j.v.some(v => v[1].includes('Purchase')); const e = Math.min(7.5, j.s + X - .02);
+    S.rect(p, j.s - .45, e + .45 > 7.6 ? 7.55 : j.s + X - .55, .5, 1.5, ok ? C.y : C.axis, .18); });
+  VIS.forEach(([d, nm]) => { p.dot(d, 1, nm.includes('Purchase') ? C.y : C.mark, 7); p.label(nm, d, 1.6, C.ink, {font: '12px "IBM Plex Sans Thai", sans-serif'}); });
+  const ok = js.filter(j => j.v.some(v => v[1].includes('Purchase'))).length;
+  K.out('#at-xv', X);
+  K.html('#at-eq', `${X}-day attribution → ${js.length} journeys, ${ok} success`);
+  K.html('#at-val', S.pct(ok / js.length, 0));
+});
+K.bind('#at-x');
+
+/* ===== 04 split ratio ===== */
+const zA = S.Phinv(.95), zB = S.Phinv(.8), n50 = 2 * ((zA + zB) * Math.sqrt(.09) / .01) ** 2;
+K.fig('sl-plot', p => {
+  const f = K.val('#sl-b'), rel = q => .25 / (q * (1 - q));
+  p.view(.05, .5, 0, 6).frame({tick: .05, yT: 3, xl: 'สัดส่วน B'});
+  p.curve(S.fn(p, rel, .05, .5, 200), C.mark, 2.4); p.point(f, rel(f), C.h);
+  const tot = 2 * n50 * rel(f);
+  K.out('#sl-bv', S.pct(f, 0));
+  K.html('#sl-eq', `${Math.round((1 - f) * 100)}/${Math.round(f * 100)}: ต้องใช้รวม ${Math.ceil(tot).toLocaleString()} คน (${fmt(rel(f), 2)}× ของ 50/50) · กลุ่ม B ${Math.ceil(tot * f).toLocaleString()} คน`);
+  K.html('#sl-val', fmt(rel(f), 2) + '×');
+});
+K.bind('#sl-b');
+
+/* ===== 05 z-test ===== */
+let ztSide = 'neg';
+segBind('#zt-side', k => { ztSide = k; });
+K.fig('zt-plot', p => {
+  const na = K.val('#zt-na'), nb = K.val('#zt-nb');
+  const xaE = K.$('#zt-xa'), xbE = K.$('#zt-xb'); if (+xaE.max !== na){ xaE.max = na; } if (+xbE.max !== nb){ xbE.max = nb; }
+  const xa = Math.min(K.val('#zt-xa'), na), xb = Math.min(K.val('#zt-xb'), nb), a = +K.sval('#zt-a');
+  const pa = xa / na, pb = xb / nb, pp = (xa + xb) / (na + nb), se = Math.sqrt(pp * (1 - pp) * (1 / na + 1 / nb)), z = se > 0 ? (pb - pa) / se : 0;
+  const two = ztSide === 'two', zc = S.Phinv(1 - (two ? a / 2 : a));
+  p.view(-4, 4, 0, .45).frame({tick: 1, yT: 3, xl: 'Z'});
+  if (two || ztSide === 'neg') p.area(S.fn(p, S.phi, zc, 4, 200), C.h, .35);
+  if (two || ztSide === 'pos') p.area(S.fn(p, S.phi, -4, -zc, 200), C.h, .35);
+  p.curve(S.fn(p, S.phi, -4, 4, 400), C.x, 2);
+  p.vline(Math.max(-3.95, Math.min(3.95, z)), C.mark, 'Z = ' + fmt(z, 3), {dash: false, w: 2.4});
+  const pv = two ? 2 * (1 - S.Phi(Math.abs(z))) : ztSide === 'neg' ? 1 - S.Phi(z) : S.Phi(z);
+  const rej = pv < a;
+  K.out('#zt-nav', na.toLocaleString()); K.out('#zt-xav', xa.toLocaleString()); K.out('#zt-nbv', nb.toLocaleString()); K.out('#zt-xbv', xb.toLocaleString());
+  const h = {neg: ['H₀: p<sub>B</sub> − p<sub>A</sub> ≤ 0', 'H<sub>A</sub>: p<sub>B</sub> > p<sub>A</sub>', `Z > ${fmt(zc, 3)}`], pos: ['H₀: p<sub>B</sub> − p<sub>A</sub> ≥ 0', 'H<sub>A</sub>: p<sub>B</sub> < p<sub>A</sub>', `Z < −${fmt(zc, 3)}`], two: ['H₀: p<sub>B</sub> = p<sub>A</sub>', 'H<sub>A</sub>: p<sub>B</sub> ≠ p<sub>A</sub>', `|Z| > ${fmt(zc, 3)}`]}[ztSide];
+  K.html('#zt-steps', [
+    [`${h[0]} &nbsp; vs &nbsp; ${h[1]}`, 'ตั้งก่อนเห็นข้อมูล'],
+    [`p̂<sub>A</sub> = ${xa}/${na} = ${fmt(pa, 4)} , p̂<sub>B</sub> = ${xb}/${nb} = ${fmt(pb, 4)}`, 'conversion rate แต่ละกลุ่ม (Bernoulli)'],
+    [`pooled p̂ = (${xa} + ${xb})/(${na} + ${nb}) = ${fmt(pp, 4)}`, 'ใต้ H₀ สองกลุ่มมี p เดียวกัน → รวมกันประมาณ'],
+    [`SE = √(p̂(1 − p̂)(1/n<sub>A</sub> + 1/n<sub>B</sub>)) = ${fmt(se, 5)}`, 'CLT: ผลต่างของสองสัดส่วน ≈ Normal'],
+    [`Z = (p̂<sub>B</sub> − p̂<sub>A</sub>)/SE = ${fmt(pb - pa, 4)}/${fmt(se, 5)} = <b>${fmt(z, 3)}</b>`, ''],
+    [`reject ถ้า ${h[2]} · p-value = ${fmt(pv, 4)}`, `α = ${a}`],
+    [`<span class="box">${rej ? 'ปฏิเสธ H₀ — B ต่างจาก A อย่างมีนัยสำคัญ' : 'ไม่ปฏิเสธ H₀ — หลักฐานยังไม่พอ'}</span>`, rej ? 'significant ≠ สำคัญทางธุรกิจ: ดูขนาด effect ด้วย' : 'ไม่ได้แปลว่า “ไม่ต่าง” — อาจแค่ n น้อยเกิน (power ต่ำ)']
+  ].map(([l, w]) => `<li><div class="ln math">${l}</div><div class="why">${w}</div></li>`).join(''));
+});
+K.bind('#zt-na, #zt-xa, #zt-nb, #zt-xb'); K.$('#zt-a').addEventListener('change', K.redraw);
+
+/* ===== 06 power picture ===== */
+K.fig('pw-plot', p => {
+  const d = K.val('#pw-d'), a = K.val('#pw-a'), se = K.val('#pw-s');
+  const crit = S.Phinv(1 - a / 2) * se, beta = S.Phi((crit - d) / se), f0 = x => S.phi(x / se) / se, f1 = x => S.phi((x - d) / se) / se;
+  const lo = -4 * se, hi = d + 4 * se;
+  p.view(lo, hi, 0, f0(0) * 1.2).frame({yT: 3});
+  p.area(S.fn(p, f1, lo, crit, 300), C.mark, .35); p.area(S.fn(p, f0, crit, hi, 300), C.h, .4);
+  p.curve(S.fn(p, f0, lo, hi, 400), C.h, 2.2); p.curve(S.fn(p, f1, lo, hi, 400), C.mark, 2.2);
+  p.vline(crit, C.y, 'critical = ' + fmt(crit, 2), {dash: false, w: 2});
+  p.label('β', crit - se * .6, f1(crit - se * .6) * .35, C.mark, {font: 'italic 600 16px "STIX Two Text", serif'});
+  p.label('α/2', crit + se * .5, f0(crit + se * .5) + f0(0) * .08, C.h, {font: 'italic 600 15px "STIX Two Text", serif'});
+  K.out('#pw-dv', fmt(d, 1)); K.out('#pw-av', fx(a)); K.out('#pw-sv', fx(se));
+  kv('#pw-kv', [['α (false positive)', fx(a), 'r'], ['β (false negative)', fmt(beta, 3), 'm'], ['power = 1 − β', fmt(1 - beta, 3), 'g'], ['effect / SE', fmt(d / se, 2)]]);
+});
+K.bind('#pw-d, #pw-a, #pw-s');
+
+/* sample size calculator */
+K.fig('ss-plot', p => {
+  const pp = K.val('#ss-p') / 100, m = K.val('#ss-m') / 100, w = K.val('#ss-w'), t = +K.sval('#ss-t');
+  const za = S.Phinv(1 - .05 / t), zb = S.Phinv(w), s2 = pp * (1 - pp);
+  const n = 2 * ((za + zb) ** 2) * s2 / (m * m), pow = N => S.Phi(m / Math.sqrt(2 * s2 / N) - za);
+  p.view(0, n * 3, 0, 1.05).frame({yTick: .25, xl: 'n'});
+  p.curve([[0, w], [n * 3, w]], C.h, 1.4, {dash: [5, 4]});
+  p.curve(S.fn(p, pow, 1, n * 3, 300), C.x, 2.4); p.point(n, w, C.y);
+  K.out('#ss-pv', fmt(pp * 100, 1)); K.out('#ss-mv', fmt(m * 100, 1)); K.out('#ss-wv', fx(w));
+  K.html('#ss-eq', `n = 2 × (${fmt(za, 3)} + ${fmt(zb, 3)})² × ${fmt(s2, 4)} / ${fmt(m, 3)}² `);
+  K.html('#ss-val', Math.ceil(n).toLocaleString() + ' /กลุ่ม');
+});
+K.bind('#ss-p, #ss-m, #ss-w'); K.$('#ss-t').addEventListener('change', K.redraw);
+
+/* ===== 07 A/A ===== */
+let aaSeed = 1;
+const binN = (n, q) => Math.max(0, Math.min(n, Math.round(n * q + Math.sqrt(n * q * (1 - q)) * S.randn())));
+K.fig('aa-plot', p => {
+  const q = K.val('#aa-p') / 100, n = Math.round(Math.pow(10, K.val('#aa-n'))); S.reseed(aaSeed);
+  const diffs = [], sig = []; let k = 0;
+  for (let i = 0; i < 2000; i++){ const a = binN(n, q) / n, b = binN(n, q) / n, pp = (a + b) / 2, se = Math.sqrt(pp * (1 - pp) * 2 / n), dd = a - b; diffs.push(dd); if (Math.abs(dd / se) > 1.96){ k++; sig.push(dd); } }
+  const sd = Math.sqrt(2 * q * (1 - q) / n), lo = -4.5 * sd, hi = 4.5 * sd, nb = 50;
+  p.view(lo, hi, 0, S.histMax(diffs, lo, hi, nb) * 1.15).frame({yT: 3, xl: 'diff'});
+  S.hist(p, diffs, lo, hi, nb, C.mark, {alpha: .45});
+  const w = (hi - lo) / nb, cnt = {}; sig.forEach(v => { const i = Math.floor((v - lo) / w); cnt[i] = (cnt[i] || 0) + 1; });
+  Object.keys(cnt).forEach(i => S.rect(p, lo + i * w, lo + (+i + 1) * w, 0, cnt[i] / (2000 * w), C.h, .75));
+  p.curve(S.fn(p, x => S.phi(x / sd) / sd, lo, hi, 300), C.x, 1.6, {dash: [5, 4]});
+  K.out('#aa-pv', fmt(q * 100, 0)); K.out('#aa-nv', n.toLocaleString());
+  K.html('#aa-eq', `SD ของผลต่าง = √(2p(1−p)/n) = ${fmt(sd * 100, 3)}% · ความต่างแบบบังเอิญ 95% อยู่ใน ±${fmt(1.96 * sd * 100, 3)}% — MDE ที่เล็กกว่านี้แยกจาก noise ไม่ออก`);
+  K.html('#aa-val', S.pct(k / 2000, 1) + ' significant');
+});
+K.bind('#aa-p, #aa-n'); K.$('#aa-new').addEventListener('click', () => { aaSeed = (Math.random() * 1e9) | 0; K.redraw(); });
+
+/* ===== 08 peeking ===== */
+let pkSeed = 7, pkCache = null;
+function pkSim(){
+  const Kp = K.val('#pk-k'), dlt = K.val('#pk-d') / 100, key = [Kp, dlt, pkSeed].join();
+  if (pkCache && pkCache.key === key) return pkCache;
+  S.reseed(pkSeed); const N = 10000, step = Math.floor(N / Kp), q = .1;
+  const paths = []; let anyR = 0, endR = 0;
+  for (let s = 0; s < 1000; s++){
+    let xa = 0, xb = 0, n = 0, hit = false; const path = [];
+    for (let k = 1; k <= Kp; k++){
+      const m = k === Kp ? N - n : step; n += m; xa += binN(m, q); xb += binN(m, q + dlt);
+      const pp = (xa + xb) / (2 * n), se = Math.sqrt(pp * (1 - pp) * 2 / n), z = se > 0 ? (xb - xa) / n / se : 0;
+      if (Math.abs(z) > 1.96) hit = true; if (s < 20) path.push([n, z]);
+      if (k === Kp && Math.abs(z) > 1.96) endR++;
+    }
+    if (hit) anyR++; if (s < 20) paths.push({path, hit});
+  }
+  pkCache = {key, paths, anyR, endR, Kp, dlt}; return pkCache;
+}
+K.fig('pk-plot', p => {
+  const r = pkSim();
+  p.view(0, 10000, -4.5, 4.5).frame({yT: 4, xl: 'n'});
+  r.paths.forEach(({path, hit}) => p.curve([[0, 0]].concat(path), hit ? C.h : C.mark, 1.4, {alpha: hit ? .9 : .5}));
+  p.curve([[0, 1.96], [10000, 1.96]], C.axis, 1.4, {dash: [5, 4]}); p.curve([[0, -1.96], [10000, -1.96]], C.axis, 1.4, {dash: [5, 4]});
+  K.out('#pk-kv', r.Kp); K.out('#pk-dv', fmt(r.dlt * 100, 1));
+  const lab = r.dlt === 0 ? 'false positive' : 'true positive (power)';
+  kv('#pk-kv', [[`ปฏิเสธ H₀ เมื่อ peek ${r.Kp} ครั้ง (${lab})`, S.pct(r.anyR / 1000, 1), r.dlt === 0 ? 'r' : 'g'], [`ปฏิเสธ H₀ ดูครั้งเดียวตอนจบ`, S.pct(r.endR / 1000, 1), 'm'], ['p = 10%, n = 10,000/กลุ่ม, α = 5% two-tailed', '1,000 sims']]);
+});
+K.bind('#pk-k, #pk-d'); K.$('#pk-run').addEventListener('click', () => { pkSeed = (Math.random() * 1e9) | 0; K.redraw(); });
+
+/* ===== 09 multiple testing ===== */
+K.fig('mt-plot', p => {
+  const m = K.val('#mt-m'), a = K.val('#mt-a'), bon = a / m, sid = 1 - Math.pow(1 - a, 1 / m);
+  p.view(1, 100, 0, 1.05).frame({yTick: .25, xl: 'm'});
+  p.curve(S.fn(p, x => 1 - Math.pow(1 - a, x), 1, 100, 200), C.h, 2.4);
+  p.curve(S.fn(p, x => 1 - Math.pow(1 - a / x, x), 1, 100, 200), C.y, 2.2);
+  p.point(m, 1 - Math.pow(1 - a, m), C.h);
+  K.out('#mt-mv', m); K.out('#mt-av', fx(a));
+  kv('#mt-kv', [['FWER ถ้าไม่แก้ 1 − (1 − α)^m', S.pct(1 - Math.pow(1 - a, m), 1), 'r'], ['false positive ที่คาด m·α', fmt(m * a, 2)], ['Bonferroni α/m', fmt(bon, 6), 'g'], ['Šidák 1 − (1 − α)^{1/m}', fmt(sid, 6), 'g']]);
+});
+K.bind('#mt-m, #mt-a');
+
+K.boot();
+})();
+
+</script>
+</body>
+</html>

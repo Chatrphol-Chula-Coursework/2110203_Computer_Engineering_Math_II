@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- CP203 Stats · Lecture 02 Significance Testing -->
+<title>Significance Testing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400;1,600&display=swap">
+<style>
+
+html,body{margin:0}
+[hidden]{display:none!important}
+img{max-width:100%}
+/* ===== shared tokens & layout for CEMII lecture pages ===== */
+:root{
+  --bg:#EEF1F5; --surface:#FFFFFF; --sunk:#F6F8FB; --ink:#18202D; --muted:#5A6577; --line:#D3DAE4;
+  --grid:rgba(52,86,140,.10); --axis:#8792A5;
+  --x:#1C2638; --h:#D0392C; --mark:#2E6BD9; --prod:#7A4ED3; --y:#12865A; --amber:#B8770F; --on-mark:#FFFFFF;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1219; --surface:#151B24; --sunk:#111721; --ink:#E5E9F0; --muted:#98A2B3; --line:#29323F;
+    --grid:rgba(150,180,230,.08); --axis:#5F6979;
+    --x:#DDE4EF; --h:#FF6C5E; --mark:#6FA1FF; --prod:#B596FF; --y:#44CF98; --amber:#E8A93E; --on-mark:#0E1219;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1219; --surface:#151B24; --sunk:#111721; --ink:#E5E9F0; --muted:#98A2B3; --line:#29323F;
+  --grid:rgba(150,180,230,.08); --axis:#5F6979;
+  --x:#DDE4EF; --h:#FF6C5E; --mark:#6FA1FF; --prod:#B596FF; --y:#44CF98; --amber:#E8A93E; --on-mark:#0E1219;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.65 "IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:clamp(16px,3vw,36px);padding-block:28px 72px}
+.math{font-family:"STIX Two Text","Cambria Math","Times New Roman",serif;font-style:italic;letter-spacing:.01em}
+.up{font-style:normal}
+code{font:12.5px/1.4 "IBM Plex Mono",ui-monospace,monospace;background:color-mix(in srgb,var(--ink) 7%,transparent);padding:1px 5px;border-radius:4px;white-space:nowrap}
+:focus-visible{outline:2px solid var(--mark);outline-offset:2px}
+
+header.top{padding-bottom:20px;border-bottom:1px solid var(--line)}
+.eyebrow{font:500 12px/1.4 "IBM Plex Mono",ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+h1{font:600 clamp(28px,4.2vw,42px)/1.06 "STIX Two Text","Times New Roman",serif;margin:0;letter-spacing:-.01em;text-wrap:balance}
+h1 .math{font-weight:400;color:var(--muted);font-size:.58em;margin-left:.3em;white-space:nowrap}
+.lede{margin:10px 0 0;color:var(--muted);max-width:66ch}
+
+.layout{display:grid;grid-template-columns:248px minmax(0,1fr);gap:32px;margin-top:24px;align-items:start}
+@media (max-width:920px){.layout{grid-template-columns:minmax(0,1fr);gap:20px}}
+.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);display:flex;flex-direction:column;gap:2px;max-height:calc(100vh - 40px);overflow-y:auto}
+@media (max-width:920px){.toc{position:static;max-height:none;flex-direction:row;flex-wrap:wrap;gap:6px;padding-bottom:4px}}
+.toc .lab{font:500 11.5px/1.4 "IBM Plex Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+@media (max-width:920px){.toc .lab{width:100%;margin-bottom:2px}}
+.toc a{display:flex;gap:9px;align-items:baseline;padding:7px 10px;border-radius:8px;color:var(--muted);text-decoration:none;font-size:14px;line-height:1.35;border:1px solid transparent}
+.toc a b{font:600 11.5px/1.4 "IBM Plex Mono",monospace;color:var(--muted);flex:none}
+.toc a:hover{background:color-mix(in srgb,var(--mark) 7%,transparent);color:var(--ink)}
+.toc a.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.toc a.on b{color:inherit;opacity:.72}
+
+main{display:flex;flex-direction:column;gap:14px;min-width:0}
+section.sec{scroll-margin-top:24px;padding-block:14px 26px;border-top:1px dashed var(--line)}
+section.sec:first-of-type{border-top:0;padding-top:0}
+section.sec > h2{font:600 24px/1.25 "STIX Two Text","Times New Roman",serif;margin:0 0 4px;display:flex;flex-wrap:wrap;align-items:baseline;gap:10px}
+section.sec > h2 .n{font:600 12px/1 "IBM Plex Mono",monospace;color:var(--mark);letter-spacing:.06em}
+section.sec > h2 .th{font-family:"IBM Plex Sans Thai",sans-serif;font-size:15px;font-weight:400;color:var(--muted)}
+.intro{margin:6px 0 16px;color:var(--muted);max-width:74ch}
+.intro b{color:var(--ink);font-weight:600}
+
+/* formula card */
+.fcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:14px}
+.fcard .ftitle{font:500 11.5px/1.4 "IBM Plex Mono",monospace;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+.fbig{font-size:clamp(19px,2.6vw,25px);line-height:2.1;overflow-x:auto;padding-bottom:2px}
+.fbig.sm{font-size:clamp(17px,2.2vw,21px)}
+.legend-sym{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px 18px;margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
+.legend-sym div{display:flex;gap:9px;align-items:baseline;font-size:13.5px;color:var(--muted)}
+.legend-sym .s{font-family:"STIX Two Text",serif;font-style:italic;font-size:17px;color:var(--ink);flex:none;min-width:2.4em}
+.note{margin:10px 0 0;font-size:13.5px;color:var(--muted)}
+.note b{color:var(--ink)}
+.warn{border-left:3px solid var(--amber);padding-left:12px;margin:12px 0 0;font-size:13.5px;color:var(--muted)}
+.warn b{color:var(--ink)}
+
+/* derivation stepper */
+.deriv{margin:0;padding:0;list-style:none;counter-reset:d}
+.deriv li{counter-increment:d;display:grid;grid-template-columns:26px minmax(0,1fr);gap:4px 12px;padding:9px 0;border-top:1px solid var(--line);transition:opacity .2s}
+.deriv li:first-child{border-top:0}
+.deriv li::before{content:counter(d);font:600 11px/18px "IBM Plex Mono",monospace;color:var(--muted);background:var(--sunk);border-radius:50%;width:18px;height:18px;text-align:center;margin-top:5px}
+.deriv li.dim{opacity:.22}
+.deriv .ln{font-size:18px;overflow-x:auto}
+.deriv .why{grid-column:2;font-size:13px;color:var(--muted)}
+.dnav{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap}
+.dnav .cnt{font:500 12.5px/1 "IBM Plex Mono",monospace;color:var(--muted)}
+
+/* figures + controls */
+.plot{margin:0 0 12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px 6px}
+.plot figcaption{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 14px;align-items:baseline;margin-bottom:2px}
+.pt{font-weight:600;font-size:14px}
+.pt .math{font-weight:400;font-size:15.5px}
+.legend{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:12.5px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:3px;border-radius:2px;background:var(--c)}
+.legend i.dash{background:repeating-linear-gradient(90deg,var(--c) 0 4px,transparent 4px 7px)}
+.legend .math{font-size:14px;color:var(--ink)}
+canvas{display:block;width:100%;height:200px;touch-action:pan-y}
+canvas.drag{cursor:ew-resize}
+.ctrls{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:12px}
+.ctrl{display:flex;align-items:center;gap:9px;font-size:13.5px;flex:1 1 210px;min-width:0}
+.ctrl > span:first-child{color:var(--muted);white-space:nowrap}
+.ctrl input[type=range]{flex:1;min-width:80px;accent-color:var(--mark)}
+.ctrl output{font:600 13px/1 "IBM Plex Mono",monospace;color:var(--mark);min-width:3.4em;text-align:right;font-variant-numeric:tabular-nums}
+.ctrl select,.ctrl input[type=text]{font:13.5px "IBM Plex Mono",monospace;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 8px;max-width:100%}
+.ctrl select{font-family:"IBM Plex Sans Thai",sans-serif;cursor:pointer;flex:1}
+.btn{appearance:none;font:500 13.5px/1 "IBM Plex Sans Thai",system-ui,sans-serif;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 12px;min-height:34px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--mark)}
+.btn.primary{background:var(--mark);border-color:var(--mark);color:var(--on-mark)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.sm{min-height:30px;padding:6px 10px;font-size:13px}
+.chk{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;color:var(--muted);cursor:pointer}
+.chk input{accent-color:var(--mark)}
+
+/* readout */
+.out{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 20px;padding:12px 4px;border-block:1px dashed var(--line);margin-bottom:12px;min-height:74px}
+.out .l{display:flex;flex-direction:column;gap:3px;min-width:0;font-size:17px;flex:1 1 320px}
+.out .l .sub{font-size:13px;color:var(--muted)}
+.out .r{font:600 24px/1 "IBM Plex Mono",monospace;color:var(--y);white-space:nowrap}
+.out .r.small{font-size:18px}
+
+/* math bits */
+.bigop{display:inline-flex;align-items:center;vertical-align:middle;margin:0 .1em 0 .12em}
+.bigop .op{font-style:normal;font-size:1.4em;line-height:1}
+.bigop .lims{display:inline-flex;flex-direction:column;justify-content:space-between;font-size:.55em;line-height:1.2;margin-left:.12em;min-height:2.2em}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;font-size:.86em;line-height:1.25;margin:0 .14em}
+.frac>span:last-child{border-top:1px solid currentColor;padding-top:1px}
+.cases{display:inline-flex;align-items:center;vertical-align:middle}
+.cases .brace{font-size:2.6em;line-height:1;font-style:normal;margin-right:.08em}
+.cases .rows{display:grid;grid-template-columns:auto auto;gap:3px 16px;align-items:center;font-size:.92em}
+.cases .cond{color:var(--muted);white-space:nowrap}
+.box{display:inline-block;border:1.5px solid var(--y);border-radius:8px;padding:2px 10px;background:color-mix(in srgb,var(--y) 8%,transparent)}
+.hl{background:color-mix(in srgb,var(--mark) 16%,transparent);border-radius:4px;padding:0 3px}
+.hl2{background:color-mix(in srgb,var(--prod) 16%,transparent);border-radius:4px;padding:0 3px}
+
+/* tables */
+.tscroll{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface);margin-bottom:12px}
+table{border-collapse:collapse;font:13.5px/1.35 "IBM Plex Sans Thai",sans-serif;width:max-content;min-width:100%}
+th,td{padding:9px 12px;text-align:left;vertical-align:top;border-top:1px solid var(--line)}
+thead th{border-top:0;color:var(--muted);font-weight:500;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase}
+td.m,th.m{font-family:"STIX Two Text",serif;font-style:italic;font-size:15.5px}
+td.num{font-family:"IBM Plex Mono",monospace;font-style:normal;text-align:right;font-variant-numeric:tabular-nums}
+tbody tr.on{background:color-mix(in srgb,var(--mark) 10%,transparent)}
+.mini{font-size:12.5px;color:var(--muted)}
+footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:space-between}
+footer a{color:var(--mark)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+
+.wrapc{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.verdict{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;padding:6px 12px;border-radius:999px}
+.verdict.ok{color:var(--y);background:color-mix(in srgb,var(--y) 13%,transparent)}
+.verdict.bad{color:var(--h);background:color-mix(in srgb,var(--h) 13%,transparent)}
+.calc{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center}
+.calc input[type=number]{width:110px;font:14px "IBM Plex Mono",monospace;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+
+/* ===== Prob & Stat additions ===== */
+.two{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-bottom:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.card h3{margin:0 0 6px;font-size:15px;font-weight:600}
+.card h3 .tag{font:500 11px/1 "IBM Plex Mono",monospace;letter-spacing:.06em;color:var(--mark);margin-right:6px;text-transform:uppercase}
+.card p,.card ul{margin:0;font-size:14px;color:var(--muted)}
+.card ul{padding-left:18px}
+.card li{margin:3px 0}
+.card b{color:var(--ink);font-weight:600}
+.card .math{color:var(--ink)}
+.kv{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:0 0 12px}
+.kv div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;min-width:0}
+.kv span{display:block;font-size:12px;color:var(--muted)}
+.kv b{display:block;font:600 17px/1.3 "IBM Plex Mono",monospace;color:var(--ink);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.kv b.g{color:var(--y)} .kv b.r{color:var(--h)} .kv b.m{color:var(--mark)} .kv b.p{color:var(--prod)}
+.seg{display:inline-flex;flex-wrap:wrap;gap:4px;background:var(--sunk);border:1px solid var(--line);border-radius:10px;padding:3px}
+.seg button{appearance:none;border:0;background:transparent;color:var(--muted);font:500 13px/1 "IBM Plex Sans Thai",sans-serif;padding:7px 11px;border-radius:7px;cursor:pointer;min-height:30px}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.jt input{width:58px;font:13.5px "IBM Plex Mono",monospace;color:var(--ink);background:var(--sunk);border:1px solid var(--line);border-radius:6px;padding:5px 6px;text-align:right}
+.jt td,.jt th{text-align:center}
+.jt .mg{color:var(--prod);font-family:"IBM Plex Mono",monospace;font-weight:600}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:6px 0 12px}
+.flow .nd{background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13.5px;line-height:1.35}
+.flow .nd b{display:block;font-size:14.5px}
+.flow .nd span{color:var(--muted);font-size:12.5px}
+.flow .ar{color:var(--muted);font-size:12.5px;display:flex;flex-direction:column;align-items:center;line-height:1.2;text-align:center}
+.flow .ar::after{content:"⟶";font-size:20px;color:var(--mark);line-height:1}
+.src{font-size:12.5px;color:var(--muted);margin:4px 0 0}
+.ex{border:1px solid var(--line);border-left:3px solid var(--mark);border-radius:10px;background:var(--surface);padding:12px 14px;margin-bottom:12px}
+.ex .q{font-size:14.5px;margin:0 0 6px}
+.ex .q b{color:var(--mark)}
+.ex .a{font-size:14px;color:var(--muted);margin:0}
+.ex .a b{color:var(--ink)}
+.right{color:var(--y);font-weight:600}.wrong{color:var(--h);font-weight:600}
+.kv b.tx{font:italic 400 16px/1.5 "STIX Two Text",serif}
+.legend .math sub{font-size:.75em}
+.jt thead th{text-transform:none;letter-spacing:0}
+.steps{margin:0 0 12px;padding:0;list-style:none;counter-reset:d;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 16px}
+.steps li{counter-increment:d;display:grid;grid-template-columns:26px minmax(0,1fr);gap:4px 12px;padding:9px 0;border-top:1px solid var(--line)}
+.steps li:first-child{border-top:0}
+.steps li::before{content:counter(d);font:600 11px/18px "IBM Plex Mono",monospace;color:var(--muted);background:var(--sunk);border-radius:50%;width:18px;height:18px;text-align:center;margin-top:5px}
+.steps .ln{font-size:17px;overflow-x:auto}
+.steps .why{grid-column:2;font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">CP203 Stats · Lecture 02 · Significance Testing</p>
+    <h1>Significance Testing <span class="math">reject H₀ ⇔ p ≤ α</span></h1>
+    <p class="lede">วิธีตัดสินใจจากข้อมูลแบบ frequentist: ตั้งค่าตั้งต้น (H₀) แล้วเช็กว่าข้อมูลที่เห็น “เข้ากันได้” กับมันไหม — ความต่างที่เห็นเป็นของจริง หรือแค่ความบังเอิญ? บทนี้ครอบคลุม z-test, t-test ทั้ง 3 แบบ, two-proportion z-test, ข้อผิดพลาด Type I/II, power, effect size, กับดักของ p-value, multiple testing (Bonferroni / Benjamini–Hochberg), เครื่องมือเพิ่มเติม (χ², McNemar, Wilcoxon, Fisher transformation) และ RCT</p>
+  </header>
+
+  <div class="layout">
+    <nav class="toc" aria-label="หัวข้อ">
+      <span class="lab">หัวข้อ</span>
+      <a href="#why"><b>01</b><span>ทำไมต้องทดสอบ (ยา A vs B)</span></a>
+      <a href="#nhst"><b>02</b><span>ส่วนประกอบของ NHST · p-value</span></a>
+      <a href="#err"><b>03</b><span>Type I / II · α vs power</span></a>
+      <a href="#design"><b>04</b><span>ออกแบบ test 5 ขั้น</span></a>
+      <a href="#ztest"><b>05</b><span>z-test · t-test 3 แบบ</span></a>
+      <a href="#prop"><b>06</b><span>Two-proportion z-test</span></a>
+      <a href="#effect"><b>07</b><span>Effect size · p-value ใหญ่แปลว่า?</span></a>
+      <a href="#peril"><b>08</b><span>กับดัก: p-hacking · base rate · low power</span></a>
+      <a href="#multi"><b>09</b><span>Multiple testing: FWER · FDR</span></a>
+      <a href="#tool"><b>10</b><span>Toolkit: χ² · McNemar · Wilcoxon · Fisher</span></a>
+      <a href="#choose"><b>11</b><span>เลือก test ยังไง</span></a>
+      <a href="#rct"><b>12</b><span>Bigger picture: RCT</span></a>
+      <a href="#prac"><b>13</b><span>Practice 1–3</span></a>
+    </nav>
+
+    <main>
+      <!-- ============ 01 ============ -->
+      <section class="sec" id="why">
+        <h2><span class="n">01</span> Testing, the frequentist way <span class="th">— ความต่างที่เห็นเป็นของจริงไหม</span></h2>
+        <p class="intro"><b>What:</b> วิธีตัดสินใจจากข้อมูล — สมมติค่าตั้งต้น (null hypothesis) แล้วตรวจทางสถิติว่าข้อมูลเข้ากับมันหรือไม่ · <b>Why:</b> ความต่างเล็ก ๆ อาจเกิดจากความบังเอิญล้วน ๆ</p>
+        <div class="tscroll"><table>
+          <thead><tr><th>Experiment</th><th>Drug A (ตาย / รอด)</th><th>No drug (ตาย / รอด)</th><th>อัตรารอด A vs ไม่ให้ยา</th></tr></thead>
+          <tbody><tr><td>A</td><td class="num">9 / 31 (40)</td><td class="num">10 / 30 (40)</td><td class="num">77.5% vs 75%</td></tr>
+          <tr><td>B</td><td class="num">0 / 5 (5)</td><td class="num">10 / 30 (40)</td><td class="num">100% vs 75%</td></tr></tbody></table></div>
+        <div class="two">
+          <div class="card"><h3>Experiment A</h3><p>ตาย 9 vs 10 — ต่างนิดเดียว · two-proportion z-test (หัวข้อ 06): <b>z = 0.263, p = 0.396</b> → ไม่ significant</p></div>
+          <div class="card"><h3>Experiment B</h3><p>ไม่ตายเลย แต่มีแค่ 5 คน · z-test: <b>z = 1.268, p = 0.102</b> → ไม่ significant ที่ 0.05 · แต่กลุ่มยามีคน “ตาย” ที่คาดไว้ไม่ถึง 5 → normal approximation ใช้ไม่ได้ ต้องใช้ exact test (Fisher: p = 0.266)</p></div>
+        </div>
+        <p class="note">สรุป: <b>ไม่มีการทดลองไหนให้หลักฐานพอ</b> — A เพราะ effect เล็ก, B เพราะ n เล็ก</p>
+      </section>
+
+      <!-- ============ 02 ============ -->
+      <section class="sec" id="nhst">
+        <h2><span class="n">02</span> Null Hypothesis Significance Testing <span class="th">— ส่วนประกอบ</span></h2>
+        <div class="tscroll"><table>
+          <thead><tr><th>ส่วนประกอบ</th><th>ความหมาย</th></tr></thead>
+          <tbody>
+            <tr><td><span class="math">H₀</span> null hypothesis</td><td>ค่าตั้งต้น — สิ่งที่คาด/ง่ายที่สุด (“ไม่มีผล”, “ไม่ต่างกัน”)</td></tr>
+            <tr><td><span class="math">H<sub>A</sub></span> (หรือ H₁) alternative</td><td>สิ่งที่เรายอมรับถ้าปฏิเสธ H₀</td></tr>
+            <tr><td>Test statistic X</td><td>“บางอย่าง” ที่คำนวณจากข้อมูล (เป็น RV) เช่น z, t</td></tr>
+            <tr><td>Null distribution</td><td>การแจกแจงของ X <b>เมื่อสมมติว่า H₀ จริง</b></td></tr>
+            <tr><td>Rejection region R</td><td>ถ้า X ตกใน R → ปฏิเสธ H₀ (ข้อมูล “ไม่น่าจะ” มาจาก null distribution) · <span class="math">P(X ∈ R | H₀) ≤ α</span></td></tr>
+            <tr><td>Non-rejection region</td><td>ถ้า X ตกตรงนี้ → <b>ปฏิเสธ H₀ ไม่ได้</b> (ไม่ได้แปลว่า H₀ จริง)</td></tr>
+            <tr><td>Critical value c</td><td>เส้นแบ่งสองบริเวณ · one-sided: <span class="math">P(X ≥ c | H₀) = α</span> เช่น <span class="math">z<sub>0.05</sub></span> = quantile 0.95 = 1.645</td></tr>
+            <tr><td>p-value</td><td>สมมติ H₀ จริง: ความน่าจะเป็นที่จะเห็นข้อมูล<b>สุดโต่งอย่างน้อยเท่า</b>ที่เห็น · ปฏิเสธเมื่อ <span class="math">p ≤ α</span></td></tr>
+          </tbody></table></div>
+        <div class="ctrls">
+          <div class="seg" id="nh-side" role="group" aria-label="ด้าน"><button type="button" data-k="r" aria-pressed="true">right-sided</button><button type="button" data-k="l">left-sided</button><button type="button" data-k="t">two-sided</button></div>
+          <label class="ctrl"><span>test statistic z</span><input type="range" id="nh-z" min="-4" max="4" step="0.01" value="1.9"><output id="nh-zv"></output></label>
+          <label class="ctrl"><span>α</span><input type="range" id="nh-a" min="0.01" max="0.2" step="0.01" value="0.05"><output id="nh-av"></output></label>
+        </div>
+        <figure class="plot"><figcaption><span class="pt">Null distribution N(0, 1) · แดง = rejection region (พื้นที่ α) · ม่วง = p-value</span><span class="legend"><span><i style="--c:var(--h)"></i>R</span><span><i style="--c:var(--prod)"></i>p-value</span></span></figcaption><canvas id="nh-plot" data-h="210"></canvas></figure>
+        <div class="out"><div class="l"><div id="nh-eq"></div><div class="sub" id="nh-sub"></div></div><div class="r" id="nh-val"></div></div>
+      </section>
+
+      <!-- ============ 03 ============ -->
+      <section class="sec" id="err">
+        <h2><span class="n">03</span> Type of error · significance level vs power</h2>
+        <div class="tscroll"><table>
+          <thead><tr><th></th><th>H₀ จริง</th><th>H<sub>A</sub> จริง</th></tr></thead>
+          <tbody><tr><td><b>Reject H₀</b></td><td class="wrong">Type I error (false positive) — prob = α</td><td class="right">ถูก — prob = power = 1 − β</td></tr>
+          <tr><td><b>ไม่ reject H₀</b></td><td class="right">ถูก — prob = 1 − α</td><td class="wrong">Type II error (false negative) — prob = β</td></tr></tbody></table></div>
+        <div class="two">
+          <div class="card"><h3>Significance level = “False hope”</h3><p><span class="math">α = P(type I error) = P(reject H₀ | H₀)</span> — ลดโอกาสสรุปผิดว่า H₀ ไม่จริง</p></div>
+          <div class="card"><h3>Power = “ความสามารถหาสมบัติจริง”</h3><p><span class="math">1 − P(type II error) = P(reject H₀ | H<sub>A</sub>)</span> — ถ้า H<sub>A</sub> จริง โอกาสที่เราจะเจอ</p></div>
+        </div>
+        <div class="ctrls">
+          <label class="ctrl"><span>ความต่างจริง (effect / SE)</span><input type="range" id="er-d" min="0" max="5" step="0.05" value="2.5"><output id="er-dv"></output></label>
+          <label class="ctrl"><span>α (one-sided)</span><input type="range" id="er-a" min="0.005" max="0.2" step="0.005" value="0.05"><output id="er-av"></output></label>
+        </div>
+        <figure class="plot"><figcaption><span class="pt">ใต้ H₀ vs ใต้ H<sub>A</sub> · เลื่อน α แล้วดู β เปลี่ยน (trade-off)</span><span class="legend"><span><i style="--c:var(--h)"></i>α</span><span><i style="--c:var(--mark)"></i>β</span><span><i style="--c:var(--y)"></i>power</span></span></figcaption><canvas id="er-plot" data-h="200"></canvas></figure>
+        <div class="kv" id="er-kv"></div>
+        <p class="note" style="margin:0 0 10px"><b>ตั้ง α เท่าไรดี? ขึ้นกับต้นทุนของการผิด</b></p>
+        <div class="two">
+          <div class="card"><h3>Situation 1: โกโก้ 72%</h3><p>H₀: ช็อกโกแลตล็อตนี้ดี (cocoa ≥ 72%) · H<sub>A</sub>: ล็อตเสีย · Type I = ทิ้งล็อตดี (เสียค่าวัตถุดิบ ไม่ใช่หายนะ) · Type II = ปล่อยล็อตเสีย (ลูกค้าไม่พอใจ เสียแบรนด์ recall) → <b>α สูงได้ เช่น 0.1</b> เพื่อเพิ่ม power</p></div>
+          <div class="card"><h3>Situation 2: ลายนิ้วมือ</h3><p>H₀: ผู้ต้องสงสัยบริสุทธิ์ · H<sub>A</sub>: ผิด · Type I = ลายนิ้วมือ “ตรง” ทั้งที่ไม่ตรง → <b>คนบริสุทธิ์ติดคุก</b> · Type II = ปล่อยคนผิด → <b>α ต่ำ เช่น 0.01</b></p></div>
+        </div>
+      </section>
+
+      <!-- ============ 04 ============ -->
+      <section class="sec" id="design">
+        <h2><span class="n">04</span> Designing a hypothesis test <span class="th">— 5 ขั้น</span></h2>
+        <div class="flow">
+          <div class="nd"><b>0. มีสิ่งที่จะทดสอบ</b><span>H<sub>A</sub></span></div><div class="ar"></div>
+          <div class="nd"><b>1. เลือก H₀</b></div><div class="ar"></div>
+          <div class="nd"><b>2. one- / two-sided</b></div><div class="ar"></div>
+          <div class="nd"><b>3. เลือก test statistic</b></div><div class="ar"></div>
+          <div class="nd"><b>4. α → rejection region</b><span>0.1, 0.05, 0.01</span></div><div class="ar"></div>
+          <div class="nd"><b>5. คำนวณ power</b></div>
+        </div>
+        <div class="ex"><p class="q"><b>Example 1 (สไลด์).</b> Hamtaro อยากรู้ว่า Instagram Reel ที่มีซับไตเติลดีกว่าไม่มีซับไหม — อธิบายขั้นตอนทำ NHST, การทดลอง และส่วนประกอบของ NHST</p>
+          <ol class="deriv">
+            <li><div class="ln">การทดลอง: ทำ Reel หลายคู่ที่เนื้อหาเหมือนกัน <b>สุ่ม</b>ว่าคนดูเห็นเวอร์ชันมีซับหรือไม่มี (หรือสุ่มสลับโพสต์ คุมเวลาโพสต์/หัวข้อ)</div><div class="why">สุ่ม = ตัด confounder</div></li>
+            <li><div class="ln">Metric: สัดส่วนคนที่ดูจบ (หรือ like/share rate) ต่อผู้ชม → ข้อมูล 0/1</div><div class="why">นิยามก่อนเก็บข้อมูล</div></li>
+            <li><div class="ln math">H₀: p<sub>sub</sub> ≤ p<sub>no</sub> &nbsp; vs &nbsp; H<sub>A</sub>: p<sub>sub</sub> &gt; p<sub>no</sub> → one-sided (สนใจว่า “ดีกว่า”)</div><div class="why"></div></li>
+            <li><div class="ln">Test statistic: two-proportion z (ถ้าวัดเวลาดูเฉลี่ย → two-sample t) · null distribution N(0, 1)</div><div class="why">n ใหญ่ ≥ 5 ทั้ง yes/no ต่อกลุ่ม</div></li>
+            <li><div class="ln">α = 0.05 → reject ถ้า z &gt; 1.645 · คำนวณ n จาก MDE + power 0.8 ก่อนเริ่ม แล้วทดสอบครั้งเดียวตอนจบ</div><div class="why">ดูรายละเอียดใน Lecture 03 A/B testing</div></li>
+          </ol></div>
+      </section>
+
+      <!-- ============ 05 ============ -->
+      <section class="sec" id="ztest">
+        <h2><span class="n">05</span> z-test และ t-test ทั้งสามแบบ</h2>
+        <div class="tscroll"><table>
+          <thead><tr><th>Test</th><th>ใช้เมื่อ</th><th>Test statistic</th><th>Null distribution</th></tr></thead>
+          <tbody>
+            <tr><td><b>z-test</b></td><td>เทียบ mean กับค่าที่สมมติ, <b>รู้ σ</b> (ข้อมูล Normal หรือ n ใหญ่ตาม CLT)</td><td class="m">z = (x̄ − μ₀)/(σ/√n)</td><td class="m">N(0, 1)</td></tr>
+            <tr><td><b>One-sample t</b></td><td>เทียบ mean กับค่าที่สมมติ, <b>ไม่รู้ σ</b></td><td class="m">t = (x̄ − μ₀)/(s/√n), s² = Σ(xᵢ − x̄)²/(n − 1)</td><td class="m">t(n − 1)</td></tr>
+            <tr><td><b>Two-sample t</b></td><td>เทียบ mean สองชุด อิสระ, ไม่รู้ σ แต่<b>เท่ากัน</b></td><td class="m">t = (x̄ − ȳ)/(s<sub>p</sub>√(1/n + 1/m)), s<sub>p</sub>² = [(n−1)s<sub>x</sub>² + (m−1)s<sub>y</sub>²]/(n+m−2)</td><td class="m">t(n + m − 2)</td></tr>
+            <tr><td><b>Paired t</b></td><td>ข้อมูลเป็นคู่ จำนวนเท่ากัน</td><td class="m">wᵢ = xᵢ − yᵢ แล้วทำ one-sample t บน w กับ H₀: μ₀ = 0</td><td class="m">t(n − 1)</td></tr>
+          </tbody></table></div>
+        <div class="ctrls"><label class="ctrl"><span>degrees of freedom</span><input type="range" id="tt-df" min="1" max="60" step="1" value="4"><output id="tt-dfv"></output></label></div>
+        <figure class="plot"><figcaption><span class="pt">t(df) หางหนากว่า N(0, 1) เพราะต้องประมาณ σ ด้วย s — df มากขึ้นจะเข้าใกล้ Normal</span><span class="legend"><span><i style="--c:var(--mark)"></i>t(df)</span><span><i class="dash" style="--c:var(--x)"></i>N(0,1)</span></span></figcaption><canvas id="tt-plot" data-h="180"></canvas></figure>
+        <div class="out"><div class="l"><div id="tt-eq"></div><div class="sub">critical value ของ t ใหญ่กว่า z เสมอ → ต้องการหลักฐานมากกว่าเมื่อไม่รู้ σ</div></div><div class="r small" id="tt-val"></div></div>
+        <div class="ex"><p class="q"><b>Quiz 6 (สไลด์).</b> GCC กับ Clang ประสิทธิภาพต่างกันไหม? เวลารัน (วินาที) GCC: 12.5, 13.1, 12.8, 13.5, 12.9 · Clang: 11.8, 12.2, 11.9, 12.5, 12.1</p>
+          <ol class="deriv">
+            <li><div class="ln math">H₀: μ<sub>GCC</sub> = μ<sub>Clang</sub> vs H<sub>A</sub>: μ<sub>GCC</sub> ≠ μ<sub>Clang</sub> · two-sample t-test (two-sided)</div><div class="why">สองชุดวัดแยกกัน ไม่รู้ σ</div></li>
+            <li><div class="ln math">x̄ = 64.8/5 = 12.96 , ȳ = 60.5/5 = 12.10</div><div class="why"></div></li>
+            <li><div class="ln math">s₁² = 0.552/4 = 0.138 , s₂² = 0.30/4 = 0.075</div><div class="why">Σ(x − x̄)²: 0.2116+0.0196+0.0256+0.2916+0.0036 = 0.552</div></li>
+            <li><div class="ln math">s<sub>p</sub>² = (4·0.138 + 4·0.075)/8 = 0.1065 , SE = √(0.1065 · 2/5) = 0.2064</div><div class="why"></div></li>
+            <li><div class="ln math">t = (12.96 − 12.10)/0.2064 = <span class="box">4.17</span> , df = 8 , p = 0.0031</div><div class="why">t<sub>0.025, 8</sub> = 2.306 → ปฏิเสธ H₀: GCC ช้ากว่าอย่างมีนัยสำคัญ</div></li>
+          </ol></div>
+      </section>
+
+      <!-- ============ 06 ============ -->
+      <section class="sec" id="prop">
+        <h2><span class="n">06</span> Two-proportion z-test <span class="th">— สองกลุ่มมีสัดส่วนเท่ากันไหม</span></h2>
+        <div class="fcard">
+          <div class="fbig sm math">p̂₁ = x₁/n₁ , p̂₂ = x₂/n₂ <span style="display:inline-block;width:1em"></span> pooled p̂ = <span class="frac"><span>x₁ + x₂</span><span>n₁ + n₂</span></span> <span style="display:inline-block;width:1em"></span> <span class="box">z = <span class="frac"><span>p̂₁ − p̂₂</span><span>√(p̂(1 − p̂)(1/n₁ + 1/n₂))</span></span></span> ≈ N(0, 1)</div>
+          <p class="note">ใต้ H₀: p₁ = p₂ ทั้งสองกลุ่มใช้ p เดียวกัน จึงประมาณจากข้อมูลรวม (pooled) · Normal มาจาก CLT → <b>แต่ละกลุ่มต้องใหญ่พอ: คาดว่ามี “yes” ≥ 5 และ “no” ≥ 5 ในทุกกลุ่ม</b> · กลุ่มเล็กใช้ exact test</p>
+        </div>
+        <div class="ctrls">
+          <div class="seg" id="pp-pre" role="group" aria-label="ข้อมูล"><button type="button" data-k="A" aria-pressed="true">Experiment A</button><button type="button" data-k="B">Experiment B</button></div>
+          <label class="ctrl"><span>Drug: รอด / n</span><input type="range" id="pp-x1" min="0" max="200" step="1" value="31"><output id="pp-x1v"></output></label>
+          <label class="ctrl"><span>n₁</span><input type="range" id="pp-n1" min="2" max="200" step="1" value="40"><output id="pp-n1v"></output></label>
+          <label class="ctrl"><span>No drug: รอด</span><input type="range" id="pp-x2" min="0" max="200" step="1" value="30"><output id="pp-x2v"></output></label>
+          <label class="ctrl"><span>n₂</span><input type="range" id="pp-n2" min="2" max="200" step="1" value="40"><output id="pp-n2v"></output></label>
+        </div>
+        <ol class="steps" id="pp-steps"></ol>
+      </section>
+
+      <!-- ============ 07 ============ -->
+      <section class="sec" id="effect">
+        <h2><span class="n">07</span> Effect size: signal vs noise <span class="th">— และ p-value ใหญ่แปลว่าอะไร</span></h2>
+        <div class="fcard"><div class="fbig sm math">Cohen's d = <span class="frac"><span>|μ₁ − μ₂|</span><span>σ</span></span> <span style="display:inline-block;width:1.4em"></span> t = <span class="frac"><span>x̄ − μ₀ <span class="up" style="color:var(--y)">(signal)</span></span><span>s/√n <span class="up" style="color:var(--h)">(noise)</span></span></span></div><p class="note">ความต่างยิ่งใหญ่ ยิ่งวัดง่าย · spread σ ยิ่งเล็ก ยิ่งวัดง่าย · n ยิ่งมาก noise ยิ่งเล็ก</p></div>
+        <div class="ctrls">
+          <label class="ctrl"><span>ความต่างจริง</span><input type="range" id="ef-d" min="0" max="3" step="0.05" value="1"><output id="ef-dv"></output></label>
+          <label class="ctrl"><span>σ (noise)</span><input type="range" id="ef-s" min="0.3" max="5" step="0.05" value="2"><output id="ef-sv"></output></label>
+          <label class="ctrl"><span>n ต่อกลุ่ม</span><input type="range" id="ef-n" min="3" max="200" step="1" value="20"><output id="ef-nv"></output></label>
+          <button class="btn sm" type="button" id="ef-new">สุ่มข้อมูลใหม่</button>
+        </div>
+        <figure class="plot"><figcaption><span class="pt">ข้อมูลสองกลุ่ม (จุด) และค่าเฉลี่ย ± SE · variance สูงทำให้ p-value ใหญ่</span><span class="legend"><span><i style="--c:var(--x)"></i>กลุ่ม 1</span><span><i style="--c:var(--h)"></i>กลุ่ม 2</span></span></figcaption><canvas id="ef-plot" data-h="190"></canvas></figure>
+        <div class="kv" id="ef-kv"></div>
+        <div class="two">
+          <div class="card"><h3>p = 0.6 แปลว่าอะไร</h3><p><span class="wrong">ผิด:</span> “p-value ใหญ่ พิสูจน์ว่าไม่มีผล และ H₀ จริง”<br><span class="right">ถูก:</span> “การทดลองไม่ได้ให้หลักฐานพอจะเชื่อว่า H₀ ผิด” → <b>inconclusive</b><br>สาเหตุที่เป็นไปได้: H₀ จริง · n เล็กเกิน (power ต่ำ) · ข้อมูล noisy เกิน · effect จริงเล็กมาก</p></div>
+          <div class="card"><h3>Edge cases</h3><ul><li>x̄ = μ₀ พอดี: two-sided p = 1.0, one-sided p = 0.5 (ข้อสอบ 2024 ข้อ 1.5!)</li><li>x̄ &lt; μ₀ ใน right-sided test → p &gt; 0.5</li><li>p = 0 เป็นไปไม่ได้ทางทฤษฎี (แค่เล็กจนคำนวณไม่ได้)</li><li>s = 0 → ไม่ต้องใช้ NHST (และคำนวณไม่ได้)</li><li>N → ∞: ความต่างจิ๋วแค่ไหนก็ significant — แต่ “statistically significant” ≠ “practically significant” (โอเคกับดีขึ้น 0.001% ไหม?)</li></ul></div>
+        </div>
+      </section>
+
+      <!-- ============ 08 ============ -->
+      <section class="sec" id="peril">
+        <h2><span class="n">08</span> The peril of p-values <span class="th">— p-hacking · base rate fallacy · low power</span></h2>
+        <div class="two">
+          <div class="card"><h3>P-hacking</h3><p>ลองวิเคราะห์ไปเรื่อย ๆ จนได้ p ≤ 0.05 — xkcd 882 (เยลลี่ 20 สี): ทดสอบ 20 ครั้ง ผิด 1 ครั้งก็คือ<b>นิยามของ α = 0.05</b> เอง · “วิธี” ที่ห้ามทำ: เพิ่ม subject ไปเรื่อย ๆ, แปลงข้อมูล, วิเคราะห์เฉพาะ subset, ตัด outlier, เพิ่มตัวแปร, เปลี่ยน control group, ปรับข้อมูล, เปลี่ยน outcome, เปลี่ยน test</p></div>
+          <div class="card"><h3>Two most common fallacies</h3><ul><li><b>#1 “งานที่ตีพิมพ์ผิด 5%”</b> — ผิด! α คือ error rate ของ<b>วิธี</b> ไม่ใช่ของผลที่ตีพิมพ์ (ไม่ได้ตีพิมพ์ทุกการทดลอง + base rate)</li><li><b>#2 “p-value คือความน่าจะเป็นที่ผมผิด”</b> — ผิด! อยากรู้ <span class="math">P(H₀ จริง | data)</span> แต่ p-value คือ <span class="math">P(data | H₀ จริง)</span></li></ul></div>
+        </div>
+        <div class="fcard"><p class="ftitle">Base rate fallacy (สไลด์): ยา 100 ตัว</p>
+          <div class="ctrls" style="margin-bottom:10px">
+            <label class="ctrl"><span>P(ยาได้ผลจริง)</span><input type="range" id="br-b" min="0.01" max="0.9" step="0.01" value="0.1"><output id="br-bv"></output></label>
+            <label class="ctrl"><span>power</span><input type="range" id="br-w" min="0.1" max="1" step="0.05" value="0.8"><output id="br-wv"></output></label>
+            <label class="ctrl"><span>α</span><input type="range" id="br-a" min="0.005" max="0.2" step="0.005" value="0.05"><output id="br-av"></output></label>
+          </div>
+          <figure class="plot" style="margin:0"><figcaption><span class="pt">ยา 100 ตัว: แต่ละช่อง = ยา 1 ตัว</span><span class="legend"><span><i style="--c:var(--y)"></i>ได้ผล &amp; เจอ</span><span><i style="--c:var(--amber)"></i>ได้ผลแต่พลาด</span><span><i style="--c:var(--h)"></i>false positive</span><span><i style="--c:var(--axis)"></i>ไม่ได้ผล</span></span></figcaption><canvas id="br-plot" data-h="200"></canvas></figure>
+          <div class="out" style="margin:10px 0 0"><div class="l"><div id="br-eq"></div><div class="sub">สไลด์: 10 ตัวได้ผล เจอ 8 (power 0.8) · 90 ตัวไม่ได้ผล false positive ~5 (α 0.05) → เห็น “ได้ผล” 13 ตัว แต่ได้ผลจริงแค่ 8/13 = 62% (ผิด 38%) เพราะ base rate ต่ำ</div></div><div class="r" id="br-val"></div></div>
+        </div>
+        <div class="fcard"><p class="ftitle">Low power (สไลด์): ทดสอบเหรียญ H₀: θ = 0.5 ด้วยการโยน n ครั้ง</p>
+          <div class="ctrls" style="margin-bottom:10px">
+            <label class="ctrl"><span>n</span><input type="range" id="lp-n" min="10" max="1000" step="10" value="10"><output id="lp-nv"></output></label>
+            <label class="ctrl"><span>θ จริง</span><input type="range" id="lp-t" min="0.05" max="0.95" step="0.01" value="0.4"><output id="lp-tv"></output></label>
+          </div>
+          <figure class="plot" style="margin:0"><figcaption><span class="pt">จำนวนหัว: ใต้ H₀ (θ = 0.5) vs θ จริง · แดง = rejection region (α ≈ 0.1: แต่ละหาง ≤ 0.055)</span><span class="legend"><span><i style="--c:var(--x)"></i>ใต้ H₀</span><span><i style="--c:var(--mark)"></i>ใต้ θ จริง</span></span></figcaption><canvas id="lp-plot" data-h="190"></canvas></figure>
+          <div class="out" style="margin:10px 0 0"><div class="l"><div id="lp-eq"></div><div class="sub">สไลด์: n = 10 reject ที่ 0–2 หรือ 8–10 หัว (α ≈ 0.11) · power ที่ θ = 0.1 ≈ 0.93 แต่ที่ θ = 0.4 แค่ ≈ 0.18 · n = 1000 power ≈ 1.0 ทั้งคู่</div></div><div class="r" id="lp-val"></div></div>
+        </div>
+      </section>
+
+      <!-- ============ 09 ============ -->
+      <section class="sec" id="multi">
+        <h2><span class="n">09</span> Multiple testing correction <span class="th">— FWER vs FDR</span></h2>
+        <div class="fcard"><ol class="deriv">
+          <li><div class="ln math">1 การทดลอง: P(false positive) = 1 − 0.95 = 0.05</div><div class="why">α = 0.05</div></li>
+          <li><div class="ln math">20 การทดลอง: P(false positive ≥ 1) = 1 − 0.95<sup>20</sup> ≈ <b>0.64</b></div><div class="why">ถ้าอิสระกัน</div></li>
+          <li><div class="ln"><b>Correction 1 · FWER</b> (Family-Wise Error Rate) — เป้า: P(false positive ≥ 1) ≤ α (zero-tolerance) · <b>Bonferroni</b>: <span class="math">α<sub>new</sub> = α/m</span> — ง่าย แต่ conservative มาก เสีย power</div><div class="why">m = จำนวนการทดลอง</div></li>
+          <li><div class="ln"><b>Correction 2 · FDR</b> (False Discovery Rate) — เป้า: <span class="math">E[false discoveries / total discoveries] ≤ q</span> · มาตรฐานใน large-scale testing</div><div class="why">false discovery = ปฏิเสธ H₀ ทั้งที่ไม่ควร (คิดว่าค้นพบของใหม่แต่ไม่ใช่)</div></li>
+        </ol></div>
+        <div class="fcard"><p class="ftitle">Benjamini–Hochberg procedure</p><ol class="deriv">
+          <li><div class="ln math">เรียง p-value จาก m การทดลอง: p₍₁₎ &lt; p₍₂₎ &lt; … &lt; p₍m₎</div><div class="why"></div></li>
+          <li><div class="ln math">แต่ละ p₍i₎ คำนวณ critical value q × i/m</div><div class="why"></div></li>
+          <li><div class="ln">หา p₍k₎ <b>ตัวที่ใหญ่ที่สุด</b>ที่ ≤ critical value ของมัน</div><div class="why">ไม่ใช่ตัวแรกที่ผ่าน!</div></li>
+          <li><div class="ln">ประกาศ p₍1₎, …, p₍k₎ ว่า significant ทั้งหมด</div><div class="why">แม้บางตัวก่อนหน้าจะเกิน critical ของมันเองก็ตาม</div></li>
+        </ol></div>
+        <div class="ctrls"><label class="ctrl" style="flex:2 1 320px"><span>p-values</span><input type="text" id="bh-p" value="0.003, 0.023, 0.027, 0.045, 0.053" spellcheck="false" style="flex:1"></label><label class="ctrl"><span>q</span><input type="range" id="bh-q" min="0.01" max="0.2" step="0.01" value="0.05"><output id="bh-qv"></output></label></div>
+        <div class="tscroll"><table id="bh-tab"></table></div>
+        <div class="out"><div class="l"><div id="bh-eq"></div><div class="sub">ตัวอย่างสไลด์ (q = 0.05): 0.003, 0.023, 0.027 significant · Bonferroni (0.05/5 = 0.01) จะผ่านแค่ 0.003 — B-H ได้ power มากกว่า</div></div><div class="r small" id="bh-val"></div></div>
+      </section>
+
+      <!-- ============ 10 ============ -->
+      <section class="sec" id="tool">
+        <h2><span class="n">10</span> Expanding your toolkit <span class="th">— must know อีก 5 test</span></h2>
+        <div class="tscroll"><table>
+          <thead><tr><th>Test</th><th>ใช้เมื่อ</th></tr></thead>
+          <tbody>
+            <tr><td>Two-proportion z-test</td><td>เทียบอัตรา yes/no ของสองกลุ่มอิสระ</td></tr>
+            <tr><td>χ² goodness of fit</td><td>เทียบจำนวนในแต่ละหมวด (categorical) กับจำนวนที่คาดไว้</td></tr>
+            <tr><td>McNemar's test</td><td>yes/no ของข้อมูล<b>คู่</b> (ก่อน/หลัง ของสิ่งเดียวกัน)</td></tr>
+            <tr><td>Wilcoxon signed-rank</td><td>ข้อมูลคู่ แต่ผลต่าง<b>ไม่ Normal</b> / น้อยเกินจะเช็ก</td></tr>
+            <tr><td>Fisher transformation</td><td>ทดสอบว่า correlation r มีจริงไหม</td></tr>
+            <tr><td>อื่น ๆ</td><td>ANOVA (เทียบ mean มากกว่า 2 กลุ่ม) · Welch's t (variance ไม่เท่ากัน) · χ² homogeneity, likelihood-ratio test</td></tr>
+          </tbody></table></div>
+        <div class="two">
+          <div class="ex" style="margin:0"><p class="q"><b>χ² goodness of fit.</b> ทดสอบหน้าแรก 3 แบบ ถาม 300 คนว่าชอบแบบไหน · <span class="wrong">ผิด:</span> t-test (ข้อมูล categorical ไม่มี mean) · <span class="right">ถูก:</span> <span class="math">Σ(O − E)²/E ~ χ²(k − 1)</span>, E = 100, df = 2</p>
+            <p class="a">สไลด์ไม่ได้ให้จำนวนจริง — ลองใส่เอง (ค่าเริ่มต้นเป็นตัวอย่างสมมติ):</p>
+            <div class="ctrls" style="margin:8px 0 0"><label class="ctrl" style="flex:2 1 220px"><span>observed</span><input type="text" id="cs-o" value="120, 95, 85" spellcheck="false" style="flex:1"></label></div>
+            <p class="a" id="cs-out" style="margin-top:8px"></p></div>
+          <div class="ex" style="margin:0"><p class="q"><b>McNemar.</b> 40 queries ก่อน/หลังเพิ่ม index: Pass→Pass 20, <b>Fail→Pass 9</b>, <b>Pass→Fail 2</b>, Fail→Fail 9 · <span class="wrong">ผิด:</span> two-proportion z (วัดของชุดเดิมสองครั้ง ไม่อิสระ) · <span class="right">ถูก:</span> McNemar — มีแค่ 11 ตัวที่เปลี่ยนที่มีข้อมูล</p>
+            <ol class="deriv">
+              <li><div class="ln math">H₀: เปลี่ยนไปทางไหนก็เท่ากัน (เหรียญเที่ยง)</div><div class="why"></div></li>
+              <li><div class="ln math">X = # pass→fail ~ Bin(11, 0.5): P(X ≤ 2) = 0.033</div><div class="why">exact</div></li>
+              <li><div class="ln math">หรือ (B − C)²/(B + C) = (9 − 2)²/11 = 4.45 ~ χ²(1) → p = 0.035 (two-sided)</div><div class="why">index ใหม่ช่วยอย่างมีนัยสำคัญ</div></li>
+            </ol></div>
+        </div>
+        <div class="two" style="margin-top:12px">
+          <div class="ex" style="margin:0"><p class="q"><b>Wilcoxon signed-rank.</b> ผลต่าง 40, 40, −5, 90, 40, 20 (ms) — 6 ค่าน้อยเกินจะเช็ก Normality · <span class="wrong">ผิด:</span> paired t-test · <span class="right">ถูก:</span> ใช้ rank แทนค่า</p>
+            <ol class="deriv">
+              <li><div class="ln math">rank ของ |d|: 5 → 1, 20 → 2, 40, 40, 40 → 4 ทุกตัว (เฉลี่ยของ 3, 4, 5), 90 → 6</div><div class="why">ค่าเท่ากันใช้ rank เฉลี่ย</div></li>
+              <li><div class="ln math">W⁻ = ผลรวม rank ของผลต่างที่ติดลบ = 1</div><div class="why">มีแค่ −5</div></li>
+              <li><div class="ln math">ใต้ H₀ ทุกแบบเครื่องหมาย 2⁶ = 64 แบบเท่ากัน → P(W⁻ ≤ 1) = 2/64 = 0.031</div><div class="why">W⁻ = 0 (ไม่มีลบ) หรือ W⁻ = 1 (ลบแค่ตัว rank 1)</div></li>
+              <li><div class="ln math">n ใหญ่: z = (W⁻ − n(n+1)/4)/√(n(n+1)(2n+1)/24) ~ N(0,1) · paired t ให้ p = 0.016</div><div class="why"></div></li>
+            </ol></div>
+          <div class="ex" style="margin:0"><p class="q"><b>Fisher transformation.</b> วัด r = 0.5 จาก n = 28 คู่ — correlation จริงไหม? · <span class="wrong">ผิด:</span> คิดว่า r เป็น Normal (spread ขึ้นกับ ρ) · <span class="right">ถูก:</span> z = atanh(r)·√(n − 3)</p>
+            <ol class="deriv">
+              <li><div class="ln math">atanh(r) = ½ ln((1 + r)/(1 − r)) = ½ ln 3 = 0.549</div><div class="why"></div></li>
+              <li><div class="ln math">z = 0.549 × √25 = 2.75 → เทียบ N(0,1)</div><div class="why">การทดสอบ correlation กลายเป็น z-test</div></li>
+              <li><div class="ln math">one-sided p = 0.003 → ปฏิเสธ H₀: ρ = 0</div><div class="why"></div></li>
+            </ol></div>
+        </div>
+        <div class="warn"><b>ระวัง assumption!</b> ข้อมูล Normal + variance เท่ากันไหม (z/t-test)? — ดู histogram (เบ้? outlier?) · test ทางการ: <b>Shapiro–Wilk</b> (normality), <b>Levene</b> (equal variance) · เช็กความอิสระ · อิสระหรือเป็นคู่?</div>
+      </section>
+
+      <!-- ============ 11 ============ -->
+      <section class="sec" id="choose">
+        <h2><span class="n">11</span> Choosing a test <span class="th">— หาสูตรที่ตรงกับคำถาม</span></h2>
+        <div class="two">
+          <div class="card"><h3>3 คำถามก่อนเลือก</h3><ol style="margin:0;padding-left:18px;font-size:14px;color:var(--muted)"><li>คำถามวิจัยคืออะไร — เทียบ mean? สัดส่วน/ความสัมพันธ์? correlation?</li><li>ข้อมูลเป็นแบบไหน — ต่อเนื่อง? categorical? กี่กลุ่ม? อิสระหรือคู่?</li><li>ผ่าน assumption ไหม — normality, equal variance</li></ol></div>
+          <div class="card"><h3>Basic flowchart</h3><p>เทียบ<b>สองกลุ่ม</b>? → คู่ → <b>paired t</b> · อิสระ → <b>two-sample t</b><br>เทียบ<b>กลุ่มเดียวกับ population</b>? → รู้ variance → <b>z-test</b> · ไม่รู้ → <b>one-sample t</b></p></div>
+        </div>
+        <div class="tscroll"><table>
+          <thead><tr><th>Which test?</th><th>คำตอบ</th></tr></thead>
+          <tbody>
+            <tr><td>1. ส่วนสูงเฉลี่ยคนไทย 153 cm · ห้องนี้ 280 คน เฉลี่ย 156 cm — สูงกว่า population ไหม</td><td><b>One-sample t-test</b> (right-sided) เทียบ x̄ กับ μ₀ = 153 · ไม่รู้ σ ของประชากร ใช้ s ของห้อง (n = 280 ใหญ่ → t ≈ z) — คำนวณใน Practice 1</td></tr>
+            <tr><td>2. คะแนน CEM2 ดีขึ้นกว่า CEM1 ไหม</td><td><b>Paired t-test</b> — นักเรียนคนเดียวกันมีคะแนนสองวิชาเป็นคู่ · w = CEM2 − CEM1, H₀: μ<sub>w</sub> = 0 vs H<sub>A</sub>: μ<sub>w</sub> &gt; 0 (ถ้าผลต่างไม่ Normal → Wilcoxon)</td></tr>
+            <tr><td>3. 10 คนให้คะแนน 5 ภาพ (1–5 ดาว) — ทุกภาพคะแนนเฉลี่ยเท่ากันไหม</td><td>เทียบ mean <b>มากกว่า 2 กลุ่ม</b> → <b>ANOVA</b> (คนเดียวให้ครบ 5 ภาพ → repeated-measures ANOVA; คะแนนเป็นลำดับ 1–5 → Friedman test) · ถ้าจับคู่ t-test ทีละคู่ (10 คู่) ต้องแก้ multiple testing</td></tr>
+          </tbody></table></div>
+      </section>
+
+      <!-- ============ 12 ============ -->
+      <section class="sec" id="rct">
+        <h2><span class="n">12</span> The bigger picture <span class="th">— interventional inference &amp; RCT</span></h2>
+        <div class="two">
+          <div class="card"><h3>ทำไมต้อง significance testing</h3><p>เป้าหมาย: ความต่างที่เห็นเป็นของจริงไหม · use case หลัก: <b>interventional inference</b> — เปลี่ยนปัจจัยหนึ่งแล้วทำให้อีกปัจจัยเปลี่ยนหรือไม่ (การศึกษามีผลต่อรายได้ไหม?) · ปัญหา: <b>การสังเกตอย่างเดียวไม่พอ</b> — มี hidden confounder (สถานะทางสังคม → การศึกษา และ → รายได้)</p></div>
+          <div class="card"><h3>Randomized Controlled Trial (RCT)</h3><p>ข้อมูลแสดงโลก “อย่างที่เป็น” แต่ผลของการกระทำอยู่ใน “โลกที่ถูกเปลี่ยน” ซึ่งเราไม่มีข้อมูล · ตัดลูกศรจาก confounder ด้วยการ <b>do(Education)</b> แบบ<b>โยนเหรียญ</b> → สถานะสังคมไม่มีผลต่อว่าใครได้ treatment · เป็นมาตรฐานของ social studies และคือ <b>A/B testing</b> (Lecture 03)</p></div>
+          <div class="card"><h3>Good practice</h3><ul><li>คำนวณ sample size <b>ก่อน</b>เริ่มการทดลองเสมอ</li><li>อธิบายวิธีให้ครบ (ได้ statistic มาอย่างไร ใช้ test อะไร)</li><li>ถ้าไม่ต้องตัดสินใจจาก test ไม่จำเป็นต้องทำ — เล่าเรื่องด้วย distribution plot แทน</li><li>ระวังคำว่า “significant” ในงานเขียนเทคนิค · แสดง distribution ของข้อมูล ไม่ใช่แค่ mean</li></ul></div>
+          <div class="card"><h3>Key takeaways</h3><ul><li>NHST คือวิธีมาตรฐานในการพูดถึงความแข็งแรงของหลักฐาน — แยก signal จาก noise</li><li>มีกับดักเยอะ: p-value trap, “not significant” fallacy, p-hacking, multiple comparisons, assumption, edge cases</li></ul></div>
+        </div>
+      </section>
+
+      <!-- ============ 13 ============ -->
+      <section class="sec" id="prac">
+        <h2><span class="n">13</span> Let's practise! <span class="th">— เฉลยทีละขั้น</span></h2>
+        <div class="ex"><p class="q"><b>Practice 1.</b> ส่วนสูงเฉลี่ยคนไทย 153 cm · ห้องนี้ 280 คน เฉลี่ย 156 cm, SD = 10 · สูงกว่าอย่างมีนัยสำคัญที่ α = 0.05 ไหม?</p>
+          <ol class="deriv">
+            <li><div class="ln math">H₀: μ = 153 vs H<sub>A</sub>: μ &gt; 153 (one-sided) · one-sample t-test</div><div class="why">ไม่รู้ σ ประชากร</div></li>
+            <li><div class="ln math">s² = 100 × 280/279 = 100.36 → s = 10.02</div><div class="why">สไลด์ถือว่า SD = 10 หารด้วย n แล้วแปลงเป็น sample variance (หาร n − 1)</div></li>
+            <li><div class="ln math">t = (156 − 153)/(10.02/√280) = 3/0.5988 = <span class="box">5.01</span> , df = 279</div><div class="why"></div></li>
+            <li><div class="ln math">t<sub>0.05, 279</sub> ≈ 1.650 → 5.01 &gt; 1.65 → <b>ปฏิเสธ H₀</b> (p ≈ 5 × 10⁻⁷)</div><div class="why">ห้องนี้สูงกว่าค่าเฉลี่ยประเทศอย่างมีนัยสำคัญ (แต่ไม่ใช่ random sample ของคนไทย!)</div></li>
+          </ol></div>
+        <div class="ex"><p class="q"><b>Practice 2.</b> ผลผลิตข้าวต่อไร่ ~ N(7000, 150²) kg · นา 15 ไร่ ได้เฉลี่ย 7077 kg · ชนะค่าเฉลี่ยที่ α = 0.05 ไหม?</p>
+          <ol class="deriv">
+            <li><div class="ln math">H₀: μ = 7000 vs H<sub>A</sub>: μ &gt; 7000 · <b>z-test</b> (รู้ σ = 150)</div><div class="why"></div></li>
+            <li><div class="ln math">z = (7077 − 7000)/(150/√15) = 77/38.73 = <span class="box">1.988</span></div><div class="why"></div></li>
+            <li><div class="ln math">z<sub>0.05</sub> = 1.645 → 1.988 &gt; 1.645 → <b>ปฏิเสธ H₀</b> ชนะค่าเฉลี่ย (p = 0.023)</div><div class="why">ถ้าเป็น two-sided (1.96) ก็ยังผ่านแบบเฉียด</div></li>
+          </ol></div>
+        <div class="ex"><p class="q"><b>Practice 3.</b> เลือกทำเลร้าน: A ขายได้ [5, 3, 5, 6, 5, 9, 15] · B ขายได้ [4, 3, 6, 4, 4, 20, 25] · B ดีกว่า A ที่ α = 0.1 ไหม? ถ้าเช่าที่ละ 4 สัปดาห์ (ยอดขายแต่ละสัปดาห์ซ้ำเดิม) ล่ะ?</p>
+          <ol class="deriv">
+            <li><div class="ln math">H₀: μ<sub>B</sub> ≤ μ<sub>A</sub> vs H<sub>A</sub>: μ<sub>B</sub> &gt; μ<sub>A</sub> · two-sample t-test one-sided</div><div class="why"></div></li>
+            <li><div class="ln math">x̄<sub>A</sub> = 48/7 = 6.857 , x̄<sub>B</sub> = 66/7 = 9.429 , s<sub>A</sub>² = 16.143 , s<sub>B</sub>² = 82.619</div><div class="why"></div></li>
+            <li><div class="ln math">s<sub>p</sub>² = (6 · 16.143 + 6 · 82.619)/12 = 49.381 , SE = √(49.381 · 2/7) = 3.756</div><div class="why"></div></li>
+            <li><div class="ln math">t = (9.429 − 6.857)/3.756 = <span class="box">0.685</span> , df = 12 , t<sub>0.1, 12</sub> = 1.356 → <b>ไม่ปฏิเสธ H₀</b> (p = 0.25)</div><div class="why">B noisy มาก (20, 25 สองวัน) — variance กลบ signal</div></li>
+            <li><div class="ln math">4 สัปดาห์ (n = 28 ต่อทำเล, mean เท่าเดิม): s<sub>A</sub>² = 16.143 · 24/27 = 14.349 , s<sub>B</sub>² = 82.619 · 24/27 = 73.439</div><div class="why">Σ(x − x̄)² คูณ 4 แต่หารด้วย 27</div></li>
+            <li><div class="ln math">s<sub>p</sub>² = 43.894 , SE = √(43.894 · 2/28) = 1.771 , t = 2.571/1.771 = <span class="box">1.452</span> , df = 54</div><div class="why"></div></li>
+            <li><div class="ln math">t<sub>0.1, 54</sub> = 1.297 → 1.452 &gt; 1.297 → <b>ปฏิเสธ H₀</b> (p = 0.076)</div><div class="why">effect เท่าเดิม แต่ n มากขึ้น → SE เล็กลง → significant · (assumption “ยอดเหมือนเดิมทุกสัปดาห์” ไม่สมจริง — แค่แสดงผลของ n)</div></li>
+          </ol></div>
+      </section>
+
+      <footer>
+        <span>อ้างอิง: CP203 Stats Lecture 2 Significance Testing (2110203, 2026) · statisticsdonewrong.com · xkcd 882 · ตัวเลขตรวจด้วย scipy.stats</span>
+        <span>ทุกกราฟคำนวณสดในหน้านี้</span>
+      </footer>
+    </main>
+  </div>
+</div>
+
+<script>
+/* ===== shared kit: plots, steppers, controls (CEMII lecture pages) ===== */
+const K = (function(){
+'use strict';
+const MINUS = '−', TAU = Math.PI * 2;
+const C = {};
+const TOKENS = ['ink','muted','line','grid','axis','x','h','mark','prod','y','amber','surface','sunk'];
+function readColors(){ const cs = getComputedStyle(document.documentElement); TOKENS.forEach(k => { C[k] = cs.getPropertyValue('--'+k).trim() || '#888'; }); }
+readColors();
+
+/* ---------- numbers ---------- */
+function fmt(v, d){
+  if (d == null) d = 3;
+  if (!isFinite(v)) return (v < 0 ? MINUS : '') + '∞';
+  if (Math.abs(v) < 1e-10) v = 0;
+  const a = Math.abs(v), s = Number.isInteger(a) ? String(a) : String(+a.toFixed(d));
+  return (v < 0 && +s !== 0 ? MINUS : '') + s;
+}
+const fx = (v, d) => (v < 0 && Math.abs(v) >= Math.pow(10, -(d || 2)) / 2 ? MINUS : '') + Math.abs(v).toFixed(d == null ? 2 : d);
+function piLabel(v){
+  const k = v / Math.PI;
+  if (Math.abs(k) < 1e-9) return '0';
+  const q = Math.round(k * 4);
+  if (Math.abs(q - k * 4) > 1e-6) return fmt(v, 2);
+  const sg = q < 0 ? MINUS : '';
+  let num = Math.abs(q), den = 4;
+  const g = (a, b) => b ? g(b, a % b) : a;
+  const d = g(num, den); num /= d; den /= d;
+  return sg + (num === 1 ? 'π' : num + 'π') + (den === 1 ? '' : '/' + den);
+}
+function nice(range, target){
+  const raw = range / Math.max(1, target), p = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / p;
+  return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * p;
+}
+function rng(lo, hi, pad){
+  pad = pad == null ? .18 : pad;
+  const s = (hi - lo) || 1;
+  return [lo - (lo < 0 ? pad : pad * .5) * s, hi + pad * s];
+}
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+function simpson(f, a, b, n){
+  n = n % 2 ? n + 1 : n;
+  const hh = (b - a) / n; let s = f(a) + f(b);
+  for (let i = 1; i < n; i++) s += (i % 2 ? 4 : 2) * f(a + i * hh);
+  return s * hh / 3;
+}
+/* complex as [re, im] */
+const cadd = (a, b) => [a[0] + b[0], a[1] + b[1]];
+const cmul = (a, b) => [a[0]*b[0] - a[1]*b[1], a[0]*b[1] + a[1]*b[0]];
+const cabs = a => Math.hypot(a[0], a[1]);
+const carg = a => Math.atan2(a[1], a[0]);
+const cexp = th => [Math.cos(th), Math.sin(th)];
+function cstr(a, d){
+  d = d == null ? 3 : d;
+  const re = Math.abs(a[0]) < 5e-4 ? 0 : a[0], im = Math.abs(a[1]) < 5e-4 ? 0 : a[1];
+  if (im === 0) return fmt(re, d);
+  if (re === 0) return (im < 0 ? MINUS : '') + (Math.abs(im) === 1 ? '' : fmt(Math.abs(im), d)) + 'j';
+  return fmt(re, d) + (im < 0 ? ' ' + MINUS + ' ' : ' + ') + (Math.abs(im) === 1 ? '' : fmt(Math.abs(im), d)) + 'j';
+}
+/* DFT of complex array (arrays of [re,im]) — direct, N is small here */
+function dft(x){
+  const N = x.length, X = [];
+  for (let k = 0; k < N; k++){
+    let re = 0, im = 0;
+    for (let n = 0; n < N; n++){
+      const th = -TAU * k * n / N, c = Math.cos(th), s = Math.sin(th);
+      re += x[n][0] * c - x[n][1] * s; im += x[n][0] * s + x[n][1] * c;
+    }
+    X.push([re, im]);
+  }
+  return X;
+}
+
+/* ---------- plot ---------- */
+class Plot {
+  constructor(cv){ this.cv = cv; this.ctx = cv.getContext('2d'); this.h0 = +cv.dataset.h || 200; this.pad = {l:46, r:16, t:20, b:26}; }
+  size(){
+    const w = this.cv.clientWidth; if (!w) return false;
+    const H = Math.round(this.h0 * (w < 520 ? .84 : 1));
+    const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+    const W = Math.round(w * dpr), HH = Math.round(H * dpr);
+    if (this.cv.width !== W || this.cv.height !== HH){ this.cv.width = W; this.cv.height = HH; }
+    this.cv.style.height = H + 'px';
+    this.w = w; this.H = H;
+    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0); this.ctx.clearRect(0, 0, w, H);
+    return true;
+  }
+  view(x0, x1, y0, y1){ this.x0 = x0; this.x1 = x1; this.y0 = y0; this.y1 = y1; return this; }
+  get L(){ return this.pad.l; } get R(){ return this.w - this.pad.r; }
+  get T(){ return this.pad.t; } get B(){ return this.H - this.pad.b; }
+  pw(){ return this.R - this.L; }
+  X(v){ return this.L + (v - this.x0) / (this.x1 - this.x0) * this.pw(); }
+  Y(v){ return this.T + (this.y1 - v) / (this.y1 - this.y0) * (this.B - this.T); }
+  inv(px){ return this.x0 + (px - this.L) / this.pw() * (this.x1 - this.x0); }
+  frame(o){
+    o = o || {}; const c = this.ctx; c.save();
+    const pi = !!o.piTick;
+    const tick = o.tick || (pi ? Math.PI / 2 : nice(this.x1 - this.x0, Math.max(4, this.pw() / 64)));
+    const grid = o.grid || tick / 2;
+    const ys = o.yTick || nice(this.y1 - this.y0, o.yT || 4);
+    c.lineWidth = 1; c.strokeStyle = C.grid; c.beginPath();
+    for (let i = Math.ceil(this.x0 / grid - 1e-9); i * grid <= this.x1 + 1e-9; i++){ const px = Math.round(this.X(i * grid)) + .5; c.moveTo(px, this.T); c.lineTo(px, this.B); }
+    for (let i = Math.ceil(this.y0 / ys - 1e-9); i * ys <= this.y1 + 1e-9; i++){ const py = Math.round(this.Y(i * ys)) + .5; c.moveTo(this.L, py); c.lineTo(this.R, py); }
+    c.stroke();
+    c.strokeStyle = C.axis; c.beginPath();
+    const p0 = Math.round(this.Y(0)) + .5; c.moveTo(this.L, p0); c.lineTo(this.R, p0);
+    if (this.x0 < 0 && this.x1 > 0){ const q = Math.round(this.X(0)) + .5; c.moveTo(q, this.T); c.lineTo(q, this.B); }
+    c.stroke();
+    c.fillStyle = C.muted; c.font = '11px "IBM Plex Mono", ui-monospace, monospace';
+    c.textAlign = 'center'; c.textBaseline = 'top';
+    for (let i = Math.ceil(this.x0 / tick - 1e-9); i * tick <= this.x1 + 1e-9; i++){
+      const v = i * tick; if (o.skip0 && Math.abs(v) < 1e-9) continue;
+      c.fillText(pi ? piLabel(v) : fmt(v, 2), this.X(v), this.B + 8);
+    }
+    if (!o.noY){
+      c.textAlign = 'right'; c.textBaseline = 'middle';
+      for (let i = Math.ceil(this.y0 / ys - 1e-9); i * ys <= this.y1 + 1e-9; i++) c.fillText(fmt(i * ys, 2), this.L - 8, this.Y(i * ys));
+    }
+    if (o.xl){ c.font = 'italic 14px "STIX Two Text", serif'; c.fillStyle = C.ink; c.textAlign = 'left'; c.textBaseline = 'middle'; c.fillText(o.xl, this.R + 3, this.Y(0)); }
+    c.restore(); return this;
+  }
+  clip(){ const c = this.ctx; c.save(); c.beginPath(); c.rect(this.L, this.T - 8, this.pw(), this.B - this.T + 16); c.clip(); }
+  unclip(){ this.ctx.restore(); }
+  curve(pts, col, w, o){
+    o = o || {}; if (!pts.length) return this; const c = this.ctx; this.clip();
+    c.globalAlpha = o.alpha == null ? 1 : o.alpha; c.strokeStyle = col; c.lineWidth = w || 2; c.lineJoin = 'round'; c.lineCap = 'round';
+    if (o.dash) c.setLineDash(o.dash);
+    const yc = v => clamp(this.Y(v), -5000, 5000);
+    c.beginPath(); let down = false;
+    pts.forEach(p => { if (p == null || !isFinite(p[1])){ down = false; return; } const X = this.X(p[0]), Y = yc(p[1]); if (down) c.lineTo(X, Y); else { c.moveTo(X, Y); down = true; } });
+    c.stroke(); this.unclip(); return this;
+  }
+  area(pts, col, al){
+    if (!pts.length) return this; const c = this.ctx; this.clip();
+    const yc = v => clamp(this.Y(v), -5000, 5000);
+    c.globalAlpha = al == null ? .25 : al; c.fillStyle = col; c.beginPath(); c.moveTo(this.X(pts[0][0]), this.Y(0));
+    pts.forEach(p => c.lineTo(this.X(p[0]), yc(p[1]))); c.lineTo(this.X(pts[pts.length-1][0]), this.Y(0)); c.closePath(); c.fill();
+    this.unclip(); return this;
+  }
+  stem(k, v, col, o){
+    o = o || {}; const c = this.ctx; const px = this.X(k) + (o.dx || 0), p0 = this.Y(0), p1 = clamp(this.Y(v), this.T - 6, this.B + 6);
+    if (px < this.L - 6 || px > this.R + 6) return this;
+    c.save(); c.globalAlpha = o.alpha == null ? 1 : o.alpha; c.strokeStyle = col; c.fillStyle = col; c.lineWidth = o.w || 2;
+    if (Math.abs(v) > 1e-12){ c.beginPath(); c.moveTo(px, p0); c.lineTo(px, p1); c.stroke(); }
+    c.beginPath(); c.arc(px, p1, o.r == null ? 3.4 : o.r, 0, TAU); c.fill();
+    if (o.ring){ c.strokeStyle = o.ring; c.lineWidth = 2; c.beginPath(); c.arc(px, p1, (o.r == null ? 3.4 : o.r) + 3.5, 0, TAU); c.stroke(); }
+    if (o.label != null){ c.font = '600 10.5px "IBM Plex Mono", monospace'; c.textAlign = 'center'; c.textBaseline = v >= 0 ? 'bottom' : 'top'; c.fillText(o.label, px, v >= 0 ? p1 - 6 : p1 + 6); }
+    c.restore(); return this;
+  }
+  arrow(x, v, col, o){ /* impulse arrow */
+    o = o || {}; const c = this.ctx, px = this.X(x), p0 = this.Y(0), p1 = this.Y(v);
+    if (px < this.L - 4 || px > this.R + 4) return this;
+    c.save(); c.strokeStyle = col; c.fillStyle = col; c.lineWidth = o.w || 2;
+    c.beginPath(); c.moveTo(px, p0); c.lineTo(px, p1); c.stroke();
+    const d = v >= 0 ? 1 : -1;
+    c.beginPath(); c.moveTo(px, p1); c.lineTo(px - 4.5, p1 + 8 * d); c.lineTo(px + 4.5, p1 + 8 * d); c.closePath(); c.fill();
+    if (o.label){ c.font = '600 10.5px "IBM Plex Mono", monospace'; c.textAlign = 'center'; c.textBaseline = v >= 0 ? 'bottom' : 'top'; c.fillText(o.label, px, v >= 0 ? p1 - 10 : p1 + 10); }
+    c.restore(); return this;
+  }
+  dot(x, y, col, r){ const c = this.ctx; c.save(); c.fillStyle = col; c.beginPath(); c.arc(this.X(x), clamp(this.Y(y), this.T - 4, this.B + 4), r || 3, 0, TAU); c.fill(); c.restore(); return this; }
+  point(x, y, col, ring){ const c = this.ctx; c.save(); c.fillStyle = col; c.beginPath(); c.arc(this.X(x), clamp(this.Y(y), this.T, this.B), 5, 0, TAU); c.fill(); if (ring){ c.strokeStyle = ring; c.lineWidth = 2; c.beginPath(); c.arc(this.X(x), clamp(this.Y(y), this.T, this.B), 9, 0, TAU); c.stroke(); } c.restore(); return this; }
+  vline(x, col, label, o){
+    o = o || {}; const c = this.ctx, px = Math.round(this.X(x)) + .5; if (px < this.L - 1 || px > this.R + 1) return this;
+    c.save(); c.strokeStyle = col; c.lineWidth = o.w || 1.2; if (o.dash !== false) c.setLineDash(o.dash || [4, 4]);
+    c.beginPath(); c.moveTo(px, this.T - 2); c.lineTo(px, this.B); c.stroke(); c.setLineDash([]);
+    if (label){ c.fillStyle = col; c.font = '500 11.5px "IBM Plex Mono", monospace'; c.textBaseline = 'bottom'; const right = px > this.R - 62; c.textAlign = right ? 'right' : 'left'; c.fillText(label, px + (right ? -5 : 5), this.T - 3); }
+    c.restore(); return this;
+  }
+  band(a, b, col, al){ const c = this.ctx; c.save(); c.globalAlpha = al == null ? .1 : al; c.fillStyle = col; const x0 = Math.max(this.L, this.X(a)), x1 = Math.min(this.R, this.X(b)); if (x1 > x0) c.fillRect(x0, this.T, x1 - x0, this.B - this.T); c.restore(); return this; }
+  text(s, x, y, col, o){
+    o = o || {}; const c = this.ctx; c.save(); c.fillStyle = col;
+    c.font = o.font || '500 12px "IBM Plex Sans Thai", sans-serif';
+    c.textAlign = o.align || 'center'; c.textBaseline = o.base || 'middle';
+    c.fillText(s, x, y); c.restore(); return this;
+  }
+  label(s, x, y, col, o){ return this.text(s, this.X(x), this.Y(y), col, o); }
+}
+
+/* ---------- figure registry ---------- */
+const FIGS = [];
+function fig(id, draw){
+  const cv = document.getElementById(id); if (!cv) return null;
+  const p = new Plot(cv); FIGS.push({p, draw, cv}); return p;
+}
+let raf = 0;
+function redraw(){ if (raf) return; raf = requestAnimationFrame(() => { raf = 0; FIGS.forEach(f => { if (f.cv.offsetParent === null && f.cv.clientWidth === 0) return; if (f.p.size()) f.draw(f.p); }); }); }
+const $ = s => document.querySelector(s);
+const $$ = s => Array.prototype.slice.call(document.querySelectorAll(s));
+function val(sel){ const e = $(sel); return e ? +e.value : 0; }
+function sval(sel){ const e = $(sel); return e ? e.value : ''; }
+function chk(sel){ const e = $(sel); return !!(e && e.checked); }
+function bind(sel, fn){
+  $$(sel).forEach(e => e.addEventListener('input', ev => { if (fn) fn(ev); redraw(); }));
+}
+function out(sel, text){ const e = $(sel); if (e) e.textContent = text; }
+function html(sel, s){ const e = $(sel); if (e) e.innerHTML = s; }
+
+/* ---------- derivation steppers ---------- */
+function derivInit(){
+  $$('.deriv').forEach(list => {
+    const items = Array.prototype.slice.call(list.children);
+    const nav = document.createElement('div'); nav.className = 'dnav';
+    nav.innerHTML = '<button class="btn sm" type="button" data-a="prev">‹ ก่อนหน้า</button>'
+      + '<button class="btn sm primary" type="button" data-a="next">ขั้นถัดไป ›</button>'
+      + '<span class="cnt"></span><button class="btn sm" type="button" data-a="all">แสดงทั้งหมด</button>';
+    list.parentNode.insertBefore(nav, list.nextSibling);
+    let i = 1;
+    function render(){
+      items.forEach((li, k) => li.classList.toggle('dim', k >= i));
+      nav.querySelector('.cnt').textContent = `ขั้นที่ ${Math.min(i, items.length)} / ${items.length}`;
+      nav.querySelector('[data-a=prev]').disabled = i <= 1;
+      nav.querySelector('[data-a=next]').disabled = i >= items.length;
+    }
+    nav.addEventListener('click', e => {
+      const a = e.target.closest('[data-a]'); if (!a) return;
+      if (a.dataset.a === 'next') i = Math.min(items.length, i + 1);
+      else if (a.dataset.a === 'prev') i = Math.max(1, i - 1);
+      else i = items.length;
+      render();
+    });
+    render();
+  });
+}
+
+/* ---------- table of contents scrollspy ---------- */
+function tocInit(){
+  const links = $$('.toc a'); if (!links.length) return;
+  const secs = links.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      if (!en.isIntersecting) return;
+      links.forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + en.target.id));
+    });
+  }, {rootMargin: '-10% 0px -70% 0px', threshold: 0});
+  secs.forEach(s => io.observe(s));
+}
+
+/* ---------- animation loop helper ---------- */
+function ticker(step){
+  let on = false, last = 0, id = 0;
+  function frame(now){
+    if (!on) return;
+    const dt = Math.min(.05, (now - last) / 1000); last = now;
+    step(dt); redraw(); id = requestAnimationFrame(frame);
+  }
+  return {
+    start(){ if (on) return; on = true; last = performance.now(); id = requestAnimationFrame(frame); },
+    stop(){ on = false; if (id) cancelAnimationFrame(id); id = 0; },
+    toggle(){ on ? this.stop() : this.start(); return on; },
+    get running(){ return on; }
+  };
+}
+
+/* ---------- boot ---------- */
+function boot(){
+  derivInit(); tocInit(); redraw();
+  const onTheme = () => { readColors(); redraw(); };
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', onTheme);
+  new MutationObserver(onTheme).observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
+  if (window.ResizeObserver) new ResizeObserver(() => redraw()).observe(document.body);
+  else window.addEventListener('resize', redraw);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(redraw);
+}
+
+return {C, MINUS, TAU, fmt, fx, piLabel, nice, rng, clamp, simpson, cadd, cmul, cabs, carg, cexp, cstr, dft,
+        Plot, fig, redraw, $, $$, val, sval, chk, bind, out, html, ticker, boot, readColors};
+})();
+
+/* ===== stats kit: random numbers, distributions, histograms (CEMII Prob & Stat pages) ===== */
+const S = (function(){
+'use strict';
+const {fmt, clamp, TAU} = K;
+
+/* seeded RNG so a page looks the same on every load until you press "สุ่มใหม่" */
+function mulberry32(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+let R = mulberry32(20261123);
+function reseed(s){ R = mulberry32(s == null ? (Math.random() * 2 ** 31) | 0 : s); }
+const rand = () => R();
+function randn(){ let u = 0; while (u === 0) u = R(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(TAU * R()); }
+
+/* special functions */
+function lgamma(z){
+  const g = 7, c = [0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313, -176.61503916999185, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+  if (z < 0.5) return Math.log(Math.PI / Math.abs(Math.sin(Math.PI * z))) - lgamma(1 - z);
+  z -= 1; let x = c[0]; for (let i = 1; i < g + 2; i++) x += c[i] / (z + i);
+  const t = z + g + 0.5; return 0.5 * Math.log(TAU) + (z + 0.5) * Math.log(t) - t + Math.log(x);
+}
+const lchoose = (n, k) => lgamma(n + 1) - lgamma(k + 1) - lgamma(n - k + 1);
+const choose = (n, k) => (k < 0 || k > n) ? 0 : Math.round(Math.exp(lchoose(n, k)));
+function erf(x){ /* Abramowitz & Stegun 7.1.26 refined by a series near 0 */
+  const s = x < 0 ? -1 : 1; x = Math.abs(x);
+  if (x < 0.5){ let sum = x, term = x, n = 0; while (Math.abs(term) > 1e-16 && n < 60){ n++; term *= -x * x / n; sum += term / (2 * n + 1); } return s * 2 / Math.sqrt(Math.PI) * sum; }
+  const t = 1 / (1 + 0.5 * x);
+  const y = 1 - t * Math.exp(-x * x - 1.26551223 + t * (1.00002368 + t * (0.37409196 + t * (0.09678418 + t * (-0.18628806 + t * (0.27886807 + t * (-1.13520398 + t * (1.48851587 + t * (-0.82215223 + t * 0.17087277)))))))));
+  return s * y;
+}
+const Phi = z => 0.5 * (1 + erf(z / Math.SQRT2));
+const phi = z => Math.exp(-z * z / 2) / Math.sqrt(TAU);
+function Phinv(p){ /* Acklam */
+  const a = [-3.969683028665376e+01, 2.209460984245205e+02, -2.759285104469687e+02, 1.383577518672690e+02, -3.066479806614716e+01, 2.506628277459239e+00];
+  const b = [-5.447609879822406e+01, 1.615858368580409e+02, -1.556989798598866e+02, 6.680131188771972e+01, -1.328068155288572e+01];
+  const c = [-7.784894002430293e-03, -3.223964580411365e-01, -2.400758277161838e+00, -2.549732539343734e+00, 4.374664141464968e+00, 2.938163982698783e+00];
+  const d = [7.784695709041462e-03, 3.224671290700398e-01, 2.445134137142996e+00, 3.754408661907416e+00];
+  p = clamp(p, 1e-12, 1 - 1e-12); const pl = 0.02425;
+  if (p < pl){ const q = Math.sqrt(-2 * Math.log(p)); return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1); }
+  if (p > 1 - pl){ const q = Math.sqrt(-2 * Math.log(1 - p)); return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1); }
+  const q = p - 0.5, r = q * q;
+  return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q / (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
+}
+function binomPmf(k, n, p){ if (k < 0 || k > n) return 0; if (p <= 0) return k === 0 ? 1 : 0; if (p >= 1) return k === n ? 1 : 0; return Math.exp(lchoose(n, k) + k * Math.log(p) + (n - k) * Math.log(1 - p)); }
+function binomCdf(k, n, p){ let s = 0; for (let i = 0; i <= Math.min(k, n); i++) s += binomPmf(i, n, p); return Math.min(1, s); }
+function sampleBinom(n, p){ let s = 0; for (let i = 0; i < n; i++) if (R() < p) s++; return s; }
+function samplePois(l){ const L = Math.exp(-l); let k = 0, q = 1; do { k++; q *= R(); } while (q > L); return k - 1; }
+
+/* ---------- distribution catalogue ----------
+   each: disc, f (pmf/pdf), F (cdf), mean, var, sample(), lo/hi = plotting range, Q (quantile) */
+function quantDisc(F, lo, hi, u){ for (let k = lo; k <= hi; k++) if (F(k) >= u - 1e-12) return k; return hi; }
+const DIST = {
+  bern: { name: 'Bernoulli', th: 'โยน 1 ครั้ง', disc: true, params: [['p', 0.01, 0.99, 0.01, 0.3]],
+    make: ([p]) => ({ f: k => k === 0 ? 1 - p : k === 1 ? p : 0, F: x => x < 0 ? 0 : x < 1 ? 1 - p : 1, mean: p, var: p * (1 - p), lo: 0, hi: 1,
+      sample: () => R() < p ? 1 : 0, tex: `p(1) = p, p(0) = 1 − p` }) },
+  binom: { name: 'Binomial', th: 'นับสำเร็จใน n ครั้ง', disc: true, params: [['n', 1, 40, 1, 10], ['p', 0.01, 0.99, 0.01, 0.7]],
+    make: ([n, p]) => ({ f: k => binomPmf(k, n, p), F: x => x < 0 ? 0 : binomCdf(Math.floor(x), n, p), mean: n * p, var: n * p * (1 - p), lo: 0, hi: n,
+      sample: () => sampleBinom(n, p), tex: `p(k) = C(n,k) p<sup>k</sup>(1 − p)<sup>n−k</sup>` }) },
+  geom: { name: 'Geometric', th: 'จำนวนครั้งที่ล้มเหลวก่อนสำเร็จ', disc: true, params: [['p', 0.05, 0.95, 0.01, 0.3]],
+    make: ([p]) => ({ f: k => k < 0 ? 0 : Math.pow(1 - p, k) * p, F: x => x < 0 ? 0 : 1 - Math.pow(1 - p, Math.floor(x) + 1), mean: (1 - p) / p, var: (1 - p) / (p * p), lo: 0,
+      hi: Math.max(4, Math.ceil(Math.log(0.004) / Math.log(1 - p))), sample: () => { let k = 0; while (R() >= p) k++; return k; }, tex: `p(k) = (1 − p)<sup>k</sup> p` }) },
+  pois: { name: 'Poisson', th: 'จำนวนเหตุการณ์ต่อช่วงเวลา', disc: true, params: [['λ', 0.2, 15, 0.1, 3]],
+    make: ([l]) => { const f = k => k < 0 ? 0 : Math.exp(k * Math.log(l) - l - lgamma(k + 1));
+      return { f, F: x => { let s = 0; for (let k = 0; k <= Math.floor(x); k++) s += f(k); return Math.min(1, s); }, mean: l, var: l, lo: 0, hi: Math.ceil(l + 4 * Math.sqrt(l) + 3),
+        sample: () => samplePois(l), tex: `p(k) = λ<sup>k</sup>e<sup>−λ</sup> / k!` }; } },
+  dunif: { name: 'Uniform (discrete)', th: 'ลูกเต๋า n หน้า', disc: true, params: [['n', 2, 12, 1, 6]],
+    make: ([n]) => ({ f: k => (k >= 1 && k <= n && Number.isInteger(k)) ? 1 / n : 0, F: x => clamp(Math.floor(x), 0, n) / n, mean: (n + 1) / 2, var: (n * n - 1) / 12, lo: 1, hi: n,
+      sample: () => 1 + Math.floor(R() * n), tex: `p(k) = 1/n, k = 1…n` }) },
+  norm: { name: 'Normal', th: 'ระฆังคว่ำ', disc: false, params: [['μ', -3, 3, 0.1, 0], ['σ', 0.3, 3, 0.05, 1]],
+    make: ([m, s]) => ({ f: x => phi((x - m) / s) / s, F: x => Phi((x - m) / s), mean: m, var: s * s, lo: m - 4 * s, hi: m + 4 * s,
+      sample: () => m + s * randn(), Q: u => m + s * Phinv(u), tex: `f(x) = <span class="frac"><span>1</span><span>√(2πσ²)</span></span> e<sup>−(x−μ)²/2σ²</sup>` }) },
+  expo: { name: 'Exponential', th: 'เวลารอ', disc: false, params: [['λ', 0.2, 3, 0.05, 1]],
+    make: ([l]) => ({ f: x => x < 0 ? 0 : l * Math.exp(-l * x), F: x => x < 0 ? 0 : 1 - Math.exp(-l * x), mean: 1 / l, var: 1 / (l * l), lo: 0, hi: 5.5 / l,
+      sample: () => -Math.log(1 - R()) / l, Q: u => -Math.log(1 - u) / l, tex: `f(x) = λe<sup>−λx</sup>, x ≥ 0` }) },
+  unif: { name: 'Uniform', th: 'เท่ากันทุกจุดใน [a, b]', disc: false, params: [['a', -3, 2, 0.1, 0], ['b', -2, 5, 0.1, 1]],
+    make: ([a, b]) => { if (b <= a + 0.05) b = a + 0.05; const w = b - a;
+      return { f: x => (x >= a && x <= b) ? 1 / w : 0, F: x => clamp((x - a) / w, 0, 1), mean: (a + b) / 2, var: w * w / 12, lo: a - 0.35 * w, hi: b + 0.35 * w,
+        sample: () => a + w * R(), Q: u => a + w * u, tex: `f(x) = 1/(b − a), a ≤ x ≤ b` }; } },
+  pareto: { name: 'Pareto', th: 'power law · หางยาว', disc: false, params: [['x_m', 0.5, 3, 0.1, 1], ['α', 0.6, 5, 0.05, 2.5]],
+    make: ([xm, a]) => ({ f: x => x < xm ? 0 : a * Math.pow(xm, a) / Math.pow(x, a + 1), F: x => x < xm ? 0 : 1 - Math.pow(xm / x, a),
+      mean: a > 1 ? a * xm / (a - 1) : Infinity, var: a > 2 ? xm * xm * a / ((a - 1) * (a - 1) * (a - 2)) : Infinity, lo: 0, hi: xm * Math.pow(0.02, -1 / a),
+      sample: () => xm / Math.pow(1 - R(), 1 / a), Q: u => xm / Math.pow(1 - u, 1 / a), tex: `f(x) = αx<sub>m</sub><sup>α</sup> / x<sup>α+1</sup>, x ≥ x<sub>m</sub>` }) }
+};
+function build(key, vals){ const d = DIST[key]; const o = d.make(vals); o.key = key; o.name = d.name; o.disc = d.disc; o.sd = Math.sqrt(o.var);
+  if (!o.Q) o.Q = u => quantDisc(o.F, o.lo, o.hi + 200, u); return o; }
+
+/* ---------- drawing helpers on K.Plot ---------- */
+function hist(p, data, lo, hi, nb, col, o){
+  o = o || {}; const w = (hi - lo) / nb, cnt = new Array(nb).fill(0); let n = 0;
+  data.forEach(v => { const i = Math.floor((v - lo) / w); if (i >= 0 && i < nb){ cnt[i]++; } n++; });
+  const c = p.ctx; p.clip(); c.fillStyle = col; c.globalAlpha = o.alpha == null ? .45 : o.alpha;
+  const dens = o.density !== false;
+  let mx = 0;
+  cnt.forEach((k, i) => { const h = dens ? k / (n * w) : k; mx = Math.max(mx, h); const x0 = p.X(lo + i * w), x1 = p.X(lo + (i + 1) * w), y = p.Y(h);
+    c.fillRect(x0 + .5, y, Math.max(0.5, x1 - x0 - 1), p.Y(0) - y); });
+  c.globalAlpha = 1; p.unclip(); return mx;
+}
+function histMax(data, lo, hi, nb){ const w = (hi - lo) / nb, cnt = new Array(nb).fill(0); data.forEach(v => { const i = Math.floor((v - lo) / w); if (i >= 0 && i < nb) cnt[i]++; }); return Math.max.apply(null, cnt) / (data.length * w); }
+function counts(data, lo, hi){ const m = {}; for (let k = lo; k <= hi; k++) m[k] = 0; data.forEach(v => { if (m[v] != null) m[v]++; }); return m; }
+function fn(p, f, x0, x1, n){ const pts = []; n = n || 500; for (let i = 0; i <= n; i++){ const x = x0 + (x1 - x0) * i / n; pts.push([x, f(x)]); } return pts; }
+function rect(p, x0, x1, y0, y1, col, al){ const c = p.ctx; p.clip(); c.globalAlpha = al == null ? .3 : al; c.fillStyle = col; const X0 = p.X(x0), X1 = p.X(x1), Y0 = p.Y(y0), Y1 = p.Y(y1); c.fillRect(Math.min(X0, X1), Math.min(Y0, Y1), Math.abs(X1 - X0), Math.abs(Y1 - Y0)); c.globalAlpha = 1; p.unclip(); }
+const mean = a => a.reduce((s, v) => s + v, 0) / a.length;
+function variance(a, ddof){ const m = mean(a); return a.reduce((s, v) => s + (v - m) * (v - m), 0) / (a.length - (ddof || 0)); }
+const pct = (v, d) => fmt(100 * v, d == null ? 1 : d) + '%';
+/* tiny helper: build slider rows for a distribution's parameters */
+function paramCtrls(host, key, prefix){
+  const d = DIST[key];
+  host.innerHTML = d.params.map((q, i) => `<label class="ctrl"><span class="math">${q[0].replace('_m', '<sub>m</sub>')}</span><input type="range" id="${prefix}-p${i}" min="${q[1]}" max="${q[2]}" step="${q[3]}" value="${q[4]}"><output id="${prefix}-p${i}v">${q[4]}</output></label>`).join('');
+}
+function paramVals(key, prefix){ return DIST[key].params.map((q, i) => { const e = document.getElementById(`${prefix}-p${i}`); const v = e ? +e.value : q[4]; const o = document.getElementById(`${prefix}-p${i}v`); if (o) o.textContent = fmt(v, 2); return v; }); }
+
+return {rand, randn, reseed, lgamma, lchoose, choose, erf, Phi, phi, Phinv, binomPmf, binomCdf, sampleBinom, samplePois,
+        DIST, build, hist, histMax, counts, fn, rect, mean, variance, pct, paramCtrls, paramVals};
+})();
+
+(function(){
+'use strict';
+const {fmt, fx} = K;
+const C = K.C;
+const kv = (sel, items) => K.html(sel, items.map(([k, v, c]) => `<div><span>${k}</span><b class="${c || ''}">${v}</b></div>`).join(''));
+const segBind = (sel, fn) => K.$(sel).addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; K.$$(sel + ' button').forEach(x => x.setAttribute('aria-pressed', x === b)); fn(b.dataset.k); K.redraw(); });
+const tpdf = (x, v) => Math.exp(S.lgamma((v + 1) / 2) - S.lgamma(v / 2) - 0.5 * Math.log(v * Math.PI) - (v + 1) / 2 * Math.log(1 + x * x / v));
+const tsf = (t, v) => t >= 0 ? 0.5 - K.simpson(x => tpdf(x, v), 0, t, 400) : 1 - tsf(-t, v);
+function tq(p, v){ let lo = 0, hi = 80; for (let i = 0; i < 70; i++){ const m = (lo + hi) / 2; if (tsf(m, v) > p) lo = m; else hi = m; } return (lo + hi) / 2; }
+
+/* 02 NHST picture */
+let nhS = 'r';
+segBind('#nh-side', k => { nhS = k; });
+K.fig('nh-plot', p => {
+  const z = K.val('#nh-z'), a = K.val('#nh-a'), two = nhS === 't', c = S.Phinv(1 - (two ? a / 2 : a));
+  p.view(-4, 4, 0, .45).frame({tick: 1, yT: 3, xl: 'z'});
+  const pvArea = nhS === 'r' ? [[z, 4]] : nhS === 'l' ? [[-4, z]] : [[Math.abs(z), 4], [-4, -Math.abs(z)]];
+  pvArea.forEach(([a0, a1]) => { if (a1 > a0) p.area(S.fn(p, S.phi, a0, a1, 200), C.prod, .3); });
+  const rr = nhS === 'r' ? [[c, 4]] : nhS === 'l' ? [[-4, -c]] : [[c, 4], [-4, -c]];
+  rr.forEach(([a0, a1]) => p.area(S.fn(p, S.phi, a0, a1, 200), C.h, .35));
+  p.curve(S.fn(p, S.phi, -4, 4, 400), C.x, 2);
+  rr.forEach(([a0, a1]) => p.vline(a0 === -4 ? a1 : a0, C.h, fmt(a0 === -4 ? a1 : a0, 3)));
+  p.vline(z, C.mark, 'z = ' + fmt(z, 2), {dash: false, w: 2.4});
+  const pv = nhS === 'r' ? 1 - S.Phi(z) : nhS === 'l' ? S.Phi(z) : 2 * (1 - S.Phi(Math.abs(z)));
+  const rej = pv <= a;
+  K.out('#nh-zv', fx(z)); K.out('#nh-av', fx(a));
+  K.html('#nh-eq', `critical value = ${two ? '±' : nhS === 'l' ? '−' : ''}${fmt(c, 3)} · p-value = ${fmt(pv, 4)} ${rej ? '≤' : '>'} α = ${fx(a)}`);
+  K.html('#nh-sub', rej ? 'z อยู่ใน rejection region ⇔ p ≤ α → ปฏิเสธ H₀ (สองวิธีตัดสินให้ผลเดียวกันเสมอ)' : 'z อยู่ใน non-rejection region → ปฏิเสธ H₀ ไม่ได้ (ไม่ได้แปลว่า H₀ จริง)');
+  K.html('#nh-val', `<span class="verdict ${rej ? 'bad' : 'ok'}">${rej ? 'Reject H₀' : 'Fail to reject'}</span>`);
+});
+K.bind('#nh-z, #nh-a');
+
+/* 03 errors */
+K.fig('er-plot', p => {
+  const d = K.val('#er-d'), a = K.val('#er-a'), c = S.Phinv(1 - a), beta = S.Phi(c - d);
+  p.view(-3.5, d + 3.5, 0, .45).frame({tick: 1, yT: 3, xl: 'z'});
+  const f1 = x => S.phi(x - d);
+  p.area(S.fn(p, f1, c, d + 3.5, 200), C.y, .25); p.area(S.fn(p, f1, -3.5, c, 200), C.mark, .35); p.area(S.fn(p, S.phi, c, d + 3.5, 200), C.h, .45);
+  p.curve(S.fn(p, S.phi, -3.5, d + 3.5, 400), C.h, 2); p.curve(S.fn(p, f1, -3.5, d + 3.5, 400), C.mark, 2);
+  p.vline(c, C.x, 'critical ' + fmt(c, 2), {dash: false, w: 1.6});
+  K.out('#er-dv', fx(d)); K.out('#er-av', fmt(a, 3));
+  kv('#er-kv', [['α = P(type I)', fmt(a, 3), 'r'], ['β = P(type II)', fmt(beta, 3), 'm'], ['power = 1 − β', fmt(1 - beta, 3), 'g']]);
+});
+K.bind('#er-d, #er-a');
+
+/* 05 t vs z */
+K.fig('tt-plot', p => {
+  const v = K.val('#tt-df');
+  p.view(-5, 5, 0, .42).frame({tick: 1, yT: 3});
+  p.curve(S.fn(p, S.phi, -5, 5, 400), C.x, 1.6, {dash: [5, 4]}); p.curve(S.fn(p, x => tpdf(x, v), -5, 5, 400), C.mark, 2.4);
+  const c = tq(.025, v);
+  K.out('#tt-dfv', v);
+  K.html('#tt-eq', `two-sided α = 0.05: t<sub>0.025, ${v}</sub> = ${fmt(c, 3)} เทียบ z<sub>0.025</sub> = 1.960`);
+  K.html('#tt-val', '±' + fmt(c, 3));
+});
+K.bind('#tt-df');
+
+/* 06 two-proportion */
+const PP = {A: [31, 40, 30, 40], B: [5, 5, 30, 40]};
+segBind('#pp-pre', k => { const v = PP[k]; ['x1', 'n1', 'x2', 'n2'].forEach((id, i) => { K.$('#pp-' + id).value = v[i]; }); pp(); });
+function lfact(n){ return S.lgamma(n + 1); }
+function fisherGreater(a, b, c, d){ /* table [[a,b],[c,d]] rows=groups, col1=success; P(X>=a) hypergeometric */
+  const r1 = a + b, c1 = a + c, N = a + b + c + d; let s = 0;
+  for (let x = a; x <= Math.min(r1, c1); x++){ const y = r1 - x, z = c1 - x, w = N - r1 - z; if (y < 0 || z < 0 || w < 0) continue;
+    s += Math.exp(lfact(r1) + lfact(N - r1) + lfact(c1) + lfact(N - c1) - lfact(N) - lfact(x) - lfact(y) - lfact(z) - lfact(w)); }
+  return s;
+}
+function pp(){
+  let n1 = K.val('#pp-n1'), n2 = K.val('#pp-n2');
+  ['1', '2'].forEach(i => { const e = K.$('#pp-x' + i), n = i === '1' ? n1 : n2; e.max = n; if (+e.value > n) e.value = n; });
+  const x1 = K.val('#pp-x1'), x2 = K.val('#pp-x2');
+  const p1 = x1 / n1, p2 = x2 / n2, ph = (x1 + x2) / (n1 + n2), se = Math.sqrt(ph * (1 - ph) * (1 / n1 + 1 / n2)), z = se > 0 ? (p1 - p2) / se : 0, pv = 1 - S.Phi(z);
+  const ok = Math.min(n1 * ph, n1 * (1 - ph), n2 * ph, n2 * (1 - ph)) >= 5;
+  const fe = fisherGreater(x1, n1 - x1, x2, n2 - x2);
+  ['x1', 'n1', 'x2', 'n2'].forEach(id => K.out(`#pp-${id}v`, K.val('#pp-' + id)));
+  K.html('#pp-steps', [
+    ['H₀: p₁ = p₂ (ยาไม่มีผล) vs H<sub>A</sub>: p₁ &gt; p₂ (ยาทำให้รอดมากขึ้น) · one-sided', ''],
+    [`p̂₁ = ${x1}/${n1} = ${fmt(p1, 4)} , p̂₂ = ${x2}/${n2} = ${fmt(p2, 4)}`, 'อัตรารอด'],
+    [`pooled p̂ = (${x1} + ${x2})/(${n1} + ${n2}) = ${fmt(ph, 4)}`, ''],
+    [`SE = √(${fmt(ph, 4)} × ${fmt(1 - ph, 4)} × (1/${n1} + 1/${n2})) = ${fmt(se, 4)}`, ''],
+    [`z = (${fmt(p1, 4)} − ${fmt(p2, 4)})/${fmt(se, 4)} = <span class="box">${fmt(z, 4)}</span> , p = ${fmt(pv, 3)}`, pv <= .05 ? 'ปฏิเสธ H₀ ที่ α = 0.05' : 'ไม่ปฏิเสธ H₀ ที่ α = 0.05'],
+    [ok ? 'เงื่อนไข CLT ผ่าน: ทุกกลุ่มคาด yes, no ≥ 5' : `<span class="wrong">เงื่อนไข CLT ไม่ผ่าน</span> (บางกลุ่มคาด yes/no &lt; 5) → ใช้ Fisher's exact: p = ${fmt(fe, 3)}`, `Fisher's exact (one-sided) = ${fmt(fe, 3)}`]
+  ].map(([l, w]) => `<li><div class="ln math">${l}</div><div class="why">${w}</div></li>`).join(''));
+  const list = K.$('#pp-steps'); if (list.parentNode.querySelector('.dnav')) {}
+}
+K.$$('#pp-x1, #pp-n1, #pp-x2, #pp-n2').forEach(e => e.addEventListener('input', pp)); pp();
+
+/* 07 effect */
+let efSeed = 2;
+K.fig('ef-plot', p => {
+  const d = K.val('#ef-d'), s = K.val('#ef-s'), n = K.val('#ef-n'); S.reseed(efSeed);
+  const g1 = [], g2 = []; for (let i = 0; i < n; i++){ g1.push(s * S.randn()); g2.push(d + s * S.randn()); }
+  const m1 = S.mean(g1), m2 = S.mean(g2), v1 = S.variance(g1, 1), v2 = S.variance(g2, 1), sp = Math.sqrt(((n - 1) * v1 + (n - 1) * v2) / (2 * n - 2)), se = sp * Math.sqrt(2 / n);
+  const t = (m2 - m1) / se, pv = 2 * tsf(Math.abs(t), 2 * n - 2);
+  const all = g1.concat(g2), lo = Math.min(...all), hi = Math.max(...all), pad = (hi - lo) * .1 + .1;
+  p.view(lo - pad, hi + pad, 0, 3).frame({noY: true});
+  g1.forEach((v, i) => p.dot(v, 2 + .5 * ((i * 0.61803) % 1 - .5), C.x, 2.6)); g2.forEach((v, i) => p.dot(v, 1 + .5 * ((i * 0.61803) % 1 - .5), C.h, 2.6));
+  [[m1, 2.5, C.x, Math.sqrt(v1 / n)], [m2, .45, C.h, Math.sqrt(v2 / n)]].forEach(([m, y, col, e]) => { p.curve([[m - 2 * e, y], [m + 2 * e, y]], col, 3); p.dot(m, y, col, 5); });
+  K.out('#ef-dv', fx(d)); K.out('#ef-sv', fx(s)); K.out('#ef-nv', n);
+  kv('#ef-kv', [['Cohen\'s d (จริง) = Δ/σ', fmt(d / s, 3), 'p'], ['x̄₂ − x̄₁', fmt(m2 - m1, 3)], ['SE', fmt(se, 3)], ['t', fmt(t, 3), 'm'], ['p-value (two-sided)', fmt(pv, 4), pv <= .05 ? 'g' : 'r']]);
+});
+K.bind('#ef-d, #ef-s, #ef-n'); K.$('#ef-new').addEventListener('click', () => { efSeed = (Math.random() * 1e9) | 0; K.redraw(); });
+
+/* 08 base rate */
+K.fig('br-plot', p => {
+  const b = K.val('#br-b'), w = K.val('#br-w'), a = K.val('#br-a');
+  const works = Math.round(100 * b), tp = Math.round(works * w), fp = Math.round((100 - works) * a);
+  p.pad = {l: 10, r: 10, t: 10, b: 10}; p.view(0, 20, 0, 5);
+  const c = p.ctx, cw = (p.R - p.L) / 20, ch = (p.B - p.T) / 5;
+  for (let i = 0; i < 100; i++){ const col = i < tp ? C.y : i < works ? C.amber : i < works + fp ? C.h : C.axis;
+    c.fillStyle = col; c.globalAlpha = i < works + fp ? .85 : .25; c.fillRect(p.L + (i % 20) * cw + 2, p.T + Math.floor(i / 20) * ch + 2, cw - 4, ch - 4); }
+  c.globalAlpha = 1;
+  const ppv = tp + fp ? tp / (tp + fp) : 0;
+  K.out('#br-bv', fx(b)); K.out('#br-wv', fx(w)); K.out('#br-av', fmt(a, 3));
+  K.html('#br-eq', `เห็น “ได้ผล” ${tp + fp} ตัว = จริง ${tp} + false positive ${fp} → ได้ผลจริง ${tp}/${tp + fp}`);
+  K.html('#br-val', S.pct(ppv, 0));
+});
+K.bind('#br-b, #br-w, #br-a');
+
+/* 08 low power coin */
+K.fig('lp-plot', p => {
+  const n = K.val('#lp-n'), th = K.val('#lp-t');
+  let lo = -1; while (S.binomCdf(lo + 1, n, .5) <= .055) lo++; const hiR = n - lo; /* reject X<=lo or X>=hiR */
+  let alpha = 0, pw = 0; for (let k = 0; k <= n; k++){ const r = k <= lo || k >= hiR; if (r){ alpha += S.binomPmf(k, n, .5); pw += S.binomPmf(k, n, th); } }
+  const sd = Math.sqrt(n * .25), x0 = Math.max(0, Math.min(n * th, n / 2) - 5 * sd - 1), x1 = Math.min(n, Math.max(n * th, n / 2) + 5 * sd + 1);
+  let mx = 0; for (let k = Math.floor(x0); k <= x1; k++) mx = Math.max(mx, S.binomPmf(k, n, .5), S.binomPmf(k, n, th));
+  p.view(x0 - .5, x1 + .5, 0, mx * 1.2).frame({yT: 3, xl: 'หัว'});
+  if (lo >= 0) S.rect(p, x0 - .5, lo + .5, 0, mx * 1.2, C.h, .1); if (hiR <= n) S.rect(p, hiR - .5, x1 + .5, 0, mx * 1.2, C.h, .1);
+  const small = (x1 - x0) > 60;
+  for (let k = Math.ceil(x0); k <= x1; k++){ p.stem(k, S.binomPmf(k, n, .5), C.x, {dx: small ? 0 : -2, r: small ? 1.5 : 3, w: small ? 1 : 2, alpha: .6}); p.stem(k, S.binomPmf(k, n, th), C.mark, {dx: small ? 0 : 2, r: small ? 1.5 : 3, w: small ? 1 : 2}); }
+  K.out('#lp-nv', n); K.out('#lp-tv', fx(th));
+  K.html('#lp-eq', `reject เมื่อหัว ≤ ${lo} หรือ ≥ ${hiR} · α จริง = ${fmt(alpha, 4)}`);
+  K.html('#lp-val', 'power = ' + fmt(pw, 3));
+});
+K.bind('#lp-n, #lp-t');
+
+/* 09 BH */
+function bh(){
+  const q = K.val('#bh-q'); K.out('#bh-qv', fx(q));
+  const ps = K.sval('#bh-p').split(/[\s,;]+/).map(Number).filter(v => isFinite(v) && v >= 0 && v <= 1).sort((a, b) => a - b), m = ps.length;
+  if (!m){ K.html('#bh-tab', ''); K.html('#bh-eq', 'ใส่ p-value อย่างน้อย 1 ค่า'); K.html('#bh-val', ''); return; }
+  let k = 0; ps.forEach((v, i) => { if (v <= q * (i + 1) / m) k = i + 1; });
+  K.html('#bh-tab', '<thead><tr><th>ลำดับ i</th><th>p-value</th><th>B-H critical q·i/m</th><th>p ≤ critical?</th><th>Significant (B-H)</th><th>Bonferroni (q/m)</th></tr></thead><tbody>' +
+    ps.map((v, i) => { const cr = q * (i + 1) / m; return `<tr class="${i + 1 === k ? 'on' : ''}"><td class="num">${i + 1}</td><td class="num">${v}</td><td class="num">${fmt(cr, 4)}</td><td>${v <= cr ? '✓' : '✗'}</td><td>${i < k ? '<b class="right">Yes</b>' : 'No'}</td><td>${v <= q / m ? 'Yes' : 'No'}</td></tr>`; }).join('') + '</tbody>');
+  K.html('#bh-eq', k ? `ตัวที่ใหญ่สุดที่ผ่านคือลำดับที่ ${k} (p = ${ps[k - 1]}) → ลำดับ 1–${k} significant` : 'ไม่มีตัวไหนผ่าน');
+  K.html('#bh-val', `${k}/${m} significant`);
+}
+K.$('#bh-p').addEventListener('input', bh); K.$('#bh-q').addEventListener('input', bh); bh();
+
+/* 10 chi-square (df = k-1; closed form for df = 2) */
+function cs(){
+  const o = K.sval('#cs-o').split(/[\s,;]+/).map(Number).filter(v => isFinite(v) && v >= 0);
+  if (o.length < 2){ K.html('#cs-out', 'ใส่อย่างน้อย 2 หมวด'); return; }
+  const n = o.reduce((a, b) => a + b, 0), E = n / o.length, x2 = o.reduce((s, v) => s + (v - E) ** 2 / E, 0), df = o.length - 1;
+  /* chi2 survival via regularized gamma series */
+  const a = df / 2, x = x2 / 2; let sum = 1 / a, term = 1 / a; for (let k = 1; k < 200; k++){ term *= x / (a + k); sum += term; }
+  const pv = 1 - Math.exp(-x + a * Math.log(x) - S.lgamma(a)) * sum;
+  K.html('#cs-out', `n = ${n}, E = ${fmt(E, 2)} ต่อหมวด · χ² = ${o.map(v => `(${v} − ${fmt(E, 1)})²/${fmt(E, 1)}`).join(' + ')} = <b>${fmt(x2, 3)}</b> · df = ${df} · p = <b>${fmt(Math.max(0, pv), 4)}</b> ${pv <= .05 ? '→ ผู้ใช้มีความชอบต่างกันอย่างมีนัยสำคัญ' : '→ ไม่มีหลักฐานว่าชอบต่างกัน'}`);
+}
+K.$('#cs-o').addEventListener('input', cs); cs();
+
+K.boot();
+})();
+
+</script>
+</body>
+</html>

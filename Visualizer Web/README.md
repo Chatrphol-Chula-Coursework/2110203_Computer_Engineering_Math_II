@@ -21,6 +21,8 @@ Visualizer Web/
     ├── probability-review.html         ← Stats Lecture 0 Overview & Probability Review
     ├── lln-clt.html                    ← Stats Lecture 1 LLN & CLT (+ confidence interval)
     ├── estimation.html                 ← Stats Lecture 1B Sampling & Estimation (MLE / MAP)
+    ├── significance-testing.html       ← Stats Lecture 02 Significance Testing
+    ├── ab-testing.html                 ← Stats Lecture 03 A/B Testing
     ├── exam-2024.html                  ← เฉลยข้อสอบ Stats 2024 ครบ 6 ข้อ (ทีละขั้น)
     └── practice.html                   ← เฉลย more practice questions W1–W10
 
@@ -57,6 +59,8 @@ Visualizer Web/
 | Stats · Review | coin `P(H)=0.7`, 10 ครั้ง → `P(X=6) = 0.2001` · ยา COVID 9/40 vs 10/40 · ลอตเตอรี่ `E ≈ 10¹⁰ − 10` · Anscombe ρ = 0.816 ทั้ง 4 ชุด |
 | Stats · LLN & CLT | เหรียญ 100 ครั้ง `P(S>55) ≈ P(Z>1) ≈ 0.16` (ค่าตรง 0.1356) · Maxwell `P(S>60) ≈ 0.023` (ค่าตรง 0.0176) · Ham-Hams 240/400 → 95% CI `[0.55, 0.65]` |
 | Stats · Estimation | `f(x)=2x → F⁻¹(u)=√u` · Exp `u=0.632 → x=1` · Maxwell 55/100 → `p̂=0.55` · เครื่องจักร 2,3,1,3,4 → `λ̂=5/13` · Cappy 0,0,2 → `p̂=3/5` · ลูกโอ๊ก posterior `0.0954/0.5825/0.3221`, MAP `0.5`, predictive `0.4964` |
+| Stats · Testing | ยา A `z = 0.263, p = 0.396` · ยา B `z = 1.268, p = 0.102` (Fisher exact 0.266) · GCC/Clang `t = 4.17, p = 0.0031` · base rate `8/13 = 62%` · B-H 3/5 significant · McNemar `0.033` · Wilcoxon `2/64` · Fisher r `z = 2.75` · Practice `t = 5.01 / z = 1.988 / t = 0.685 → 1.452` |
+| Stats · A/B | Simpson 21.7% vs 18.3% · `n = 11,128` ต่อกลุ่ม (p = 10%, MDE 1%, one-tailed 5%, power 0.8) · Šidák `1 − 0.95^(1/10) = 0.005116` |
 | Stats · Exam 2024 | 1.1 `ρ = −1` · 1.2 `c = 3/16, E(X) = 2.4` · 1.3 `[0.517, 0.883]` · 1.4 `16/19 ≈ 0.842` · 1.5 `p = 0.5` · โพล z = 0.556 / −0.923 / 1.542 vs ±1.645 · รส 10 `t = 3.674` (Bonferroni crit 4.604) · A vs B `t = 2.058, p = 0.054` · `θ̂ = 5/11` · คุ้มทุน `p_B > 1.0495%` |
 | Stats · Practice | CV read-more 6.7% · n ≈ 6 โพสต์/กลุ่ม · กาแฟ `t = 0.365, p = 0.72` · Fisher familiarity `p = 0.0018`, วิชา `p = 0.0008` · ความแม่น 86%, CI `[0.764, 0.956]` |
 | Optim · Quiz 2025 | เลือกตั้ง `248` ที่นั่ง (ใช้ 996 ล้าน) · ชั้นวางตัวอย่าง 7.1–7.4 = `50 / 55.5 / 100 / 104` จาก scipy `milp` (ตัวเลขสินค้าเป็นตัวอย่างสมมติ) |
