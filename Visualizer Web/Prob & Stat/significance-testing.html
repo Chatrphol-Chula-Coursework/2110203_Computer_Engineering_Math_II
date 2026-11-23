@@ -204,6 +204,18 @@ footer a{color:var(--mark)}
 .steps li::before{content:counter(d);font:600 11px/18px "IBM Plex Mono",monospace;color:var(--muted);background:var(--sunk);border-radius:50%;width:18px;height:18px;text-align:center;margin-top:5px}
 .steps .ln{font-size:17px;overflow-x:auto}
 .steps .why{grid-column:2;font-size:13px;color:var(--muted)}
+.dv{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:860px){.dv{grid-template-columns:minmax(0,1fr)}}
+.dv .plot{position:sticky;top:12px;margin:0}
+.dsteps{margin:0;padding:0;list-style:none;counter-reset:d}
+.dsteps li{counter-increment:d;display:grid;grid-template-columns:24px minmax(0,1fr);gap:3px 10px;padding:9px 10px;border-radius:10px;cursor:pointer;transition:opacity .2s,background .2s;border:1px solid transparent}
+.dsteps li::before{content:counter(d);font:600 11px/20px "IBM Plex Mono",monospace;color:var(--muted);background:var(--sunk);border-radius:50%;width:20px;height:20px;text-align:center;margin-top:3px}
+.dsteps li.dim{opacity:.32}
+.dsteps li.cur{background:color-mix(in srgb,var(--mark) 9%,transparent);border-color:color-mix(in srgb,var(--mark) 35%,transparent)}
+.dsteps li.cur::before{background:var(--mark);color:var(--on-mark)}
+.dsteps .ln{font-size:16px;overflow-x:auto}
+.dsteps .why{grid-column:2;font-size:13px;color:var(--muted)}
+.dv + .dnav, .dsteps + .dnav{grid-column:2}
 </style>
 </head>
 <body>

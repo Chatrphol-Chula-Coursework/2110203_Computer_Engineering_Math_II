@@ -23,6 +23,7 @@ Visualizer Web/
     ├── estimation.html                 ← Stats Lecture 1B Sampling & Estimation (MLE / MAP)
     ├── significance-testing.html       ← Stats Lecture 02 Significance Testing
     ├── ab-testing.html                 ← Stats Lecture 03 A/B Testing
+    ├── derivations.html                ← ที่มาของ 10 สูตรหลัก (รูปเปลี่ยนตามขั้น)
     ├── exam-2024.html                  ← เฉลยข้อสอบ Stats 2024 ครบ 6 ข้อ (ทีละขั้น)
     └── practice.html                   ← เฉลย more practice questions W1–W10
 
